@@ -13,7 +13,6 @@
     }
     body { background: var(--bg); color: var(--t1); font-family: -apple-system, 'Helvetica Neue', sans-serif; min-height: 100vh; }
 
-    /* HEADER */
     header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--b1); background: var(--bg); position: sticky; top: 0; z-index: 10; }
     .logo { font-size: 13px; font-weight: 800; letter-spacing: 0.14em; }
     .logo span { color: var(--t3); font-weight: 400; font-size: 10px; margin-left: 6px; letter-spacing: 0.08em; }
@@ -21,49 +20,35 @@
     .ld { width: 5px; height: 5px; background: #fff; border-radius: 50%; animation: blink 2s infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.1} }
 
-    /* TAB — pure CSS */
-    #t-map, #t-feed { display: none; }
-    #t-map:checked ~ .tabs label[for="t-map"],
-    #t-feed:checked ~ .tabs label[for="t-feed"] { color: #fff; border-bottom-color: #fff; }
-    #t-map:checked ~ .body .pane-map { display: block; }
-    #t-map:checked ~ .body .pane-feed { display: none; }
-    #t-feed:checked ~ .body .pane-map { display: none; }
-    #t-feed:checked ~ .body .pane-feed { display: block; }
-
     .tabs { display: flex; border-bottom: 1px solid var(--b1); }
-    .tabs label { flex: 1; padding: 12px; text-align: center; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--t3); border-bottom: 2px solid transparent; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: color .2s; }
+    .tab-btn { flex: 1; padding: 12px; text-align: center; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--t3); border: none; border-bottom: 2px solid transparent; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .tab-btn.on { color: #fff; border-bottom-color: #fff; }
 
-    /* OFFICE MAP */
     .pane-map { padding: 16px; }
     .floor-lbl { font-size: 8px; font-weight: 700; letter-spacing: 0.14em; color: var(--t3); text-transform: uppercase; margin-bottom: 14px; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .col3 { grid-column: 1 / -1; }
-
     .zone { border: 1px solid var(--b1); border-radius: 10px; padding: 13px 14px; background: var(--s1); }
     .zname { font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--t3); margin-bottom: 12px; }
     .agents { display: flex; gap: 14px; flex-wrap: wrap; }
 
-    /* AGENT */
     .ag { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .av {
-      width: 48px; height: 48px; border-radius: 50%;
-      background: var(--s2); border: 1.5px solid var(--b2);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 9px; font-weight: 800; letter-spacing: 0.03em; color: var(--t3);
-    }
+    .av { width: 48px; height: 48px; border-radius: 50%; background: var(--s2); border: 1.5px solid var(--b2); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; letter-spacing: 0.03em; color: var(--t3); }
     .ag.ceo .av { width: 58px; height: 58px; font-size: 11px; }
     .ag.on .av { border-color: #fff; color: #fff; box-shadow: 0 0 14px rgba(255,255,255,.12); animation: pulse 3s ease-in-out infinite; }
     @keyframes pulse { 0%,100%{box-shadow:0 0 14px rgba(255,255,255,.12)} 50%{box-shadow:0 0 22px rgba(255,255,255,.22)} }
     .aname { font-size: 9px; font-weight: 700; color: var(--t2); letter-spacing: 0.04em; }
     .arole { font-size: 7px; color: var(--t3); }
+    .bubble { font-size: 8px; color: var(--t2); background: var(--s2); border: 1px solid var(--b2); border-radius: 6px; padding: 4px 7px; max-width: 90px; text-align: center; line-height: 1.4; margin-top: 2px; display: none; }
+    .ag.talking .bubble { display: block; }
 
-    /* FEED */
     .pane-feed { padding: 0; }
     .feed-hdr { padding: 12px 16px; border-bottom: 1px solid var(--b1); display: flex; justify-content: space-between; }
     .feed-hdr-l { font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--t3); }
     .feed-hdr-r { font-size: 8px; color: var(--t3); }
-
     .fi { padding: 12px 16px; border-bottom: 1px solid var(--b1); }
+    .fi-new { animation: fadein .4s ease; }
+    @keyframes fadein { from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:translateY(0)} }
     .fi-top { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
     .fi-av { width: 22px; height: 22px; border-radius: 50%; background: var(--s2); border: 1px solid var(--b2); display: flex; align-items: center; justify-content: center; font-size: 7px; font-weight: 800; color: var(--t2); flex-shrink: 0; }
     .fi-name { font-size: 10px; font-weight: 700; }
@@ -71,7 +56,6 @@
     .fi-time { font-size: 8px; color: var(--t3); }
     .fi-msg { font-size: 11px; color: var(--t2); line-height: 1.6; padding-left: 29px; }
 
-    /* CMD */
     .cmd { display: flex; align-items: center; padding: 12px 16px; gap: 10px; border-top: 1px solid var(--b1); background: var(--bg); position: sticky; bottom: 0; }
     .cmd-to { font-size: 9px; color: var(--t3); white-space: nowrap; }
     .cmd-to b { color: var(--t2); }
@@ -82,125 +66,119 @@
 </head>
 <body>
 
-<input type="radio" name="tab" id="t-map" checked />
-<input type="radio" name="tab" id="t-feed" />
-
 <header>
   <div class="logo">AYILON <span>VIRTUAL OFFICE</span></div>
   <div class="live"><div class="ld"></div>LIVE &nbsp;12/12</div>
 </header>
 
 <div class="tabs">
-  <label for="t-map">Map</label>
-  <label for="t-feed">Feed</label>
+  <button class="tab-btn on" id="btn-map">Map</button>
+  <button class="tab-btn" id="btn-feed">Feed</button>
 </div>
 
-<div class="body">
+<div id="pane-map" class="pane-map">
+  <div class="floor-lbl">Floor Plan — AYILON HQ</div>
+  <div class="grid">
 
-  <!-- MAP -->
-  <div class="pane-map">
-    <div class="floor-lbl">Floor Plan — AYILON HQ</div>
-    <div class="grid">
-
-      <div class="zone col3">
-        <div class="zname">Executive</div>
-        <div class="agents">
-          <div class="ag ceo on">
-            <div class="av">CEO</div>
-            <div class="aname">CEO</div>
-            <div class="arole">최고경영자</div>
-          </div>
+    <div class="zone col3">
+      <div class="zname">Executive</div>
+      <div class="agents">
+        <div class="ag ceo on" id="ag-CEO">
+          <div class="av">CEO</div>
+          <div class="aname">CEO</div>
+          <div class="arole">최고경영자</div>
+          <div class="bubble" id="b-CEO"></div>
         </div>
       </div>
-
-      <div class="zone col3">
-        <div class="zname">전략팀</div>
-        <div class="agents">
-          <div class="ag on"><div class="av">IRN</div><div class="aname">IRON</div><div class="arole">전략팀장</div></div>
-          <div class="ag"><div class="av">GRD</div><div class="aname">GRID</div><div class="arole">백테스팅</div></div>
-        </div>
-      </div>
-
-      <div class="zone">
-        <div class="zname">리서치팀</div>
-        <div class="agents">
-          <div class="ag on"><div class="av">SCT</div><div class="aname">SCOUT</div><div class="arole">리서치팀장</div></div>
-        </div>
-      </div>
-
-      <div class="zone">
-        <div class="zname">리스크관리팀</div>
-        <div class="agents">
-          <div class="ag"><div class="av">WRD</div><div class="aname">WARD</div><div class="arole">리스크팀장</div></div>
-        </div>
-      </div>
-
-      <div class="zone">
-        <div class="zname">프로그래밍팀</div>
-        <div class="agents">
-          <div class="ag on"><div class="av">FRG</div><div class="aname">FORGE</div><div class="arole">프로그래밍팀장</div></div>
-        </div>
-      </div>
-
-      <div class="zone">
-        <div class="zname">인프라팀</div>
-        <div class="agents">
-          <div class="ag"><div class="av">ATL</div><div class="aname">ATLAS</div><div class="arole">인프라팀장</div></div>
-        </div>
-      </div>
-
-      <div class="zone">
-        <div class="zname">홍보마케팅팀</div>
-        <div class="agents">
-          <div class="ag"><div class="av">LNA</div><div class="aname">LUNA</div><div class="arole">마케팅팀장</div></div>
-        </div>
-      </div>
-
-      <div class="zone">
-        <div class="zname">제품팀</div>
-        <div class="agents">
-          <div class="ag"><div class="av">PXL</div><div class="aname">PIXEL</div><div class="arole">제품팀장</div></div>
-        </div>
-      </div>
-
-      <div class="zone">
-        <div class="zname">고객서비스팀</div>
-        <div class="agents">
-          <div class="ag"><div class="av">ECH</div><div class="aname">ECHO</div><div class="arole">CS팀장</div></div>
-        </div>
-      </div>
-
-      <div class="zone">
-        <div class="zname">법률팀</div>
-        <div class="agents">
-          <div class="ag"><div class="av">REX</div><div class="aname">REX</div><div class="arole">법률팀장</div></div>
-        </div>
-      </div>
-
-      <div class="zone">
-        <div class="zname">세무회계팀</div>
-        <div class="agents">
-          <div class="ag"><div class="av">LDG</div><div class="aname">LEDGER</div><div class="arole">세무팀장</div></div>
-        </div>
-      </div>
-
-      <div class="zone">
-        <div class="zname">보안팀</div>
-        <div class="agents">
-          <div class="ag"><div class="av">SLD</div><div class="aname">SHIELD</div><div class="arole">보안팀장</div></div>
-        </div>
-      </div>
-
     </div>
+
+    <div class="zone col3">
+      <div class="zname">전략팀</div>
+      <div class="agents">
+        <div class="ag on" id="ag-IRON"><div class="av">IRN</div><div class="aname">IRON</div><div class="arole">전략팀장</div><div class="bubble" id="b-IRON"></div></div>
+        <div class="ag" id="ag-GRID"><div class="av">GRD</div><div class="aname">GRID</div><div class="arole">백테스팅</div><div class="bubble" id="b-GRID"></div></div>
+      </div>
+    </div>
+
+    <div class="zone">
+      <div class="zname">리서치팀</div>
+      <div class="agents">
+        <div class="ag on" id="ag-SCOUT"><div class="av">SCT</div><div class="aname">SCOUT</div><div class="arole">리서치팀장</div><div class="bubble" id="b-SCOUT"></div></div>
+      </div>
+    </div>
+
+    <div class="zone">
+      <div class="zname">리스크관리팀</div>
+      <div class="agents">
+        <div class="ag" id="ag-WARD"><div class="av">WRD</div><div class="aname">WARD</div><div class="arole">리스크팀장</div><div class="bubble" id="b-WARD"></div></div>
+      </div>
+    </div>
+
+    <div class="zone">
+      <div class="zname">프로그래밍팀</div>
+      <div class="agents">
+        <div class="ag on" id="ag-FORGE"><div class="av">FRG</div><div class="aname">FORGE</div><div class="arole">프로그래밍팀장</div><div class="bubble" id="b-FORGE"></div></div>
+      </div>
+    </div>
+
+    <div class="zone">
+      <div class="zname">인프라팀</div>
+      <div class="agents">
+        <div class="ag" id="ag-ATLAS"><div class="av">ATL</div><div class="aname">ATLAS</div><div class="arole">인프라팀장</div><div class="bubble" id="b-ATLAS"></div></div>
+      </div>
+    </div>
+
+    <div class="zone">
+      <div class="zname">홍보마케팅팀</div>
+      <div class="agents">
+        <div class="ag" id="ag-LUNA"><div class="av">LNA</div><div class="aname">LUNA</div><div class="arole">마케팅팀장</div><div class="bubble" id="b-LUNA"></div></div>
+      </div>
+    </div>
+
+    <div class="zone">
+      <div class="zname">제품팀</div>
+      <div class="agents">
+        <div class="ag" id="ag-PIXEL"><div class="av">PXL</div><div class="aname">PIXEL</div><div class="arole">제품팀장</div><div class="bubble" id="b-PIXEL"></div></div>
+      </div>
+    </div>
+
+    <div class="zone">
+      <div class="zname">고객서비스팀</div>
+      <div class="agents">
+        <div class="ag" id="ag-ECHO"><div class="av">ECH</div><div class="aname">ECHO</div><div class="arole">CS팀장</div><div class="bubble" id="b-ECHO"></div></div>
+      </div>
+    </div>
+
+    <div class="zone">
+      <div class="zname">법률팀</div>
+      <div class="agents">
+        <div class="ag" id="ag-REX"><div class="av">REX</div><div class="aname">REX</div><div class="arole">법률팀장</div><div class="bubble" id="b-REX"></div></div>
+      </div>
+    </div>
+
+    <div class="zone">
+      <div class="zname">세무회계팀</div>
+      <div class="agents">
+        <div class="ag" id="ag-LEDGER"><div class="av">LDG</div><div class="aname">LEDGER</div><div class="arole">세무팀장</div><div class="bubble" id="b-LEDGER"></div></div>
+      </div>
+    </div>
+
+    <div class="zone">
+      <div class="zname">보안팀</div>
+      <div class="agents">
+        <div class="ag" id="ag-SHIELD"><div class="av">SLD</div><div class="aname">SHIELD</div><div class="arole">보안팀장</div><div class="bubble" id="b-SHIELD"></div></div>
+      </div>
+    </div>
+
   </div>
+</div>
 
-  <!-- FEED -->
-  <div class="pane-feed">
-    <div class="feed-hdr">
-      <span class="feed-hdr-l">Activity Feed</span>
-      <span class="feed-hdr-r">12 events</span>
-    </div>
-
+<div id="pane-feed" class="pane-feed" style="display:none">
+  <div class="feed-hdr">
+    <span class="feed-hdr-l">Activity Feed</span>
+    <span class="feed-hdr-r" id="ev-cnt">12 events</span>
+  </div>
+  <div id="feed-list">
     <div class="fi"><div class="fi-top"><div class="fi-av">SCT</div><div class="fi-name">SCOUT</div><div class="fi-team">리서치팀</div><div class="fi-time">방금</div></div><div class="fi-msg">BTC 공포탐욕지수 22. 극도 공포 구간 진입.</div></div>
     <div class="fi"><div class="fi-top"><div class="fi-av">IRN</div><div class="fi-name">IRON</div><div class="fi-team">전략팀</div><div class="fi-time">1분 전</div></div><div class="fi-msg">RSI 28 감지. 과매도 구간. 롱 진입 검토 중.</div></div>
     <div class="fi"><div class="fi-top"><div class="fi-av">CEO</div><div class="fi-name">CEO</div><div class="fi-team">Executive</div><div class="fi-time">2분 전</div></div><div class="fi-msg">전체 팀 상황 점검 완료. 이상 없음.</div></div>
@@ -213,16 +191,105 @@
     <div class="fi"><div class="fi-top"><div class="fi-av">LDG</div><div class="fi-name">LEDGER</div><div class="fi-team">세무회계팀</div><div class="fi-time">18분 전</div></div><div class="fi-msg">이번달 구독 수익 $12,840 기록. 손익 집계 완료.</div></div>
     <div class="fi"><div class="fi-top"><div class="fi-av">PXL</div><div class="fi-name">PIXEL</div><div class="fi-team">제품팀</div><div class="fi-time">22분 전</div></div><div class="fi-msg">Elite 플랜 전용 기능 3개 기획 완료. 스펙 작성 중.</div></div>
     <div class="fi"><div class="fi-top"><div class="fi-av">SLD</div><div class="fi-name">SHIELD</div><div class="fi-team">보안팀</div><div class="fi-time">30분 전</div></div><div class="fi-msg">API 키 접근 로그 이상 없음. 보안 감사 완료.</div></div>
-
   </div>
-
 </div>
 
 <div class="cmd">
   <div class="cmd-to">→ <b>CEO</b></div>
-  <input class="cmd-inp" type="text" placeholder="CEO에게 지시사항 입력..." />
-  <button class="cmd-btn">전송</button>
+  <input class="cmd-inp" id="cmd-inp" type="text" placeholder="CEO에게 지시사항 입력..." />
+  <button class="cmd-btn" id="cmd-btn">전송</button>
 </div>
+
+<script>
+var mapPane = document.getElementById('pane-map');
+var feedPane = document.getElementById('pane-feed');
+var btnMap = document.getElementById('btn-map');
+var btnFeed = document.getElementById('btn-feed');
+
+btnMap.addEventListener('click', function() {
+  mapPane.style.display = 'block';
+  feedPane.style.display = 'none';
+  btnMap.className = 'tab-btn on';
+  btnFeed.className = 'tab-btn';
+});
+
+btnFeed.addEventListener('click', function() {
+  mapPane.style.display = 'none';
+  feedPane.style.display = 'block';
+  btnMap.className = 'tab-btn';
+  btnFeed.className = 'tab-btn on';
+});
+
+var AGENTS = [
+  {id:'CEO',   code:'CEO', name:'CEO',    team:'Executive',    msgs:['전체 팀 브리핑 완료.','시장 방향 재검토 지시.','리스크 레벨 조정 승인.','전략 회의 소집.','포지션 현황 확인 중.']},
+  {id:'IRON',  code:'IRN', name:'IRON',   team:'전략팀',       msgs:['롱 포지션 진입 검토.','MA 크로스 신호 포착.','전략 파라미터 조정 중.','시장 모멘텀 분석 완료.','진입 타이밍 계산 중.']},
+  {id:'GRID',  code:'GRD', name:'GRID',   team:'백테스팅팀',   msgs:['백테스트 시뮬레이션 실행 중.','샤프지수 1.9 달성.','드로다운 최적화 완료.','Strategy 7 검증 중.','과거 데이터 분석 완료.']},
+  {id:'SCOUT', code:'SCT', name:'SCOUT',  team:'리서치팀',     msgs:['온체인 데이터 급변 감지.','BTC 고래 이동 포착.','공포탐욕지수 하락 중.','ETH 펀딩비 이상 신호.','알트코인 급등 패턴 감지.']},
+  {id:'WARD',  code:'WRD', name:'WARD',   team:'리스크관리팀', msgs:['손실 한도 50% 경고.','포지션 사이즈 조정 권고.','리스크 지표 정상 범위.','익스포저 재계산 완료.','최대 낙폭 모니터링 중.']},
+  {id:'FORGE', code:'FRG', name:'FORGE',  team:'프로그래밍팀', msgs:['API 레이턴시 최적화.','신규 전략 코드 배포.','버그 수정 완료.','Cron 스케줄 조정.','OKX 연동 안정화.']},
+  {id:'ATLAS', code:'ATL', name:'ATLAS',  team:'인프라팀',     msgs:['서버 응답 12ms 달성.','D1 쿼리 캐싱 적용.','Workers 오토스케일 완료.','업타임 99.99% 유지.','스토리지 최적화 완료.']},
+  {id:'LUNA',  code:'LNA', name:'LUNA',   team:'홍보마케팅팀', msgs:['신규 캠페인 런칭.','트위터 인게이지먼트 +24%.','뉴스레터 오픈율 41%.','파트너십 제안 검토 중.','콘텐츠 스케줄 수립 완료.']},
+  {id:'PIXEL', code:'PXL', name:'PIXEL',  team:'제품팀',       msgs:['대시보드 UX 개선 완료.','신기능 스펙 확정.','사용자 피드백 분석 중.','로드맵 업데이트 완료.','A/B 테스트 설계 중.']},
+  {id:'ECHO',  code:'ECH', name:'ECHO',   team:'고객서비스팀', msgs:['CS 응답률 98% 유지.','문의 평균 처리 2.1분.','신규 FAQ 추가 완료.','사용자 만족도 4.8/5.','VIP 고객 온보딩 완료.']},
+  {id:'REX',   code:'REX', name:'REX',    team:'법률팀',       msgs:['MiCA 규정 분석 완료.','이용약관 업데이트 검토.','개인정보처리방침 갱신.','규제 리스크 낮음.','법률 자문 완료.']},
+  {id:'LEDGER',code:'LDG', name:'LEDGER', team:'세무회계팀',   msgs:['월간 손익 집계 완료.','세금 보고 준비 중.','구독 수익 $13,200 기록.','비용 최적화 방안 도출.','재무 보고서 작성 중.']},
+  {id:'SHIELD',code:'SLD', name:'SHIELD', team:'보안팀',       msgs:['침입 시도 차단 완료.','API 키 로테이션 완료.','보안 스캔 이상 없음.','2FA 적용률 100%.','취약점 패치 배포 완료.']}
+];
+
+var evCount = 12;
+
+function addFeed(agent, msg, isNew) {
+  var list = document.getElementById('feed-list');
+  var d = document.createElement('div');
+  d.className = 'fi' + (isNew ? ' fi-new' : '');
+  d.innerHTML = '<div class="fi-top"><div class="fi-av">' + agent.code + '</div><div class="fi-name">' + agent.name + '</div><div class="fi-team">' + agent.team + '</div><div class="fi-time">방금</div></div><div class="fi-msg">' + msg + '</div>';
+  list.insertBefore(d, list.firstChild);
+  evCount++;
+  document.getElementById('ev-cnt').textContent = evCount + ' events';
+  if (list.children.length > 30) list.removeChild(list.lastChild);
+}
+
+function showBubble(agent, msg) {
+  var ag = document.getElementById('ag-' + agent.id);
+  var b = document.getElementById('b-' + agent.id);
+  if (!ag || !b) return;
+  b.textContent = msg.length > 18 ? msg.slice(0, 18) + '…' : msg;
+  ag.classList.add('talking');
+  setTimeout(function() { ag.classList.remove('talking'); }, 4000);
+}
+
+function randomActivity() {
+  var agent = AGENTS[Math.floor(Math.random() * AGENTS.length)];
+  var msg = agent.msgs[Math.floor(Math.random() * agent.msgs.length)];
+  addFeed(agent, msg, true);
+  showBubble(agent, msg);
+  var agEl = document.getElementById('ag-' + agent.id);
+  if (agEl && !agEl.classList.contains('on')) {
+    agEl.classList.add('on');
+    setTimeout(function() { agEl.classList.remove('on'); }, 5000);
+  }
+}
+
+document.getElementById('cmd-btn').addEventListener('click', sendCmd);
+document.getElementById('cmd-inp').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') sendCmd();
+});
+
+function sendCmd() {
+  var inp = document.getElementById('cmd-inp');
+  var msg = inp.value.trim();
+  if (!msg) return;
+  addFeed(AGENTS[0], '→ CEO: ' + msg, true);
+  inp.value = '';
+  setTimeout(function() {
+    var replies = ['지시 수신. 팀에 전달하겠습니다.', '확인했습니다. 즉시 처리하겠습니다.', '검토 후 보고드리겠습니다.', '전략팀과 협의 후 실행하겠습니다.'];
+    addFeed(AGENTS[0], replies[Math.floor(Math.random() * replies.length)], true);
+  }, 1500);
+}
+
+setTimeout(randomActivity, 5000);
+setInterval(randomActivity, 20000);
+</script>
 
 </body>
 </html>
