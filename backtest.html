@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ayilon Backtest</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080810;color:#dde;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;min-height:100vh}
+.hdr{background:#0e0e1c;padding:16px;border-bottom:1px solid #1e1e30;display:flex;align-items:center;gap:10px}
+.hdr h1{font-size:17px;color:#8b7dff;font-weight:700}
+.hdr p{font-size:11px;color:#555;margin-top:2px}
+.sect{padding:16px;border-bottom:1px solid #12121e}
+.sect-title{font-size:11px;color:#555;text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;font-weight:600}
+.row{display:flex;gap:8px;margin-bottom:10px}
+.field{flex:1;min-width:0}
+.field label{display:block;font-size:11px;color:#556;margin-bottom:5px}
+.field input,.field select{width:100%;background:#0e0e1c;border:1px solid #1e1e30;color:#dde;padding:10px 11px;border-radius:9px;font-size:14px;-webkit-appearance:none;appearance:none}
+.field input:focus,.field select:focus{outline:none;border-color:#8b7dff}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23666' d='M6 8L0 0h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:30px}
+.btn{width:100%;background:#8b7dff;color:#fff;border:none;padding:14px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;letter-spacing:.3px}
+.btn:active{background:#7060f0}
+.btn:disabled{background:#252535;color:#444;cursor:not-allowed}
+.prog-wrap{padding:16px;display:none}
+.prog-bg{background:#1a1a2a;border-radius:999px;height:5px;overflow:hidden}
+.prog-bar{background:#8b7dff;height:5px;border-radius:999px;width:0%;transition:width .2s}
+.prog-txt{font-size:12px;color:#556;margin-top:8px}
+#results{display:none}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.card{background:#0e0e1c;border:1px solid #1e1e30;border-radius:10px;padding:13px}
+.card .lbl{font-size:10px;color:#556;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.card .val{font-size:21px;font-weight:700;line-height:1}
+.card .sub{font-size:11px;color:#446;margin-top:3px}
+.pos{color:#22dd7a}
+.neg{color:#ff4560}
+.neu{color:#dde}
+.strat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.strat-card{background:#0e0e1c;border:1px solid #1e1e30;border-radius:9px;padding:11px}
+.strat-name{font-size:11px;color:#8b7dff;font-weight:600;margin-bottom:6px}
+.strat-stat{display:flex;justify-content:space-between;font-size:12px;margin-top:3px}
+.strat-stat .k{color:#556}
+.trade-item{background:#0e0e1c;border:1px solid #1e1e30;border-radius:9px;padding:11px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.trade-left .strat-tag{font-size:10px;color:#8b7dff;font-weight:600}
+.trade-left .dt{font-size:10px;color:#446;margin-top:3px}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;margin-top:4px}
+.badge-long{background:#0d2a1a;color:#22dd7a;border:1px solid #22dd7a33}
+.badge-short{background:#2a0d0d;color:#ff4560;border:1px solid #ff456033}
+.trade-right{text-align:right}
+.trade-pnl{font-size:15px;font-weight:700}
+.trade-pct{font-size:11px;color:#446;margin-top:2px}
+.err{background:#2a0d0d;border:1px solid #ff456044;border-radius:9px;padding:12px;color:#ff4560;font-size:13px;margin-top:8px}
+.tab-bar{display:flex;background:#0e0e1c;border-bottom:1px solid #1e1e30}
+.tab{flex:1;padding:11px;text-align:center;font-size:12px;color:#446;cursor:pointer;border-bottom:2px solid transparent;font-weight:600}
+.tab.active{color:#8b7dff;border-color:#8b7dff}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+.divider{height:1px;background:#12121e;margin:10px 0}
+.info-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #12121e;font-size:13px}
+.info-row .k{color:#556}
+.info-row .v{font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <h1>Ayilon Backtest</h1>
+    <p>OKX 실데이터 · 4H 추세필터 · ATR 손절</p>
+  </div>
+</div>
+
+<div class="sect">
+  <div class="sect-title">설정</div>
+  <div class="row">
+    <div class="field">
+      <label>심볼</label>
+      <select id="symbol">
+        <option value="BTC-USDT-SWAP">BTC/USDT</option>
+        <option value="ETH-USDT-SWAP">ETH/USDT</option>
+        <option value="SOL-USDT-SWAP">SOL/USDT</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>전략</label>
+      <select id="strategy">
+        <option value="all">전체 (4개)</option>
+        <option value="rsi_trend">RSI 추세</option>
+        <option value="ema_cross">EMA 교차</option>
+        <option value="bb_rev">BB 반전</option>
+        <option value="atr_trend">ATR 추세추종</option>
+      </select>
+    </div>
+  </div>
+  <div class="row">
+    <div class="field">
+      <label>초기 자본 (USDT)</label>
+      <input type="number" id="capital" value="1000" min="100" step="100">
+    </div>
+    <div class="field">
+      <label>레버리지</label>
+      <input type="number" id="leverage" value="5" min="1" max="50" step="1">
+    </div>
+  </div>
+  <div class="row">
+    <div class="field">
+      <label>진입 규모 (자본의 %)</label>
+      <input type="number" id="posSize" value="20" min="1" max="100" step="5">
+    </div>
+    <div class="field">
+      <label>데이터 수 (1H 기준)</label>
+      <select id="candleCount">
+        <option value="500">500개 ≈ 3개월</option>
+        <option value="1000" selected>1000개 ≈ 6개월</option>
+        <option value="1500">1500개 ≈ 9개월</option>
+      </select>
+    </div>
+  </div>
+  <button class="btn" id="btnRun" onclick="runBacktest()">백테스트 실행</button>
+</div>
+
+<div class="prog-wrap" id="progWrap">
+  <div class="prog-bg"><div class="prog-bar" id="progBar"></div></div>
+  <div class="prog-txt" id="progTxt">준비 중...</div>
+</div>
+
+<div id="results">
+  <div class="tab-bar">
+    <div class="tab active" onclick="showTab('summary')">요약</div>
+    <div class="tab" onclick="showTab('strategies')">전략별</div>
+    <div class="tab" onclick="showTab('trades')">거래 내역</div>
+  </div>
+
+  <!-- 요약 탭 -->
+  <div class="tab-pane active" id="tab-summary">
+    <div class="sect">
+      <div class="sect-title">수익</div>
+      <div class="stats-grid">
+        <div class="card">
+          <div class="lbl">총 수익률</div>
+          <div class="val" id="sTotalRet">-</div>
+          <div class="sub" id="sFinalCap">-</div>
+        </div>
+        <div class="card">
+          <div class="lbl">연 수익 (복리)</div>
+          <div class="val" id="sAnnual">-</div>
+          <div class="sub" id="sMonthly">-</div>
+        </div>
+      </div>
+    </div>
+    <div class="sect">
+      <div class="sect-title">거래 통계</div>
+      <div class="stats-grid">
+        <div class="card">
+          <div class="lbl">승률</div>
+          <div class="val neu" id="sWinRate">-</div>
+          <div class="sub" id="sWinLoss">-</div>
+        </div>
+        <div class="card">
+          <div class="lbl">총 거래 수</div>
+          <div class="val neu" id="sTrades">-</div>
+          <div class="sub" id="sTradesPerMonth">-</div>
+        </div>
+        <div class="card">
+          <div class="lbl">수익 팩터</div>
+          <div class="val neu" id="sPF">-</div>
+          <div class="sub">총이익 / 총손실</div>
+        </div>
+        <div class="card">
+          <div class="lbl">최대 낙폭 MDD</div>
+          <div class="val neg" id="sMDD">-</div>
+          <div class="sub">고점 대비 최대 손실</div>
+        </div>
+      </div>
+    </div>
+    <div class="sect">
+      <div class="sect-title">설정 요약</div>
+      <div id="configSummary"></div>
+    </div>
+  </div>
+
+  <!-- 전략별 탭 -->
+  <div class="tab-pane" id="tab-strategies">
+    <div class="sect">
+      <div class="sect-title">전략별 성과</div>
+      <div class="strat-grid" id="stratGrid"></div>
+    </div>
+  </div>
+
+  <!-- 거래 내역 탭 -->
+  <div class="tab-pane" id="tab-trades">
+    <div class="sect">
+      <div class="sect-title">최근 거래 (최대 100개)</div>
+      <div id="tradeList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════
+// INDICATORS
+// ════════════════════════════════
+
+function emaArray(arr, p) {
+  const r = new Array(arr.length).fill(null);
+  if (arr.length < p) return r;
+  const k = 2 / (p + 1);
+  let v = arr.slice(0, p).reduce((a, b) => a + b, 0) / p;
+  r[p - 1] = v;
+  for (let i = p; i < arr.length; i++) { v = arr[i] * k + v * (1 - k); r[i] = v; }
+  return r;
+}
+
+function emaLast(arr, p) {
+  if (arr.length < p) return null;
+  const k = 2 / (p + 1);
+  let v = arr.slice(0, p).reduce((a, b) => a + b, 0) / p;
+  for (let i = p; i < arr.length; i++) v = arr[i] * k + v * (1 - k);
+  return v;
+}
+
+function rsiArray(cl, p = 14) {
+  const r = new Array(cl.length).fill(null);
+  if (cl.length < p + 1) return r;
+  let g = 0, l = 0;
+  for (let i = 1; i <= p; i++) { const d = cl[i] - cl[i-1]; if (d > 0) g += d; else l -= d; }
+  let ag = g / p, al = l / p;
+  r[p] = al === 0 ? 100 : 100 - 100 / (1 + ag / al);
+  for (let i = p + 1; i < cl.length; i++) {
+    const d = cl[i] - cl[i-1];
+    ag = (ag * (p-1) + Math.max(0, d)) / p;
+    al = (al * (p-1) + Math.max(0, -d)) / p;
+    r[i] = al === 0 ? 100 : 100 - 100 / (1 + ag / al);
+  }
+  return r;
+}
+
+function atrArray(hi, lo, cl, p = 14) {
+  const r = new Array(cl.length).fill(null);
+  if (cl.length < p + 1) return r;
+  const trs = [];
+  for (let i = 1; i < cl.length; i++)
+    trs.push(Math.max(hi[i]-lo[i], Math.abs(hi[i]-cl[i-1]), Math.abs(lo[i]-cl[i-1])));
+  let a = trs.slice(0, p).reduce((s, v) => s + v, 0) / p;
+  r[p] = a;
+  for (let i = p; i < trs.length; i++) { a = (a*(p-1)+trs[i])/p; r[i+1] = a; }
+  return r;
+}
+
+function bbArray(cl, p = 20, m = 2) {
+  const r = new Array(cl.length).fill(null);
+  for (let i = p - 1; i < cl.length; i++) {
+    const sl = cl.slice(i-p+1, i+1);
+    const mid = sl.reduce((a,b)=>a+b,0)/p;
+    const std = Math.sqrt(sl.reduce((a,b)=>a+(b-mid)**2,0)/p);
+    r[i] = { u: mid+m*std, m: mid, l: mid-m*std };
+  }
+  return r;
+}
+
+function adxArray(hi, lo, cl, p = 14) {
+  const r = new Array(cl.length).fill(null);
+  if (cl.length < p * 2 + 1) return r;
+  const pdm=[], ndm=[], tr=[];
+  for (let i=1;i<cl.length;i++) {
+    const up=hi[i]-hi[i-1], dn=lo[i-1]-lo[i];
+    pdm.push(up>dn&&up>0?up:0);
+    ndm.push(dn>up&&dn>0?dn:0);
+    tr.push(Math.max(hi[i]-lo[i],Math.abs(hi[i]-cl[i-1]),Math.abs(lo[i]-cl[i-1])));
+  }
+  let sTR=tr.slice(0,p).reduce((a,b)=>a+b,0);
+  let sPDM=pdm.slice(0,p).reduce((a,b)=>a+b,0);
+  let sNDM=ndm.slice(0,p).reduce((a,b)=>a+b,0);
+  const dx=[];
+  for (let i=p;i<tr.length;i++) {
+    sTR=sTR-sTR/p+tr[i]; sPDM=sPDM-sPDM/p+pdm[i]; sNDM=sNDM-sNDM/p+ndm[i];
+    const pdi=sTR>0?100*sPDM/sTR:0, ndi=sTR>0?100*sNDM/sTR:0;
+    dx.push((pdi+ndi)>0?100*Math.abs(pdi-ndi)/(pdi+ndi):0);
+  }
+  if (dx.length < p) return r;
+  let adx = dx.slice(0,p).reduce((a,b)=>a+b,0)/p;
+  const si = p*2;
+  r[si] = adx;
+  for (let i=p;i<dx.length;i++) { adx=(adx*(p-1)+dx[i])/p; r[si+(i-p)+1]=adx; }
+  return r;
+}
+
+function trend4H(cl4h) {
+  if (cl4h.length < 55) return 'neutral';
+  const price = cl4h[cl4h.length-1];
+  const e50 = emaLast(cl4h, 50);
+  if (!e50) return 'neutral';
+  if (cl4h.length >= 200) {
+    const e200 = emaLast(cl4h, 200);
+    if (e200) {
+      if (e50>e200 && price>e50) return 'bull';
+      if (e50<e200 && price<e50) return 'bear';
+      return 'neutral';
+    }
+  }
+  const e20 = emaLast(cl4h, 20);
+  if (e20) {
+    if (e20>e50 && price>e20) return 'bull';
+    if (e20<e50 && price<e20) return 'bear';
+  }
+  return 'neutral';
+}
+
+// Pre-compute 4H trend for each 4H candle efficiently
+function build4HTrends(cl4h) {
+  const e50 = emaArray(cl4h, 50);
+  const e200 = emaArray(cl4h, 200);
+  const e20 = emaArray(cl4h, 20);
+  return cl4h.map((price, i) => {
+    if (e50[i] === null) return 'neutral';
+    if (e200[i] !== null) {
+      if (e50[i]>e200[i] && price>e50[i]) return 'bull';
+      if (e50[i]<e200[i] && price<e50[i]) return 'bear';
+      return 'neutral';
+    }
+    if (e20[i] !== null) {
+      if (e20[i]>e50[i] && price>e20[i]) return 'bull';
+      if (e20[i]<e50[i] && price<e20[i]) return 'bear';
+    }
+    return 'neutral';
+  });
+}
+
+// ════════════════════════════════
+// STRATEGIES
+// ════════════════════════════════
+
+function sigRSITrend(i, cl, rsi, atr, trend) {
+  if (rsi[i]===null || atr[i]===null) return null;
+  if (trend==='bull' && rsi[i] < 38)
+    return {side:'long',  sl:cl[i]-2.0*atr[i], tp:cl[i]+4.0*atr[i], strat:'RSI 추세'};
+  if (trend==='bear' && rsi[i] > 62)
+    return {side:'short', sl:cl[i]+2.0*atr[i], tp:cl[i]-4.0*atr[i], strat:'RSI 추세'};
+  return null;
+}
+
+function sigEMACross(i, cl, e9, e21, atr, trend) {
+  if (i<1) return null;
+  if (e9[i]===null||e21[i]===null||e9[i-1]===null||e21[i-1]===null||atr[i]===null) return null;
+  if (trend==='bull' && e9[i-1]<=e21[i-1] && e9[i]>e21[i])
+    return {side:'long',  sl:cl[i]-2.0*atr[i], tp:cl[i]+3.0*atr[i], strat:'EMA 교차'};
+  if (trend==='bear' && e9[i-1]>=e21[i-1] && e9[i]<e21[i])
+    return {side:'short', sl:cl[i]+2.0*atr[i], tp:cl[i]-3.0*atr[i], strat:'EMA 교차'};
+  return null;
+}
+
+function sigBBRev(i, cl, bb, rsi, atr, trend) {
+  if (!bb[i]||rsi[i]===null||atr[i]===null) return null;
+  const w = (bb[i].u - bb[i].l) / bb[i].m;
+  if (w < 0.008) return null;
+  if (trend==='bull' && cl[i]<bb[i].l && rsi[i]<45)
+    return {side:'long',  sl:cl[i]-2.0*atr[i], tp:bb[i].m, strat:'BB 반전'};
+  if (trend==='bear' && cl[i]>bb[i].u && rsi[i]>55)
+    return {side:'short', sl:cl[i]+2.0*atr[i], tp:bb[i].m, strat:'BB 반전'};
+  return null;
+}
+
+function sigATRTrend(i, cl, e21, atr, adx, rsi, trend) {
+  if (e21[i]===null||atr[i]===null||adx[i]===null||rsi[i]===null) return null;
+  if (adx[i]<22 || trend==='neutral') return null;
+  const pb = Math.abs(cl[i]-e21[i])/atr[i];
+  if (pb<0.3||pb>2.5) return null;
+  if (trend==='bull' && cl[i]<e21[i] && rsi[i]<55)
+    return {side:'long',  sl:cl[i]-2.0*atr[i], tp:cl[i]+3.5*atr[i], strat:'ATR 추세'};
+  if (trend==='bear' && cl[i]>e21[i] && rsi[i]>45)
+    return {side:'short', sl:cl[i]+2.0*atr[i], tp:cl[i]-3.5*atr[i], strat:'ATR 추세'};
+  return null;
+}
+
+// ════════════════════════════════
+// FETCH
+// ════════════════════════════════
+
+async function fetchOKX(instId, bar, count) {
+  const all = [];
+  let after = '';
+  while (all.length < count) {
+    const lim = Math.min(300, count - all.length);
+    let url = `https://www.okx.com/api/v5/market/history-candles?instId=${instId}&bar=${bar}&limit=${lim}`;
+    if (after) url += `&after=${after}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`OKX API 오류: ${res.status}`);
+    const d = await res.json();
+    if (!d.data || d.data.length === 0) break;
+    all.push(...d.data);
+    after = d.data[d.data.length-1][0];
+    if (d.data.length < lim) break;
+    await new Promise(r => setTimeout(r, 150));
+  }
+  return all.reverse(); // oldest first
+}
+
+// ════════════════════════════════
+// BACKTEST ENGINE
+// ════════════════════════════════
+
+function backtest(c1h, c4h, cfg) {
+  const { capital, leverage, posSize, stratName } = cfg;
+  const cl = c1h.map(c=>+c[4]), hi = c1h.map(c=>+c[2]), lo = c1h.map(c=>+c[3]);
+  const ts = c1h.map(c=>+c[0]);
+  const cl4h = c4h.map(c=>+c[4]), ts4h = c4h.map(c=>+c[0]);
+
+  // Indicators
+  const RSI  = rsiArray(cl, 14);
+  const ATR  = atrArray(hi, lo, cl, 14);
+  const E9   = emaArray(cl, 9);
+  const E21  = emaArray(cl, 21);
+  const BB   = bbArray(cl, 20, 2);
+  const ADX  = adxArray(hi, lo, cl, 14);
+
+  // 4H trend per 4H candle
+  const tr4h = build4HTrends(cl4h);
+
+  // Map 4H trend to 1H timestamps (two-pointer)
+  const trendAt1H = new Array(c1h.length).fill('neutral');
+  let p4 = 0;
+  for (let i = 0; i < c1h.length; i++) {
+    while (p4 + 1 < ts4h.length && ts4h[p4+1] <= ts[i]) p4++;
+    if (ts4h[p4] <= ts[i]) trendAt1H[i] = tr4h[p4];
+  }
+
+  let equity = capital, peak = capital, mdd = 0;
+  const trades = [], stratMap = {};
+  let pos = null;
+  const WARMUP = 60;
+
+  for (let i = WARMUP; i < cl.length; i++) {
+    const price = cl[i], h = hi[i], l = lo[i], t = ts[i], trend = trendAt1H[i];
+
+    // Check open position
+    if (pos) {
+      let exit = null, win = false;
+      if (pos.side === 'long') {
+        if (l <= pos.sl) { exit = pos.sl; }
+        else if (h >= pos.tp) { exit = pos.tp; win = true; }
+      } else {
+        if (h >= pos.sl) { exit = pos.sl; }
+        else if (l <= pos.tp) { exit = pos.tp; win = true; }
+      }
+      if (exit !== null) {
+        const diff = pos.side==='long' ? exit-pos.entry : pos.entry-exit;
+        const pnl = pos.col * leverage * (diff / pos.entry);
+        equity += pnl;
+        if (equity > peak) peak = equity;
+        const dd = (peak - equity) / peak;
+        if (dd > mdd) mdd = dd;
+        const rec = { strat:pos.strat, side:pos.side, entry:pos.entry, exit, entryTs:pos.ts, exitTs:t, pnl, pnlPct:(diff/pos.entry)*leverage*100, win };
+        trades.push(rec);
+        if (!stratMap[pos.strat]) stratMap[pos.strat] = [];
+        stratMap[pos.strat].push(rec);
+        pos = null;
+      }
+    }
+
+    // New signal
+    if (!pos && equity > 0) {
+      let sig = null;
+      const tryStrat = (fn) => { if (!sig) sig = fn(); };
+      if (stratName==='all'||stratName==='rsi_trend') tryStrat(()=>sigRSITrend(i,cl,RSI,ATR,trend));
+      if (stratName==='all'||stratName==='ema_cross')  tryStrat(()=>sigEMACross(i,cl,E9,E21,ATR,trend));
+      if (stratName==='all'||stratName==='bb_rev')     tryStrat(()=>sigBBRev(i,cl,BB,RSI,ATR,trend));
+      if (stratName==='all'||stratName==='atr_trend')  tryStrat(()=>sigATRTrend(i,cl,E21,ATR,ADX,RSI,trend));
+      if (sig) {
+        const col = equity * (posSize/100);
+        pos = { ...sig, entry:price, col, ts:t };
+      }
+    }
+  }
+
+  // Close open position at last price
+  if (pos) {
+    const lp = cl[cl.length-1], lt = ts[ts.length-1];
+    const diff = pos.side==='long' ? lp-pos.entry : pos.entry-lp;
+    const pnl = pos.col * leverage * (diff / pos.entry);
+    equity += pnl;
+    const rec = { strat:pos.strat, side:pos.side, entry:pos.entry, exit:lp, entryTs:pos.ts, exitTs:lt, pnl, pnlPct:(diff/pos.entry)*leverage*100, win:pnl>0 };
+    trades.push(rec);
+    if (!stratMap[pos.strat]) stratMap[pos.strat] = [];
+    stratMap[pos.strat].push(rec);
+  }
+
+  const n = trades.length, wins = trades.filter(t=>t.win).length;
+  const gp = trades.filter(t=>t.pnl>0).reduce((a,t)=>a+t.pnl,0);
+  const gl = Math.abs(trades.filter(t=>t.pnl<0).reduce((a,t)=>a+t.pnl,0));
+  const pf = gl>0 ? gp/gl : gp>0 ? 99 : 0;
+  const totalRet = (equity-capital)/capital;
+
+  const startMs = ts[WARMUP], endMs = ts[ts.length-1];
+  const months = (endMs-startMs)/(1000*60*60*24*30.44);
+  const years = months/12;
+  const monthlyRet = months>0 ? Math.pow(1+totalRet,1/months)-1 : 0;
+  const annualRet = years>0 ? Math.pow(1+totalRet,1/years)-1 : 0;
+
+  return { equity, capital, totalRet, winRate:n>0?wins/n:0, wins, losses:n-wins,
+    n, mdd, pf, monthlyRet, annualRet, months, trades, stratMap };
+}
+
+// ════════════════════════════════
+// UI
+// ════════════════════════════════
+
+function pct(v, dec=1) { return (v>=0?'+':'')+((v*100).toFixed(dec))+'%'; }
+function money(v) { return (v>=0?'+$':'-$')+Math.abs(v).toFixed(0); }
+function fmtTs(ts) {
+  const d=new Date(ts);
+  return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:00`;
+}
+function showTab(name) {
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+function setClass(el, v) { el.className='val '+(v>0?'pos':v<0?'neg':'neu'); }
+function prog(pct, txt) {
+  document.getElementById('progBar').style.width=pct+'%';
+  document.getElementById('progTxt').textContent=txt;
+}
+
+async function runBacktest() {
+  const btn = document.getElementById('btnRun');
+  const symbol = document.getElementById('symbol').value;
+  const stratName = document.getElementById('strategy').value;
+  const capital = +document.getElementById('capital').value;
+  const leverage = +document.getElementById('leverage').value;
+  const posSize = +document.getElementById('posSize').value;
+  const count = +document.getElementById('candleCount').value;
+
+  btn.disabled = true; btn.textContent = '실행 중...';
+  document.getElementById('progWrap').style.display = 'block';
+  document.getElementById('results').style.display = 'none';
+
+  try {
+    prog(5, `${symbol} 1H 데이터 불러오는 중... (${count}개)`);
+    const c1h = await fetchOKX(symbol, '1H', count);
+
+    prog(55, `${symbol} 4H 데이터 불러오는 중...`);
+    const c4h = await fetchOKX(symbol, '4H', 400);
+
+    prog(85, '백테스트 계산 중...');
+    await new Promise(r => setTimeout(r, 30));
+
+    const res = backtest(c1h, c4h, { capital, leverage, posSize, stratName });
+    prog(100, `완료 · ${res.n}건 거래`);
+
+    document.getElementById('results').style.display = 'block';
+
+    // Summary
+    const elTR = document.getElementById('sTotalRet');
+    elTR.textContent = pct(res.totalRet); setClass(elTR, res.totalRet);
+    document.getElementById('sFinalCap').textContent = `$${res.capital.toFixed(0)} → $${res.equity.toFixed(0)}`;
+
+    const elAnn = document.getElementById('sAnnual');
+    elAnn.textContent = pct(res.annualRet); setClass(elAnn, res.annualRet);
+    const elMon = document.getElementById('sMonthly');
+    elMon.textContent = `월 평균 ${pct(res.monthlyRet)}`;
+    elMon.style.color = res.monthlyRet>=0?'#22dd7a':'#ff4560';
+
+    document.getElementById('sWinRate').textContent = (res.winRate*100).toFixed(1)+'%';
+    document.getElementById('sWinLoss').textContent = `승 ${res.wins}  /  패 ${res.losses}`;
+    document.getElementById('sTrades').textContent = res.n;
+    document.getElementById('sTradesPerMonth').textContent = `월 ${(res.n/res.months).toFixed(1)}건`;
+    document.getElementById('sPF').textContent = res.pf===99?'∞':res.pf.toFixed(2);
+    document.getElementById('sMDD').textContent = '-'+(res.mdd*100).toFixed(1)+'%';
+
+    // Config summary
+    const symName = {'BTC-USDT-SWAP':'BTC/USDT','ETH-USDT-SWAP':'ETH/USDT','SOL-USDT-SWAP':'SOL/USDT'}[symbol]||symbol;
+    const stratName2 = {'all':'전체','rsi_trend':'RSI 추세','ema_cross':'EMA 교차','bb_rev':'BB 반전','atr_trend':'ATR 추세'}[stratName]||stratName;
+    document.getElementById('configSummary').innerHTML = [
+      ['심볼', symName], ['전략', stratName2], ['초기 자본', `$${capital}`],
+      ['레버리지', `${leverage}x`], ['진입 규모', `자본의 ${posSize}%`],
+      ['데이터 기간', `${res.months.toFixed(1)}개월`],
+    ].map(([k,v])=>`<div class="info-row"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
+
+    // Strategy breakdown
+    const sg = document.getElementById('stratGrid');
+    const allStrats = Object.entries(res.stratMap);
+    if (allStrats.length === 0) {
+      sg.innerHTML = '<div style="color:#446;font-size:13px;padding:8px">신호 없음</div>';
+    } else {
+      sg.innerHTML = allStrats.map(([name, ts]) => {
+        const w = ts.filter(t=>t.win).length, tot = ts.length;
+        const pnlSum = ts.reduce((a,t)=>a+t.pnl,0);
+        return `<div class="strat-card">
+          <div class="strat-name">${name}</div>
+          <div class="strat-stat"><span class="k">승률</span><span>${tot>0?((w/tot)*100).toFixed(0)+'%':'—'}</span></div>
+          <div class="strat-stat"><span class="k">거래수</span><span>${tot}</span></div>
+          <div class="strat-stat"><span class="k">PnL</span><span style="color:${pnlSum>=0?'#22dd7a':'#ff4560'}">${pnlSum>=0?'+':''}$${pnlSum.toFixed(0)}</span></div>
+        </div>`;
+      }).join('');
+    }
+
+    // Trade list
+    const recent = res.trades.slice(-100).reverse();
+    document.getElementById('tradeList').innerHTML = recent.length === 0
+      ? '<div style="color:#446;font-size:13px;padding:8px">거래 없음 — 조건이 맞지 않습니다</div>'
+      : recent.map(t=>`
+      <div class="trade-item">
+        <div class="trade-left">
+          <div class="strat-tag">${t.strat}</div>
+          <div><span class="badge ${t.side==='long'?'badge-long':'badge-short'}">${t.side==='long'?'LONG':'SHORT'}</span></div>
+          <div class="dt">${fmtTs(t.entryTs)} → ${fmtTs(t.exitTs)}</div>
+        </div>
+        <div class="trade-right">
+          <div class="trade-pnl ${t.win?'pos':'neg'}">${t.pnl>=0?'+':'-'}$${Math.abs(t.pnl).toFixed(1)}</div>
+          <div class="trade-pct">${t.pnlPct>=0?'+':''}${t.pnlPct.toFixed(1)}%</div>
+        </div>
+      </div>`).join('');
+
+  } catch(e) {
+    prog(0, '');
+    document.getElementById('progTxt').innerHTML = `<div class="err">오류: ${e.message}</div>`;
+    console.error(e);
+  }
+
+  btn.disabled = false; btn.textContent = '백테스트 실행';
+}
+</script>
+</body>
+</html>
