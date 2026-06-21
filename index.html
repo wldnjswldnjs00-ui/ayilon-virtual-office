@@ -106,6 +106,44 @@
     .modal-save { padding:8px 18px; background:#fff; color:#000; border:none; border-radius:6px; font-size:11px; font-weight:800; cursor:pointer; }
     .modal-cancel { padding:8px 14px; background:none; color:#444; border:1px solid #1e1e1e; border-radius:6px; font-size:11px; cursor:pointer; }
     .modal-clear { padding:8px 14px; background:none; color:#633; border:1px solid #2a1a1a; border-radius:6px; font-size:11px; cursor:pointer; }
+
+    /* Trading Pane */
+    .pane-trade { padding:0; }
+    .perf-bar { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1px; background:var(--b1); border-bottom:1px solid var(--b1); }
+    .perf-cell { background:var(--bg); padding:12px 14px; }
+    .perf-label { font-size:7px; color:var(--t3); letter-spacing:.1em; text-transform:uppercase; margin-bottom:4px; }
+    .perf-val { font-size:16px; font-weight:800; }
+    .perf-val.pos { color:#2a2; }
+    .perf-val.neg { color:#a22; }
+    .perf-val.neu { color:#fff; }
+    .perf-sub { font-size:8px; color:var(--t3); margin-top:2px; }
+    .trade-section { padding:10px 16px 6px; }
+    .trade-section-title { font-size:8px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--t3); }
+    .trade-item { padding:10px 16px; border-bottom:1px solid var(--b1); }
+    .trade-top { display:flex; align-items:center; gap:7px; margin-bottom:4px; }
+    .trade-sym { font-size:11px; font-weight:800; }
+    .trade-side { font-size:8px; font-weight:800; padding:2px 6px; border-radius:3px; }
+    .trade-side.buy  { background:#0a1a0a; color:#3a3; }
+    .trade-side.sell { background:#1a0a0a; color:#a33; }
+    .trade-strat { font-size:8px; color:var(--t3); flex:1; }
+    .trade-pnl { font-size:11px; font-weight:800; }
+    .trade-pnl.pos { color:#2a2; }
+    .trade-pnl.neg { color:#a22; }
+    .trade-pnl.open { color:#888; }
+    .trade-detail { font-size:9px; color:var(--t3); line-height:1.6; }
+    .trade-status { font-size:7px; padding:2px 5px; border-radius:3px; margin-left:4px; }
+    .trade-status.open   { background:#111; color:#555; }
+    .trade-status.closed { background:#0a0a0a; color:#333; }
+    .signal-item { padding:8px 16px; border-bottom:1px solid var(--b1); display:flex; align-items:center; gap:8px; }
+    .sig-s { font-size:8px; font-weight:800; padding:2px 6px; border-radius:3px; }
+    .sig-s.buy  { background:#0a1a0a; color:#3a3; }
+    .sig-s.sell { background:#1a0a0a; color:#a33; }
+    .sig-s.hold { background:#111; color:#444; }
+    .sig-info { flex:1; }
+    .sig-name { font-size:9px; color:var(--t2); }
+    .sig-sym  { font-size:8px; color:var(--t3); }
+    .sig-conf { font-size:8px; color:var(--t3); }
+    .sim-badge { display:inline-block; font-size:7px; background:#1a1400; color:#aa8800; border:1px solid #332800; border-radius:3px; padding:1px 5px; letter-spacing:.06em; margin-left:6px; }
   </style>
 </head>
 <body>
@@ -151,6 +189,7 @@
 <div class="tabs">
   <button class="tab-btn on" id="btn-map">Map</button>
   <button class="tab-btn" id="btn-feed">Feed</button>
+  <button class="tab-btn" id="btn-trade">Trading</button>
 </div>
 
 <div id="pane-map" class="pane-map">
@@ -230,6 +269,36 @@
     <div class="fi"><div class="fi-top"><div class="fi-av">PXL</div><div class="fi-name">PIXEL</div><div class="fi-team">제품팀</div><div class="fi-time">22분 전</div></div><div class="fi-msg">Elite 플랜 전용 기능 3개 기획 완료. 스펙 작성 중.</div></div>
     <div class="fi"><div class="fi-top"><div class="fi-av">SLD</div><div class="fi-name">SHIELD</div><div class="fi-team">보안팀</div><div class="fi-time">30분 전</div></div><div class="fi-msg">API 키 접근 로그 이상 없음. 보안 감사 완료.</div></div>
   </div>
+</div>
+
+<!-- Trading Pane -->
+<div id="pane-trade" class="pane-trade" style="display:none">
+  <div class="perf-bar">
+    <div class="perf-cell">
+      <div class="perf-label">총 P&amp;L</div>
+      <div class="perf-val neu" id="t-pnl">$0.00</div>
+      <div class="perf-sub" id="t-winrate">—</div>
+    </div>
+    <div class="perf-cell">
+      <div class="perf-label">오픈 포지션</div>
+      <div class="perf-val neu" id="t-open">0</div>
+      <div class="perf-sub" id="t-closed">0 완료</div>
+    </div>
+    <div class="perf-cell">
+      <div class="perf-label">봇 모드</div>
+      <div class="perf-val neu" id="t-mode" style="font-size:11px">시뮬</div>
+      <div class="perf-sub" id="t-sim">OKX 시뮬레이션</div>
+    </div>
+  </div>
+
+  <div class="trade-section"><div class="trade-section-title">오픈 포지션</div></div>
+  <div id="trade-open-list"><div style="padding:12px 16px;font-size:10px;color:#333;">포지션 없음</div></div>
+
+  <div class="trade-section" style="margin-top:4px"><div class="trade-section-title">최근 완료 거래</div></div>
+  <div id="trade-closed-list"><div style="padding:12px 16px;font-size:10px;color:#333;">거래 기록 없음</div></div>
+
+  <div class="trade-section" style="margin-top:4px"><div class="trade-section-title">최근 신호</div></div>
+  <div id="signal-list"><div style="padding:12px 16px;font-size:10px;color:#333;">신호 대기 중</div></div>
 </div>
 
 <div class="cmd">
@@ -541,17 +610,31 @@ function sendCmd() {
 function showMap() {
   document.getElementById('pane-map').style.display = 'block';
   document.getElementById('pane-feed').style.display = 'none';
+  document.getElementById('pane-trade').style.display = 'none';
   document.getElementById('btn-map').className = 'tab-btn on';
   document.getElementById('btn-feed').className = 'tab-btn';
+  document.getElementById('btn-trade').className = 'tab-btn';
 }
 function showFeed() {
   document.getElementById('pane-map').style.display = 'none';
   document.getElementById('pane-feed').style.display = 'block';
+  document.getElementById('pane-trade').style.display = 'none';
   document.getElementById('btn-map').className = 'tab-btn';
   document.getElementById('btn-feed').className = 'tab-btn on';
+  document.getElementById('btn-trade').className = 'tab-btn';
+}
+function showTrade() {
+  document.getElementById('pane-map').style.display = 'none';
+  document.getElementById('pane-feed').style.display = 'none';
+  document.getElementById('pane-trade').style.display = 'block';
+  document.getElementById('btn-map').className = 'tab-btn';
+  document.getElementById('btn-feed').className = 'tab-btn';
+  document.getElementById('btn-trade').className = 'tab-btn on';
+  fetchTradingData();
 }
 document.getElementById('btn-map').addEventListener('click', showMap);
 document.getElementById('btn-feed').addEventListener('click', showFeed);
+document.getElementById('btn-trade').addEventListener('click', showTrade);
 
 // ── SETTINGS MODAL ─────────────────────────────────────
 function updateAiIndicator() {
@@ -755,6 +838,109 @@ if (mem.workerUrl) {
 
 // 자체 성찰 루프: 45초마다 (과거 지시 기반 심화 분석)
 setInterval(selfReflect, 45000);
+
+// ── TRADING DATA ───────────────────────────────────────
+function fmtPnl(v) {
+  if (v == null) return '—';
+  var n = parseFloat(v);
+  return (n >= 0 ? '+' : '') + '$' + Math.abs(n).toFixed(2);
+}
+
+function fmtPrice(v) { return v ? '$' + parseFloat(v).toLocaleString() : '—'; }
+
+function renderTradeItem(t, isOpen) {
+  var pnlClass = isOpen ? 'open' : (parseFloat(t.pnl_usdt) >= 0 ? 'pos' : 'neg');
+  var pnlText = isOpen ? '진행중' : fmtPnl(t.pnl_usdt);
+  var strat = (t.strategy || '').replace('scalp_', '').replace('short_', '').replace('swing_', '');
+  return '<div class="trade-item">' +
+    '<div class="trade-top">' +
+      '<span class="trade-sym">' + esc(t.symbol) + '</span>' +
+      '<span class="trade-side ' + esc(t.side) + '">' + (t.side === 'buy' ? 'LONG' : 'SHORT') + '</span>' +
+      '<span class="trade-strat">' + esc(strat) + '</span>' +
+      '<span class="trade-pnl ' + pnlClass + '">' + pnlText + '</span>' +
+    '</div>' +
+    '<div class="trade-detail">' +
+      '진입 ' + fmtPrice(t.entry_price) +
+      (t.exit_price ? ' → 청산 ' + fmtPrice(t.exit_price) : ' | SL ' + fmtPrice(t.sl_price) + ' / TP ' + fmtPrice(t.tp_price)) +
+      ' | $' + parseFloat(t.usdt_size || 0).toFixed(0) +
+    '</div>' +
+  '</div>';
+}
+
+function renderSignalItem(s) {
+  return '<div class="signal-item">' +
+    '<span class="sig-s ' + esc(s.signal) + '">' + s.signal.toUpperCase() + '</span>' +
+    '<div class="sig-info">' +
+      '<div class="sig-name">' + esc((s.strategy || '').replace(/^(scalp|short|swing)_/, '')) + '</div>' +
+      '<div class="sig-sym">' + esc(s.symbol) + ' — ' + esc(s.reason || '') + '</div>' +
+    '</div>' +
+    '<span class="sig-conf">' + Math.round((s.confidence || 0.5) * 100) + '%</span>' +
+  '</div>';
+}
+
+async function fetchTradingData() {
+  if (!mem.workerUrl) {
+    document.getElementById('t-mode').textContent = '미연결';
+    document.getElementById('t-sim').textContent = 'Worker URL 설정 필요';
+    return;
+  }
+  try {
+    var [perfR, openR, closedR, sigR] = await Promise.all([
+      fetch(mem.workerUrl + '/api/performance'),
+      fetch(mem.workerUrl + '/api/trades?status=open'),
+      fetch(mem.workerUrl + '/api/trades?status=closed'),
+      fetch(mem.workerUrl + '/api/signals'),
+    ]);
+    var perf    = await perfR.json();
+    var openD   = await openR.json();
+    var closedD = await closedR.json();
+    var sigD    = await sigR.json();
+
+    var pnl = parseFloat(perf.total_pnl || 0);
+    var pnlEl = document.getElementById('t-pnl');
+    pnlEl.textContent = fmtPnl(pnl);
+    pnlEl.className = 'perf-val ' + (pnl > 0 ? 'pos' : pnl < 0 ? 'neg' : 'neu');
+
+    var wins = parseInt(perf.wins || 0);
+    var total = parseInt(perf.closed || 0);
+    var wr = total > 0 ? Math.round(wins / total * 100) : 0;
+    document.getElementById('t-winrate').textContent = total > 0 ? '승률 ' + wr + '% (' + wins + '/' + total + ')' : '거래 없음';
+
+    document.getElementById('t-open').textContent = perf.open_count || 0;
+    document.getElementById('t-closed').textContent = (perf.closed || 0) + '건 완료';
+
+    // Open trades
+    var openList = document.getElementById('trade-open-list');
+    var openTrades = openD.trades || [];
+    openList.innerHTML = openTrades.length
+      ? openTrades.map(function(t){ return renderTradeItem(t, true); }).join('')
+      : '<div style="padding:12px 16px;font-size:10px;color:#333;">오픈 포지션 없음</div>';
+
+    // Closed trades
+    var closedList = document.getElementById('trade-closed-list');
+    var closedTrades = (closedD.trades || []).slice(0, 10);
+    closedList.innerHTML = closedTrades.length
+      ? closedTrades.map(function(t){ return renderTradeItem(t, false); }).join('')
+      : '<div style="padding:12px 16px;font-size:10px;color:#333;">거래 기록 없음</div>';
+
+    // Signals
+    var sigList = document.getElementById('signal-list');
+    var sigs = (sigD.signals || []).slice(0, 10);
+    sigList.innerHTML = sigs.length
+      ? sigs.map(renderSignalItem).join('')
+      : '<div style="padding:12px 16px;font-size:10px;color:#333;">신호 대기 중 (1분마다 업데이트)</div>';
+
+  } catch(e) {
+    document.getElementById('t-mode').textContent = '오류';
+  }
+}
+
+// Trading tab auto-refresh every 30s when visible
+setInterval(function() {
+  if (document.getElementById('pane-trade').style.display !== 'none') {
+    fetchTradingData();
+  }
+}, 30000);
 </script>
 </body>
 </html>

@@ -1,11 +1,13 @@
+import { runBot } from './bot.js';
+
 const AGENTS = [
   {id:'CEO',   code:'CEO', name:'CEO',    team:'Executive',
    kw:['전략','방향','팀','회의','승인','지시','전체','현황','점검'],
    msgs:['전체 팀 브리핑 완료.','시장 방향 재검토 지시.','리스크 레벨 조정 승인.','전략 회의 소집.','포지션 현황 확인 중.','팀 성과 점검 완료.'],
    smart:['"%s" 관련 팀 지시 전달 완료.','"%s" 건 검토 후 승인.','팀 전체에 "%s" 이슈 공유 완료.']},
   {id:'IRON',  code:'IRN', name:'IRON',   team:'전략팀',
-   kw:['BTC','ETH','롱','숏','진입','전략','MA','RSI','모멘텀','매수','매도','청산'],
-   msgs:['롱 포지션 진입 검토.','MA 크로스 신호 포착.','전략 파라미터 조정 중.','시장 모멘텀 분석 완료.','진입 타이밍 계산 중.','전략 수익률 +4.2% 기록.'],
+   kw:['BTC','ETH','SOL','롱','숏','진입','전략','MA','RSI','모멘텀','매수','매도','청산','스캘핑','스윙','MACD'],
+   msgs:['롱 포지션 진입 검토.','EMA 크로스 신호 포착.','전략 파라미터 조정 중.','시장 모멘텀 분석 완료.','진입 타이밍 계산 중.','전략 수익률 +4.2% 기록.'],
    smart:['"%s" 신호 포착. 전략 업데이트.','"%s" 기반 진입 전략 수립 완료.','"%s" 분석 결과 강세 신호.']},
   {id:'GRID',  code:'GRD', name:'GRID',   team:'백테스팅팀',
    kw:['백테스트','시뮬레이션','샤프','드로다운','승률','Strategy','검증','최적화'],
@@ -53,7 +55,7 @@ const AGENTS = [
    smart:['"%s" 보안 감사 완료.','"%s" 취약점 없음 확인.','"%s" 보안 정책 업데이트 완료.']}
 ];
 
-// ── MEMORY ────────────────────────────────────────────
+// ── MEMORY ─────────────────────────────────────────────────────────────────
 async function getMem(env) {
   try {
     const rows = (await env.DB.prepare('SELECT key, value FROM memory').all()).results;
@@ -77,15 +79,14 @@ async function saveMem(env, mem) {
   ]);
 }
 
-// ── HELPERS ────────────────────────────────────────────
-function topKws(keywords, n) {
-  return Object.keys(keywords).sort((a,b) => keywords[b]-keywords[a]).slice(0,n);
+function topKws(kw, n) {
+  return Object.keys(kw).sort((a,b) => kw[b]-kw[a]).slice(0,n);
 }
 
-function extractKws(text, keywords) {
+function extractKws(text, kw) {
   const stop = ['을','를','이','가','은','는','에','의','도','로','으로','와','과','하다','했','합니다'];
   text.replace(/[^\w\s가-힣]/g,' ').split(/\s+/).forEach(w => {
-    if (w.length >= 2 && !stop.includes(w)) keywords[w] = (keywords[w]||0)+1;
+    if (w.length >= 2 && !stop.includes(w)) kw[w] = (kw[w]||0)+1;
   });
 }
 
@@ -136,7 +137,6 @@ function localReplyMsg(cmds) {
   return replies[Math.floor(Math.random()*replies.length)];
 }
 
-// ── CORS HEADERS ──────────────────────────────────────
 const CORS_H = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
@@ -148,8 +148,18 @@ function json(data, status) {
   return new Response(JSON.stringify(data), { status: status||200, headers: CORS_H });
 }
 
-// ── CRON: runs every 10 minutes ───────────────────────
+// ── CRON ────────────────────────────────────────────────────────────────────
 async function handleCron(env) {
+  const minuteOfHour = new Date().getMinutes();
+
+  // Run trading bot
+  try {
+    await runBot(env, minuteOfHour);
+  } catch(e) {
+    console.error('Bot error:', e.message);
+  }
+
+  // Agent activity
   const mem = await getMem(env);
   const count = Math.floor(Math.random()*3)+1;
   for (let i=0; i<count; i++) {
@@ -160,16 +170,19 @@ async function handleCron(env) {
     mem.xp++;
   }
   await saveMem(env, mem);
+
+  // Prune old feed rows (keep last 500)
   await env.DB.prepare('DELETE FROM feed WHERE id NOT IN (SELECT id FROM feed ORDER BY id DESC LIMIT 500)').run();
+  // Prune old signals (keep last 1000)
+  await env.DB.prepare('DELETE FROM signals WHERE id NOT IN (SELECT id FROM signals ORDER BY id DESC LIMIT 1000)').run();
 }
 
-// ── FETCH HANDLER ─────────────────────────────────────
+// ── FETCH HANDLER ────────────────────────────────────────────────────────────
 async function handleRequest(request, env) {
   const url = new URL(request.url);
 
   if (request.method === 'OPTIONS') return new Response(null, {status:204, headers:CORS_H});
 
-  // GET /api/feed?since=UNIX_TIMESTAMP
   if (url.pathname === '/api/feed') {
     const since = parseInt(url.searchParams.get('since')||'0');
     const { results } = await env.DB.prepare(
@@ -178,32 +191,54 @@ async function handleRequest(request, env) {
     return json({ items: results, ts: Math.floor(Date.now()/1000) });
   }
 
-  // GET /api/state  — returns XP + keywords
   if (url.pathname === '/api/state') {
     const mem = await getMem(env);
     return json({ xp: mem.xp, agentXp: mem.agentXp, keywords: mem.keywords, aiEnabled: !!env.GEMINI_KEY });
   }
 
-  // POST /api/cmd  — send command to CEO
+  if (url.pathname === '/api/trades') {
+    const status = url.searchParams.get('status') || 'open';
+    const { results } = await env.DB.prepare(
+      'SELECT * FROM trades WHERE status=? ORDER BY created_at DESC LIMIT 50'
+    ).bind(status).all();
+    return json({ trades: results });
+  }
+
+  if (url.pathname === '/api/performance') {
+    const stats = await env.DB.prepare(
+      `SELECT
+        COUNT(*) as total,
+        SUM(CASE WHEN status='closed' THEN 1 ELSE 0 END) as closed,
+        SUM(CASE WHEN status='open' THEN 1 ELSE 0 END) as open_count,
+        SUM(CASE WHEN pnl_usdt > 0 THEN 1 ELSE 0 END) as wins,
+        SUM(CASE WHEN pnl_usdt < 0 THEN 1 ELSE 0 END) as losses,
+        ROUND(SUM(COALESCE(pnl_usdt,0)),2) as total_pnl,
+        ROUND(AVG(CASE WHEN pnl_usdt IS NOT NULL THEN pnl_usdt END),2) as avg_pnl
+       FROM trades`
+    ).first();
+    return json(stats);
+  }
+
+  if (url.pathname === '/api/signals') {
+    const { results } = await env.DB.prepare(
+      "SELECT * FROM signals WHERE signal != 'hold' ORDER BY created_at DESC LIMIT 30"
+    ).all();
+    return json({ signals: results });
+  }
+
   if (url.pathname === '/api/cmd' && request.method === 'POST') {
     const body = await request.json().catch(()=>({}));
     const msg = String(body.msg||'').slice(0,300).trim();
     if (!msg) return json({error:'empty'}, 400);
 
     const mem = await getMem(env);
-
-    // Save user command to feed
     await insertFeed(env, AGENTS[0], '→ 지시: '+msg, false);
-
-    // Extract keywords & update memory
     extractKws(msg, mem.keywords);
     mem.cmds.push(msg);
     mem.xp += 2;
     mem.agentXp['CEO'] = (mem.agentXp['CEO']||0)+2;
 
-    // Generate CEO reply
-    let reply = null;
-    let isAI = false;
+    let reply = null, isAI = false;
     if (env.GEMINI_KEY) {
       reply = await callGemini(msg, env.GEMINI_KEY, mem.cmds, topKws(mem.keywords,5));
       if (reply) isAI = true;
@@ -214,7 +249,6 @@ async function handleRequest(request, env) {
     mem.xp += isAI ? 3 : 1;
     mem.agentXp['CEO'] = (mem.agentXp['CEO']||0)+(isAI?3:1);
 
-    // Find relevant agents and have them respond
     const lower = msg.toLowerCase();
     const relevant = AGENTS.filter(a => a.id !== 'CEO' && a.kw.some(k => lower.includes(k.toLowerCase()))).slice(0,2);
     for (const agent of relevant) {
