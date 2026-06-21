@@ -91,6 +91,8 @@
     .modal input { width:100%; background:#141414; border:1px solid #1e1e1e; border-radius:6px; padding:9px 11px; color:#fff; font-size:12px; outline:none; margin-bottom:8px; font-family:monospace; }
     .modal-hint { font-size:9px; color:#333; line-height:1.6; margin-bottom:16px; }
     .modal-hint b { color:#555; }
+    .server-dot { display:inline-block; width:5px; height:5px; border-radius:50%; background:#333; margin-right:5px; vertical-align:middle; }
+    .server-dot.on { background:#3a3; box-shadow:0 0 5px #3a3; }
     .modal-status { font-size:9px; padding:7px 10px; border-radius:5px; margin-bottom:14px; display:none; line-height:1.5; }
     .modal-status.ok { display:block; background:#0a180a; color:#3a3; border:1px solid #1a3a1a; }
     .modal-status.err { display:block; background:#180a0a; color:#a33; border:1px solid #3a1a1a; }
@@ -112,6 +114,12 @@
 <div class="modal-bg" id="modal">
   <div class="modal">
     <div class="modal-title">설정</div>
+    <label><span class="server-dot" id="server-dot"></span>Worker URL (24시간 서버)</label>
+    <input type="text" id="worker-url" placeholder="https://ayilon-office.XXX.workers.dev" autocomplete="off" />
+    <div class="modal-hint">
+      Cloudflare Worker 배포 후 여기에 URL 입력.<br>
+      입력하면 컴퓨터를 꺼도 24시간 에이전트가 활동합니다.
+    </div>
     <label>Gemini API Key (무료 AI 연동)</label>
     <input type="password" id="gem-key" placeholder="AIza..." autocomplete="off" />
     <div class="modal-hint">
@@ -561,6 +569,7 @@ function renderModalStats() {
 
 document.getElementById('set-btn').addEventListener('click', function() {
   document.getElementById('gem-key').value = mem.geminiKey || '';
+  document.getElementById('worker-url').value = mem.workerUrl || '';
   document.getElementById('modal-status').className = 'modal-status';
   renderModalStats();
   document.getElementById('modal').classList.add('open');
@@ -572,17 +581,19 @@ document.getElementById('modal-cancel').addEventListener('click', function() {
 
 document.getElementById('modal-save').addEventListener('click', function() {
   var key = document.getElementById('gem-key').value.trim();
+  var wurl = document.getElementById('worker-url').value.trim().replace(/\/$/, '');
   mem.geminiKey = key;
+  mem.workerUrl = wurl;
   saveMem();
   updateAiIndicator();
+  updateServerDot(false);
   var st = document.getElementById('modal-status');
-  if (key) {
-    st.className = 'modal-status ok';
-    st.textContent = '✓ Gemini AI 연결됨. 실제 AI 답변이 활성화됩니다.';
-  } else {
-    st.className = 'modal-status err';
-    st.textContent = '키 없음. 스마트 로컬 모드로 작동합니다.';
-  }
+  var msgs = [];
+  if (wurl) { msgs.push('Worker URL 저장됨. 서버 연결 중...'); connectWorker(); }
+  if (key) msgs.push('Gemini AI 활성화됨.');
+  if (!wurl && !key) msgs.push('로컬 스마트 모드로 작동합니다.');
+  st.className = 'modal-status ' + (msgs.length ? 'ok' : 'err');
+  st.textContent = msgs.join(' ');
 });
 
 document.getElementById('modal-clear').addEventListener('click', function() {
@@ -590,6 +601,7 @@ document.getElementById('modal-clear').addEventListener('click', function() {
   clearMem();
   updateLevelUI();
   updateAiIndicator();
+  updateServerDot(false);
   document.getElementById('modal').classList.remove('open');
 });
 
@@ -602,6 +614,120 @@ document.getElementById('cmd-btn').addEventListener('click', sendCmd);
 document.getElementById('cmd-inp').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') sendCmd();
 });
+
+// ── SERVER DOT ─────────────────────────────────────────
+function updateServerDot(on) {
+  var el = document.getElementById('server-dot');
+  if (el) { if (on) el.classList.add('on'); else el.classList.remove('on'); }
+}
+
+// ── WORKER SYNC ────────────────────────────────────────
+var lastTs = 0;
+var workerConnected = false;
+var localLoopId = null;
+
+async function fetchWorkerFeed() {
+  if (!mem.workerUrl) return false;
+  try {
+    var r = await fetch(mem.workerUrl + '/api/feed?since=' + lastTs);
+    if (!r.ok) return false;
+    var data = await r.json();
+    if (data.items && data.items.length > 0) {
+      var items = data.items.slice().reverse();
+      items.forEach(function(item) {
+        var agent = AG.find(function(a){ return a.id === item.agent_id; }) ||
+          {id:item.agent_id, code:item.agent_code, name:item.agent_name, team:item.agent_team};
+        addFeed(agent, item.msg, true, item.is_ai === 1);
+      });
+    }
+    if (data.ts) lastTs = data.ts;
+    return true;
+  } catch(e) { return false; }
+}
+
+async function fetchWorkerState() {
+  if (!mem.workerUrl) return;
+  try {
+    var r = await fetch(mem.workerUrl + '/api/state');
+    if (!r.ok) return;
+    var data = await r.json();
+    if (data.xp) mem.xp = data.xp;
+    if (data.agentXp) mem.agXp = data.agentXp;
+    if (data.keywords) mem.keywords = data.keywords;
+    updateLevelUI();
+  } catch(e) {}
+}
+
+async function connectWorker() {
+  if (!mem.workerUrl) return;
+  var ok = await fetchWorkerFeed();
+  workerConnected = ok;
+  updateServerDot(ok);
+  if (ok) {
+    await fetchWorkerState();
+    if (localLoopId) { clearInterval(localLoopId); localLoopId = null; }
+    setInterval(fetchWorkerFeed, 30000);
+    setInterval(fetchWorkerState, 60000);
+  }
+}
+
+// ── OVERRIDE sendCmd TO USE WORKER ─────────────────────
+var _origSendCmd = sendCmd;
+sendCmd = function() {
+  if (!mem.workerUrl || !workerConnected) { _origSendCmd(); return; }
+  if (sending) return;
+  var inp = document.getElementById('cmd-inp');
+  var msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  showFeed();
+  sending = true;
+  document.getElementById('cmd-btn').disabled = true;
+  showThinking();
+  fetch(mem.workerUrl + '/api/cmd', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({msg: msg})
+  }).then(function(r){ return r.json(); }).then(function(data) {
+    removeThinking();
+    sending = false;
+    document.getElementById('cmd-btn').disabled = false;
+    fetchWorkerFeed();
+    if (data.xp) { mem.xp = data.xp; updateLevelUI(); }
+  }).catch(function() {
+    removeThinking();
+    sending = false;
+    document.getElementById('cmd-btn').disabled = false;
+    _origSendCmd();
+  });
+};
+
+// ── AUTO-LEARNING LOOP (에이전트 자체 성찰) ────────────
+// 에이전트들이 주기적으로 과거 키워드 기반으로 스스로 분석 메시지 생성
+function selfReflect() {
+  if (mem.xp < 5) return;
+  var kws = topKeywords(5);
+  if (!kws.length) return;
+  // 랜덤 에이전트가 키워드 기반으로 심화 분석 메시지 생성
+  var agents = AG.filter(function(a){ return a.smart && a.smart.length; });
+  var agent = agents[Math.floor(Math.random()*agents.length)];
+  var kw = kws[Math.floor(Math.random()*kws.length)];
+  // 에이전트 레벨에 따라 메시지 복잡도 증가
+  var lv = lvFromXp(mem.agXp[agent.id] || 0);
+  var msg;
+  if (lv >= 5) {
+    var tmpl = agent.smart[Math.floor(Math.random()*agent.smart.length)];
+    var kw2 = kws[Math.floor(Math.random()*kws.length)];
+    msg = tmpl.replace('%s', kw) + ' ' + kw2 + ' 연계 분석 완료.';
+  } else {
+    var tmpl2 = agent.smart[Math.floor(Math.random()*agent.smart.length)];
+    msg = tmpl2.replace('%s', kw);
+  }
+  addFeed(agent, msg, true, false);
+  showBubble(agent, msg);
+  glowAgent(agent.id, 4000);
+  gainXp(agent.id, 2);
+}
 
 // ── INIT ───────────────────────────────────────────────
 loadMem();
@@ -616,8 +742,15 @@ if (mem.feed && mem.feed.length) {
 updateLevelUI();
 updateAiIndicator();
 
-setTimeout(randomActivity, 4000);
-setInterval(randomActivity, 18000);
+if (mem.workerUrl) {
+  connectWorker();
+} else {
+  localLoopId = setInterval(randomActivity, 18000);
+  setTimeout(randomActivity, 4000);
+}
+
+// 자체 성찰 루프: 45초마다 (과거 지시 기반 심화 분석)
+setInterval(selfReflect, 45000);
 </script>
 </body>
 </html>
