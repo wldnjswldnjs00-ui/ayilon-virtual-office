@@ -241,7 +241,8 @@
 <script>
 // ── MEMORY ────────────────────────────────────────────
 var MEM_KEY = 'ayilon_v2';
-var mem = { feed:null, cmds:[], keywords:{}, xp:0, geminiKey:'', agXp:{} };
+var DEFAULT_WORKER = 'https://ayilon-office.wldnjswldnjs00.workers.dev';
+var mem = { feed:null, cmds:[], keywords:{}, xp:0, geminiKey:'', agXp:{}, workerUrl:DEFAULT_WORKER };
 
 function saveMem() {
   try {
@@ -264,6 +265,7 @@ function loadMem() {
     if (d.xp) mem.xp = d.xp;
     if (d.geminiKey) mem.geminiKey = d.geminiKey;
     if (d.agXp) mem.agXp = d.agXp;
+    if (d.workerUrl !== undefined) mem.workerUrl = d.workerUrl;
   } catch(e) {}
 }
 
