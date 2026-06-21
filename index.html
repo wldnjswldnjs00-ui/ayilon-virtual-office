@@ -6,69 +6,138 @@
   <title>AYILON — Virtual Office</title>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    :root {
-      --bg: #000; --s1: #0a0a0a; --s2: #141414;
-      --b1: #1e1e1e; --b2: #2c2c2c;
-      --t1: #fff; --t2: #888; --t3: #444;
-    }
-    body { background: var(--bg); color: var(--t1); font-family: -apple-system, 'Helvetica Neue', sans-serif; min-height: 100vh; }
+    :root { --bg:#000; --s1:#0a0a0a; --s2:#141414; --b1:#1e1e1e; --b2:#2c2c2c; --t1:#fff; --t2:#888; --t3:#444; }
+    body { background:var(--bg); color:var(--t1); font-family:-apple-system,'Helvetica Neue',sans-serif; min-height:100vh; }
 
-    header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--b1); background: var(--bg); position: sticky; top: 0; z-index: 10; }
-    .logo { font-size: 13px; font-weight: 800; letter-spacing: 0.14em; }
-    .logo span { color: var(--t3); font-weight: 400; font-size: 10px; margin-left: 6px; letter-spacing: 0.08em; }
-    .live { display: flex; align-items: center; gap: 5px; font-size: 9px; font-weight: 700; color: var(--t2); letter-spacing: 0.1em; }
-    .ld { width: 5px; height: 5px; background: #fff; border-radius: 50%; animation: blink 2s infinite; }
+    header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--b1); background:var(--bg); position:sticky; top:0; z-index:10; }
+    .logo { font-size:13px; font-weight:800; letter-spacing:.14em; }
+    .logo span { color:var(--t3); font-weight:400; font-size:10px; margin-left:6px; letter-spacing:.08em; }
+    .hdr-r { display:flex; align-items:center; gap:10px; }
+    .live { display:flex; align-items:center; gap:5px; font-size:9px; font-weight:700; color:var(--t2); letter-spacing:.1em; }
+    .ld { width:5px; height:5px; background:#fff; border-radius:50%; animation:blink 2s infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.1} }
+    .ai-indicator { font-size:7px; background:#0d0d2a; color:#5555ee; border:1px solid #1a1a44; border-radius:3px; padding:2px 5px; letter-spacing:.06em; display:none; }
+    .ai-indicator.on { display:inline-block; }
+    .set-btn { font-size:15px; color:var(--t3); background:none; border:none; cursor:pointer; padding:2px 4px; line-height:1; }
+    .set-btn:hover { color:var(--t2); }
 
-    .tabs { display: flex; border-bottom: 1px solid var(--b1); }
-    .tab-btn { flex: 1; padding: 12px; text-align: center; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--t3); border: none; border-bottom: 2px solid transparent; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-    .tab-btn.on { color: #fff; border-bottom-color: #fff; }
+    .tabs { display:flex; border-bottom:1px solid var(--b1); }
+    .tab-btn { flex:1; padding:12px; text-align:center; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--t3); border:none; border-bottom:2px solid transparent; background:none; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+    .tab-btn.on { color:#fff; border-bottom-color:#fff; }
 
-    .pane-map { padding: 16px; }
-    .floor-lbl { font-size: 8px; font-weight: 700; letter-spacing: 0.14em; color: var(--t3); text-transform: uppercase; margin-bottom: 14px; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .col3 { grid-column: 1 / -1; }
-    .zone { border: 1px solid var(--b1); border-radius: 10px; padding: 13px 14px; background: var(--s1); }
-    .zname { font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--t3); margin-bottom: 12px; }
-    .agents { display: flex; gap: 14px; flex-wrap: wrap; }
+    .pane-map { padding:16px; }
+    .floor-lbl { font-size:8px; font-weight:700; letter-spacing:.14em; color:var(--t3); text-transform:uppercase; margin-bottom:14px; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .col3 { grid-column:1/-1; }
+    .zone { border:1px solid var(--b1); border-radius:10px; padding:13px 14px; background:var(--s1); }
+    .zname { font-size:8px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--t3); margin-bottom:12px; }
+    .agents { display:flex; gap:14px; flex-wrap:wrap; }
 
-    .ag { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .av { width: 48px; height: 48px; border-radius: 50%; background: var(--s2); border: 1.5px solid var(--b2); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; letter-spacing: 0.03em; color: var(--t3); }
-    .ag.ceo .av { width: 58px; height: 58px; font-size: 11px; }
-    .ag.on .av { border-color: #fff; color: #fff; box-shadow: 0 0 14px rgba(255,255,255,.12); animation: pulse 3s ease-in-out infinite; }
+    .ag { display:flex; flex-direction:column; align-items:center; gap:3px; }
+    .av { width:48px; height:48px; border-radius:50%; background:var(--s2); border:1.5px solid var(--b2); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; letter-spacing:.03em; color:var(--t3); }
+    .ag.ceo .av { width:58px; height:58px; font-size:11px; }
+    .ag.on .av { border-color:#fff; color:#fff; box-shadow:0 0 14px rgba(255,255,255,.12); animation:pulse 3s ease-in-out infinite; }
     @keyframes pulse { 0%,100%{box-shadow:0 0 14px rgba(255,255,255,.12)} 50%{box-shadow:0 0 22px rgba(255,255,255,.22)} }
-    .aname { font-size: 9px; font-weight: 700; color: var(--t2); letter-spacing: 0.04em; }
-    .arole { font-size: 7px; color: var(--t3); }
-    .bubble { font-size: 8px; color: var(--t2); background: var(--s2); border: 1px solid var(--b2); border-radius: 6px; padding: 4px 7px; max-width: 90px; text-align: center; line-height: 1.4; margin-top: 2px; display: none; }
-    .ag.talking .bubble { display: block; }
+    .aname { font-size:9px; font-weight:700; color:var(--t2); letter-spacing:.04em; }
+    .arole { font-size:7px; color:var(--t3); }
+    .alv { font-size:6px; color:#2a2a2a; letter-spacing:.06em; transition:color .3s; }
+    .ag.on .alv { color:#555; }
+    .bubble { font-size:8px; color:var(--t2); background:var(--s2); border:1px solid var(--b2); border-radius:6px; padding:4px 7px; max-width:90px; text-align:center; line-height:1.4; margin-top:2px; display:none; }
+    .ag.talking .bubble { display:block; }
 
-    .pane-feed { padding: 0; }
-    .feed-hdr { padding: 12px 16px; border-bottom: 1px solid var(--b1); display: flex; justify-content: space-between; }
-    .feed-hdr-l { font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--t3); }
-    .feed-hdr-r { font-size: 8px; color: var(--t3); }
-    .fi { padding: 12px 16px; border-bottom: 1px solid var(--b1); }
-    .fi-new { animation: fadein .4s ease; }
+    .pane-feed { padding:0; }
+    .feed-hdr { padding:10px 16px; border-bottom:1px solid var(--b1); display:flex; justify-content:space-between; align-items:center; }
+    .feed-hdr-l { font-size:8px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--t3); }
+    .feed-hdr-r { display:flex; align-items:center; gap:8px; }
+    .mem-bar-wrap { display:flex; align-items:center; gap:4px; }
+    .mem-lbl { font-size:7px; color:#333; letter-spacing:.06em; }
+    .mem-bar { width:36px; height:2px; background:#111; border-radius:1px; }
+    .mem-fill { height:2px; background:#fff; border-radius:1px; transition:width .5s; }
+    .ev-cnt-txt { font-size:8px; color:var(--t3); }
+
+    .fi { padding:12px 16px; border-bottom:1px solid var(--b1); }
+    .fi-new { animation:fadein .4s ease; }
     @keyframes fadein { from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:translateY(0)} }
-    .fi-top { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
-    .fi-av { width: 22px; height: 22px; border-radius: 50%; background: var(--s2); border: 1px solid var(--b2); display: flex; align-items: center; justify-content: center; font-size: 7px; font-weight: 800; color: var(--t2); flex-shrink: 0; }
-    .fi-name { font-size: 10px; font-weight: 700; }
-    .fi-team { font-size: 8px; color: var(--t3); flex: 1; }
-    .fi-time { font-size: 8px; color: var(--t3); }
-    .fi-msg { font-size: 11px; color: var(--t2); line-height: 1.6; padding-left: 29px; }
+    .fi-top { display:flex; align-items:center; gap:7px; margin-bottom:5px; }
+    .fi-av { width:22px; height:22px; border-radius:50%; background:var(--s2); border:1px solid var(--b2); display:flex; align-items:center; justify-content:center; font-size:7px; font-weight:800; color:var(--t2); flex-shrink:0; }
+    .fi-name { font-size:10px; font-weight:700; }
+    .fi-team { font-size:8px; color:var(--t3); flex:1; }
+    .fi-time { font-size:8px; color:var(--t3); }
+    .fi-msg { font-size:11px; color:var(--t2); line-height:1.6; padding-left:29px; }
+    .fi-ai { font-size:7px; background:#0d0d2a; color:#4444cc; border:1px solid #1a1a44; border-radius:3px; padding:1px 4px; margin-left:4px; vertical-align:middle; }
 
-    .cmd { display: flex; align-items: center; padding: 12px 16px; gap: 10px; border-top: 1px solid var(--b1); background: var(--bg); position: sticky; bottom: 0; }
-    .cmd-to { font-size: 9px; color: var(--t3); white-space: nowrap; }
-    .cmd-to b { color: var(--t2); }
-    .cmd-inp { flex: 1; background: var(--s1); border: 1px solid var(--b1); border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 13px; outline: none; }
-    .cmd-inp::placeholder { color: var(--t3); }
-    .cmd-btn { padding: 9px 16px; background: #fff; color: #000; border: none; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; }
+    .thinking { display:flex; align-items:center; gap:8px; padding:12px 16px; border-bottom:1px solid var(--b1); }
+    .thinking-dots { display:flex; gap:3px; }
+    .thinking-dots span { width:4px; height:4px; background:#333; border-radius:50%; animation:dot .9s infinite; }
+    .thinking-dots span:nth-child(2) { animation-delay:.2s; }
+    .thinking-dots span:nth-child(3) { animation-delay:.4s; }
+    @keyframes dot { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+    .thinking-txt { font-size:10px; color:#444; }
+
+    .cmd { display:flex; align-items:center; padding:12px 16px; gap:10px; border-top:1px solid var(--b1); background:var(--bg); position:sticky; bottom:0; }
+    .cmd-to { font-size:9px; color:var(--t3); white-space:nowrap; }
+    .cmd-to b { color:var(--t2); }
+    .cmd-inp { flex:1; background:var(--s1); border:1px solid var(--b1); border-radius:8px; padding:9px 12px; color:#fff; font-size:13px; outline:none; }
+    .cmd-inp::placeholder { color:var(--t3); }
+    .cmd-btn { padding:9px 16px; background:#fff; color:#000; border:none; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; white-space:nowrap; }
+    .cmd-btn:disabled { background:#1a1a1a; color:#444; cursor:not-allowed; }
+
+    /* Modal */
+    .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:200; align-items:center; justify-content:center; }
+    .modal-bg.open { display:flex; }
+    .modal { background:#0a0a0a; border:1px solid #1e1e1e; border-radius:14px; padding:24px; width:min(320px,90vw); }
+    .modal-title { font-size:12px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; margin-bottom:20px; }
+    .modal label { font-size:8px; color:#444; letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:6px; }
+    .modal input { width:100%; background:#141414; border:1px solid #1e1e1e; border-radius:6px; padding:9px 11px; color:#fff; font-size:12px; outline:none; margin-bottom:8px; font-family:monospace; }
+    .modal-hint { font-size:9px; color:#333; line-height:1.6; margin-bottom:16px; }
+    .modal-hint b { color:#555; }
+    .modal-status { font-size:9px; padding:7px 10px; border-radius:5px; margin-bottom:14px; display:none; line-height:1.5; }
+    .modal-status.ok { display:block; background:#0a180a; color:#3a3; border:1px solid #1a3a1a; }
+    .modal-status.err { display:block; background:#180a0a; color:#a33; border:1px solid #3a1a1a; }
+    .modal-sep { border:none; border-top:1px solid #1a1a1a; margin:16px 0; }
+    .modal-stats { margin-bottom:4px; }
+    .modal-stats-row { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #111; }
+    .modal-stats-row:last-child { border-bottom:none; }
+    .msl { font-size:8px; color:#333; }
+    .msr { font-size:8px; color:#555; font-weight:700; }
+    .modal-btns { display:flex; gap:8px; justify-content:flex-end; margin-top:16px; }
+    .modal-save { padding:8px 18px; background:#fff; color:#000; border:none; border-radius:6px; font-size:11px; font-weight:800; cursor:pointer; }
+    .modal-cancel { padding:8px 14px; background:none; color:#444; border:1px solid #1e1e1e; border-radius:6px; font-size:11px; cursor:pointer; }
+    .modal-clear { padding:8px 14px; background:none; color:#633; border:1px solid #2a1a1a; border-radius:6px; font-size:11px; cursor:pointer; }
   </style>
 </head>
 <body>
 
+<!-- Settings Modal -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="modal-title">설정</div>
+    <label>Gemini API Key (무료 AI 연동)</label>
+    <input type="password" id="gem-key" placeholder="AIza..." autocomplete="off" />
+    <div class="modal-hint">
+      <b>aistudio.google.com</b> → Get API key<br>
+      Google 계정만 있으면 무료. 내 PC CPU 사용 없음.<br>
+      키 없으면 스마트 로컬 모드로 작동합니다.
+    </div>
+    <div class="modal-status" id="modal-status"></div>
+    <hr class="modal-sep" />
+    <label style="margin-bottom:8px">기억 현황</label>
+    <div class="modal-stats" id="modal-stats"></div>
+    <div class="modal-btns">
+      <button class="modal-clear" id="modal-clear">기억 초기화</button>
+      <button class="modal-cancel" id="modal-cancel">취소</button>
+      <button class="modal-save" id="modal-save">저장</button>
+    </div>
+  </div>
+</div>
+
 <header>
   <div class="logo">AYILON <span>VIRTUAL OFFICE</span></div>
-  <div class="live"><div class="ld"></div>LIVE &nbsp;12/12</div>
+  <div class="hdr-r">
+    <span class="ai-indicator" id="ai-indicator">AI ON</span>
+    <div class="live"><div class="ld"></div><span>LIVE 12/12</span></div>
+    <button class="set-btn" id="set-btn" title="설정">⚙</button>
+  </div>
 </header>
 
 <div class="tabs">
@@ -79,104 +148,65 @@
 <div id="pane-map" class="pane-map">
   <div class="floor-lbl">Floor Plan — AYILON HQ</div>
   <div class="grid">
-
     <div class="zone col3">
       <div class="zname">Executive</div>
       <div class="agents">
         <div class="ag ceo on" id="ag-CEO">
-          <div class="av">CEO</div>
-          <div class="aname">CEO</div>
-          <div class="arole">최고경영자</div>
-          <div class="bubble" id="b-CEO"></div>
+          <div class="av">CEO</div><div class="aname">CEO</div><div class="arole">최고경영자</div>
+          <div class="alv" id="lv-CEO">LV 1</div><div class="bubble" id="b-CEO"></div>
         </div>
       </div>
     </div>
-
     <div class="zone col3">
       <div class="zname">전략팀</div>
       <div class="agents">
-        <div class="ag on" id="ag-IRON"><div class="av">IRN</div><div class="aname">IRON</div><div class="arole">전략팀장</div><div class="bubble" id="b-IRON"></div></div>
-        <div class="ag" id="ag-GRID"><div class="av">GRD</div><div class="aname">GRID</div><div class="arole">백테스팅</div><div class="bubble" id="b-GRID"></div></div>
+        <div class="ag on" id="ag-IRON"><div class="av">IRN</div><div class="aname">IRON</div><div class="arole">전략팀장</div><div class="alv" id="lv-IRON">LV 1</div><div class="bubble" id="b-IRON"></div></div>
+        <div class="ag" id="ag-GRID"><div class="av">GRD</div><div class="aname">GRID</div><div class="arole">백테스팅</div><div class="alv" id="lv-GRID">LV 1</div><div class="bubble" id="b-GRID"></div></div>
       </div>
     </div>
-
-    <div class="zone">
-      <div class="zname">리서치팀</div>
-      <div class="agents">
-        <div class="ag on" id="ag-SCOUT"><div class="av">SCT</div><div class="aname">SCOUT</div><div class="arole">리서치팀장</div><div class="bubble" id="b-SCOUT"></div></div>
-      </div>
-    </div>
-
-    <div class="zone">
-      <div class="zname">리스크관리팀</div>
-      <div class="agents">
-        <div class="ag" id="ag-WARD"><div class="av">WRD</div><div class="aname">WARD</div><div class="arole">리스크팀장</div><div class="bubble" id="b-WARD"></div></div>
-      </div>
-    </div>
-
-    <div class="zone">
-      <div class="zname">프로그래밍팀</div>
-      <div class="agents">
-        <div class="ag on" id="ag-FORGE"><div class="av">FRG</div><div class="aname">FORGE</div><div class="arole">프로그래밍팀장</div><div class="bubble" id="b-FORGE"></div></div>
-      </div>
-    </div>
-
-    <div class="zone">
-      <div class="zname">인프라팀</div>
-      <div class="agents">
-        <div class="ag" id="ag-ATLAS"><div class="av">ATL</div><div class="aname">ATLAS</div><div class="arole">인프라팀장</div><div class="bubble" id="b-ATLAS"></div></div>
-      </div>
-    </div>
-
-    <div class="zone">
-      <div class="zname">홍보마케팅팀</div>
-      <div class="agents">
-        <div class="ag" id="ag-LUNA"><div class="av">LNA</div><div class="aname">LUNA</div><div class="arole">마케팅팀장</div><div class="bubble" id="b-LUNA"></div></div>
-      </div>
-    </div>
-
-    <div class="zone">
-      <div class="zname">제품팀</div>
-      <div class="agents">
-        <div class="ag" id="ag-PIXEL"><div class="av">PXL</div><div class="aname">PIXEL</div><div class="arole">제품팀장</div><div class="bubble" id="b-PIXEL"></div></div>
-      </div>
-    </div>
-
-    <div class="zone">
-      <div class="zname">고객서비스팀</div>
-      <div class="agents">
-        <div class="ag" id="ag-ECHO"><div class="av">ECH</div><div class="aname">ECHO</div><div class="arole">CS팀장</div><div class="bubble" id="b-ECHO"></div></div>
-      </div>
-    </div>
-
-    <div class="zone">
-      <div class="zname">법률팀</div>
-      <div class="agents">
-        <div class="ag" id="ag-REX"><div class="av">REX</div><div class="aname">REX</div><div class="arole">법률팀장</div><div class="bubble" id="b-REX"></div></div>
-      </div>
-    </div>
-
-    <div class="zone">
-      <div class="zname">세무회계팀</div>
-      <div class="agents">
-        <div class="ag" id="ag-LEDGER"><div class="av">LDG</div><div class="aname">LEDGER</div><div class="arole">세무팀장</div><div class="bubble" id="b-LEDGER"></div></div>
-      </div>
-    </div>
-
-    <div class="zone">
-      <div class="zname">보안팀</div>
-      <div class="agents">
-        <div class="ag" id="ag-SHIELD"><div class="av">SLD</div><div class="aname">SHIELD</div><div class="arole">보안팀장</div><div class="bubble" id="b-SHIELD"></div></div>
-      </div>
-    </div>
-
+    <div class="zone"><div class="zname">리서치팀</div><div class="agents">
+      <div class="ag on" id="ag-SCOUT"><div class="av">SCT</div><div class="aname">SCOUT</div><div class="arole">리서치팀장</div><div class="alv" id="lv-SCOUT">LV 1</div><div class="bubble" id="b-SCOUT"></div></div>
+    </div></div>
+    <div class="zone"><div class="zname">리스크관리팀</div><div class="agents">
+      <div class="ag" id="ag-WARD"><div class="av">WRD</div><div class="aname">WARD</div><div class="arole">리스크팀장</div><div class="alv" id="lv-WARD">LV 1</div><div class="bubble" id="b-WARD"></div></div>
+    </div></div>
+    <div class="zone"><div class="zname">프로그래밍팀</div><div class="agents">
+      <div class="ag on" id="ag-FORGE"><div class="av">FRG</div><div class="aname">FORGE</div><div class="arole">프로그래밍팀장</div><div class="alv" id="lv-FORGE">LV 1</div><div class="bubble" id="b-FORGE"></div></div>
+    </div></div>
+    <div class="zone"><div class="zname">인프라팀</div><div class="agents">
+      <div class="ag" id="ag-ATLAS"><div class="av">ATL</div><div class="aname">ATLAS</div><div class="arole">인프라팀장</div><div class="alv" id="lv-ATLAS">LV 1</div><div class="bubble" id="b-ATLAS"></div></div>
+    </div></div>
+    <div class="zone"><div class="zname">홍보마케팅팀</div><div class="agents">
+      <div class="ag" id="ag-LUNA"><div class="av">LNA</div><div class="aname">LUNA</div><div class="arole">마케팅팀장</div><div class="alv" id="lv-LUNA">LV 1</div><div class="bubble" id="b-LUNA"></div></div>
+    </div></div>
+    <div class="zone"><div class="zname">제품팀</div><div class="agents">
+      <div class="ag" id="ag-PIXEL"><div class="av">PXL</div><div class="aname">PIXEL</div><div class="arole">제품팀장</div><div class="alv" id="lv-PIXEL">LV 1</div><div class="bubble" id="b-PIXEL"></div></div>
+    </div></div>
+    <div class="zone"><div class="zname">고객서비스팀</div><div class="agents">
+      <div class="ag" id="ag-ECHO"><div class="av">ECH</div><div class="aname">ECHO</div><div class="arole">CS팀장</div><div class="alv" id="lv-ECHO">LV 1</div><div class="bubble" id="b-ECHO"></div></div>
+    </div></div>
+    <div class="zone"><div class="zname">법률팀</div><div class="agents">
+      <div class="ag" id="ag-REX"><div class="av">REX</div><div class="aname">REX</div><div class="arole">법률팀장</div><div class="alv" id="lv-REX">LV 1</div><div class="bubble" id="b-REX"></div></div>
+    </div></div>
+    <div class="zone"><div class="zname">세무회계팀</div><div class="agents">
+      <div class="ag" id="ag-LEDGER"><div class="av">LDG</div><div class="aname">LEDGER</div><div class="arole">세무팀장</div><div class="alv" id="lv-LEDGER">LV 1</div><div class="bubble" id="b-LEDGER"></div></div>
+    </div></div>
+    <div class="zone"><div class="zname">보안팀</div><div class="agents">
+      <div class="ag" id="ag-SHIELD"><div class="av">SLD</div><div class="aname">SHIELD</div><div class="arole">보안팀장</div><div class="alv" id="lv-SHIELD">LV 1</div><div class="bubble" id="b-SHIELD"></div></div>
+    </div></div>
   </div>
 </div>
 
 <div id="pane-feed" class="pane-feed" style="display:none">
   <div class="feed-hdr">
     <span class="feed-hdr-l">Activity Feed</span>
-    <span class="feed-hdr-r" id="ev-cnt">12 events</span>
+    <div class="feed-hdr-r">
+      <div class="mem-bar-wrap">
+        <span class="mem-lbl" id="mem-lbl">LV 1</span>
+        <div class="mem-bar"><div class="mem-fill" id="mem-fill" style="width:0%"></div></div>
+      </div>
+      <span class="ev-cnt-txt" id="ev-cnt">12 events</span>
+    </div>
   </div>
   <div id="feed-list">
     <div class="fi"><div class="fi-top"><div class="fi-av">SCT</div><div class="fi-name">SCOUT</div><div class="fi-team">리서치팀</div><div class="fi-time">방금</div></div><div class="fi-msg">BTC 공포탐욕지수 22. 극도 공포 구간 진입.</div></div>
@@ -201,95 +231,393 @@
 </div>
 
 <script>
-var mapPane = document.getElementById('pane-map');
-var feedPane = document.getElementById('pane-feed');
-var btnMap = document.getElementById('btn-map');
-var btnFeed = document.getElementById('btn-feed');
+// ── MEMORY ────────────────────────────────────────────
+var MEM_KEY = 'ayilon_v2';
+var mem = { feed:null, cmds:[], keywords:{}, xp:0, geminiKey:'', agXp:{} };
 
-btnMap.addEventListener('click', function() {
-  mapPane.style.display = 'block';
-  feedPane.style.display = 'none';
-  btnMap.className = 'tab-btn on';
-  btnFeed.className = 'tab-btn';
-});
+function saveMem() {
+  try {
+    var list = document.getElementById('feed-list');
+    var items = [];
+    for (var i = 0; i < Math.min(list.children.length, 50); i++) {
+      items.push(list.children[i].outerHTML.replace(/fi-new/g,''));
+    }
+    mem.feed = items;
+    localStorage.setItem(MEM_KEY, JSON.stringify(mem));
+  } catch(e) {}
+}
 
-btnFeed.addEventListener('click', function() {
-  mapPane.style.display = 'none';
-  feedPane.style.display = 'block';
-  btnMap.className = 'tab-btn';
-  btnFeed.className = 'tab-btn on';
-});
+function loadMem() {
+  try {
+    var d = JSON.parse(localStorage.getItem(MEM_KEY) || '{}');
+    if (d.feed && d.feed.length) mem.feed = d.feed;
+    if (d.cmds) mem.cmds = d.cmds;
+    if (d.keywords) mem.keywords = d.keywords;
+    if (d.xp) mem.xp = d.xp;
+    if (d.geminiKey) mem.geminiKey = d.geminiKey;
+    if (d.agXp) mem.agXp = d.agXp;
+  } catch(e) {}
+}
 
-var AGENTS = [
-  {id:'CEO',   code:'CEO', name:'CEO',    team:'Executive',    msgs:['전체 팀 브리핑 완료.','시장 방향 재검토 지시.','리스크 레벨 조정 승인.','전략 회의 소집.','포지션 현황 확인 중.']},
-  {id:'IRON',  code:'IRN', name:'IRON',   team:'전략팀',       msgs:['롱 포지션 진입 검토.','MA 크로스 신호 포착.','전략 파라미터 조정 중.','시장 모멘텀 분석 완료.','진입 타이밍 계산 중.']},
-  {id:'GRID',  code:'GRD', name:'GRID',   team:'백테스팅팀',   msgs:['백테스트 시뮬레이션 실행 중.','샤프지수 1.9 달성.','드로다운 최적화 완료.','Strategy 7 검증 중.','과거 데이터 분석 완료.']},
-  {id:'SCOUT', code:'SCT', name:'SCOUT',  team:'리서치팀',     msgs:['온체인 데이터 급변 감지.','BTC 고래 이동 포착.','공포탐욕지수 하락 중.','ETH 펀딩비 이상 신호.','알트코인 급등 패턴 감지.']},
-  {id:'WARD',  code:'WRD', name:'WARD',   team:'리스크관리팀', msgs:['손실 한도 50% 경고.','포지션 사이즈 조정 권고.','리스크 지표 정상 범위.','익스포저 재계산 완료.','최대 낙폭 모니터링 중.']},
-  {id:'FORGE', code:'FRG', name:'FORGE',  team:'프로그래밍팀', msgs:['API 레이턴시 최적화.','신규 전략 코드 배포.','버그 수정 완료.','Cron 스케줄 조정.','OKX 연동 안정화.']},
-  {id:'ATLAS', code:'ATL', name:'ATLAS',  team:'인프라팀',     msgs:['서버 응답 12ms 달성.','D1 쿼리 캐싱 적용.','Workers 오토스케일 완료.','업타임 99.99% 유지.','스토리지 최적화 완료.']},
-  {id:'LUNA',  code:'LNA', name:'LUNA',   team:'홍보마케팅팀', msgs:['신규 캠페인 런칭.','트위터 인게이지먼트 +24%.','뉴스레터 오픈율 41%.','파트너십 제안 검토 중.','콘텐츠 스케줄 수립 완료.']},
-  {id:'PIXEL', code:'PXL', name:'PIXEL',  team:'제품팀',       msgs:['대시보드 UX 개선 완료.','신기능 스펙 확정.','사용자 피드백 분석 중.','로드맵 업데이트 완료.','A/B 테스트 설계 중.']},
-  {id:'ECHO',  code:'ECH', name:'ECHO',   team:'고객서비스팀', msgs:['CS 응답률 98% 유지.','문의 평균 처리 2.1분.','신규 FAQ 추가 완료.','사용자 만족도 4.8/5.','VIP 고객 온보딩 완료.']},
-  {id:'REX',   code:'REX', name:'REX',    team:'법률팀',       msgs:['MiCA 규정 분석 완료.','이용약관 업데이트 검토.','개인정보처리방침 갱신.','규제 리스크 낮음.','법률 자문 완료.']},
-  {id:'LEDGER',code:'LDG', name:'LEDGER', team:'세무회계팀',   msgs:['월간 손익 집계 완료.','세금 보고 준비 중.','구독 수익 $13,200 기록.','비용 최적화 방안 도출.','재무 보고서 작성 중.']},
-  {id:'SHIELD',code:'SLD', name:'SHIELD', team:'보안팀',       msgs:['침입 시도 차단 완료.','API 키 로테이션 완료.','보안 스캔 이상 없음.','2FA 적용률 100%.','취약점 패치 배포 완료.']}
+function clearMem() {
+  mem.feed = null; mem.cmds = []; mem.keywords = {}; mem.xp = 0; mem.agXp = {};
+  saveMem();
+}
+
+// ── UTILS ─────────────────────────────────────────────
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function lvFromXp(x) { return Math.floor(x / 5) + 1; }
+function lvPct(x) { return (x % 5) / 5 * 100; }
+
+function extractKeywords(text) {
+  var stop = ['을','를','이','가','은','는','에','의','도','로','으로','와','과','하다','했','합니다','해주','주세요','좀','그리고','하고','에서','부터','까지'];
+  text.replace(/[^\w\s가-힣]/g,' ').split(/\s+/).forEach(function(w) {
+    if (w.length >= 2 && stop.indexOf(w) === -1) mem.keywords[w] = (mem.keywords[w] || 0) + 1;
+  });
+}
+
+function topKeywords(n) {
+  return Object.keys(mem.keywords).sort(function(a,b){ return mem.keywords[b]-mem.keywords[a]; }).slice(0,n);
+}
+
+// ── AGENTS ─────────────────────────────────────────────
+var AG = [
+  {id:'CEO',   code:'CEO', name:'CEO',    team:'Executive',
+   kw:['전략','방향','팀','회의','승인','지시','전체','현황','점검'],
+   msgs:['전체 팀 브리핑 완료.','시장 방향 재검토 지시.','리스크 레벨 조정 승인.','전략 회의 소집.','포지션 현황 확인 중.','팀 성과 점검 완료.'],
+   smart:['"%s" 관련 팀 지시 전달 완료.','"%s" 건 검토 후 승인.','팀 전체에 "%s" 이슈 공유 완료.']},
+  {id:'IRON',  code:'IRN', name:'IRON',   team:'전략팀',
+   kw:['BTC','ETH','롱','숏','진입','전략','MA','RSI','모멘텀','매수','매도','청산'],
+   msgs:['롱 포지션 진입 검토.','MA 크로스 신호 포착.','전략 파라미터 조정 중.','시장 모멘텀 분석 완료.','진입 타이밍 계산 중.','전략 수익률 +4.2% 기록.'],
+   smart:['"%s" 신호 포착. 전략 업데이트.','"%s" 기반 진입 전략 수립 완료.','"%s" 분석 결과 강세 신호.']},
+  {id:'GRID',  code:'GRD', name:'GRID',   team:'백테스팅팀',
+   kw:['백테스트','시뮬레이션','샤프','드로다운','승률','Strategy','검증','최적화'],
+   msgs:['백테스트 시뮬레이션 실행 중.','샤프지수 1.9 달성.','드로다운 최적화 완료.','Strategy 7 검증 중.','과거 데이터 분석 완료.','최적 파라미터 도출 완료.'],
+   smart:['"%s" 전략 백테스트 완료.','"%s" 기반 시뮬레이션 실행 중.','"%s" 검증 결과 승률 61.4%.']},
+  {id:'SCOUT', code:'SCT', name:'SCOUT',  team:'리서치팀',
+   kw:['BTC','ETH','온체인','고래','공포','탐욕','펀딩','알트','시장','분석'],
+   msgs:['온체인 데이터 급변 감지.','BTC 고래 이동 포착.','공포탐욕지수 하락 중.','ETH 펀딩비 이상 신호.','알트코인 급등 패턴 감지.','거래소 유입량 급증 감지.'],
+   smart:['"%s" 온체인 이상 신호 감지.','"%s" 관련 리서치 보고서 완성.','"%s" 시장 심리 분석 완료.']},
+  {id:'WARD',  code:'WRD', name:'WARD',   team:'리스크관리팀',
+   kw:['리스크','손실','한도','포지션','익스포저','낙폭','경고','위험','헤지'],
+   msgs:['손실 한도 50% 경고.','포지션 사이즈 조정 권고.','리스크 지표 정상 범위.','익스포저 재계산 완료.','최대 낙폭 모니터링 중.','리스크 점수 4/10. 양호.'],
+   smart:['"%s" 리스크 평가 완료.','"%s" 리스크 노출 수준 낮음.','"%s" 리스크 모니터링 강화.']},
+  {id:'FORGE', code:'FRG', name:'FORGE',  team:'프로그래밍팀',
+   kw:['API','코드','배포','버그','Cron','OKX','레이턴시','최적화','개발','자동'],
+   msgs:['API 레이턴시 최적화.','신규 전략 코드 배포.','버그 수정 완료.','Cron 스케줄 조정.','OKX 연동 안정화.','자동매매 로직 업데이트.'],
+   smart:['"%s" 기능 개발 완료.','"%s" 관련 버그 수정 배포.','"%s" 자동화 구현 완료.']},
+  {id:'ATLAS', code:'ATL', name:'ATLAS',  team:'인프라팀',
+   kw:['서버','인프라','Workers','D1','업타임','스토리지','캐싱','스케일'],
+   msgs:['서버 응답 12ms 달성.','D1 쿼리 캐싱 적용.','Workers 오토스케일 완료.','업타임 99.99% 유지.','스토리지 최적화 완료.','CDN 캐시 히트율 98%.'],
+   smart:['"%s" 인프라 지원 준비 완료.','"%s" 서버 리소스 할당 완료.','"%s" 인프라 최적화 완료.']},
+  {id:'LUNA',  code:'LNA', name:'LUNA',   team:'홍보마케팅팀',
+   kw:['마케팅','캠페인','트위터','뉴스레터','파트너십','홍보','콘텐츠','SNS'],
+   msgs:['신규 캠페인 런칭.','트위터 인게이지먼트 +24%.','뉴스레터 오픈율 41%.','파트너십 제안 검토 중.','콘텐츠 스케줄 수립 완료.','광고 ROAS 3.2 달성.'],
+   smart:['"%s" 마케팅 캠페인 기획 완료.','"%s" 홍보 자료 제작 완료.','"%s" 파트너십 협의 시작.']},
+  {id:'PIXEL', code:'PXL', name:'PIXEL',  team:'제품팀',
+   kw:['대시보드','UX','기능','스펙','로드맵','제품','피드백','플랜','디자인'],
+   msgs:['대시보드 UX 개선 완료.','신기능 스펙 확정.','사용자 피드백 분석 중.','로드맵 업데이트 완료.','A/B 테스트 설계 중.','프로토타입 검토 완료.'],
+   smart:['"%s" 기능 스펙 작성 완료.','"%s" 사용자 리서치 분석 중.','"%s" 제품 로드맵 반영 완료.']},
+  {id:'ECHO',  code:'ECH', name:'ECHO',   team:'고객서비스팀',
+   kw:['고객','CS','문의','FAQ','만족도','VIP','온보딩','응답','지원'],
+   msgs:['CS 응답률 98% 유지.','문의 평균 처리 2.1분.','신규 FAQ 추가 완료.','사용자 만족도 4.8/5.','VIP 고객 온보딩 완료.','긍정 리뷰율 92% 달성.'],
+   smart:['"%s" 관련 FAQ 업데이트 완료.','"%s" 고객 문의 처리 완료.','"%s" CS 가이드 갱신.']},
+  {id:'REX',   code:'REX', name:'REX',    team:'법률팀',
+   kw:['규제','법률','MiCA','개인정보','이용약관','컴플라이언스','라이선스'],
+   msgs:['MiCA 규정 분석 완료.','이용약관 업데이트 검토.','개인정보처리방침 갱신.','규제 리스크 낮음.','법률 자문 완료.','컴플라이언스 보고서 완성.'],
+   smart:['"%s" 법률 검토 완료.','"%s" 규제 리스크 낮음.','"%s" 법적 의견서 작성 완료.']},
+  {id:'LEDGER',code:'LDG', name:'LEDGER', team:'세무회계팀',
+   kw:['수익','손익','세금','회계','비용','재무','구독','정산','예산'],
+   msgs:['월간 손익 집계 완료.','세금 보고 준비 중.','구독 수익 $13,200 기록.','비용 최적화 방안 도출.','재무 보고서 작성 중.','분기 결산 완료.'],
+   smart:['"%s" 재무 분석 완료.','"%s" 비용 처리 완료.','"%s" 수익 집계 반영 완료.']},
+  {id:'SHIELD',code:'SLD', name:'SHIELD', team:'보안팀',
+   kw:['보안','API키','침입','스캔','2FA','취약점','패치','로그','암호화'],
+   msgs:['침입 시도 차단 완료.','API 키 로테이션 완료.','보안 스캔 이상 없음.','2FA 적용률 100%.','취약점 패치 배포 완료.','보안 감사 보고서 완성.'],
+   smart:['"%s" 보안 감사 완료.','"%s" 취약점 없음 확인.','"%s" 보안 정책 업데이트 완료.']}
 ];
 
 var evCount = 12;
 
-function addFeed(agent, msg, isNew) {
+// ── FEED ─────────────────────────────────────────────
+function addFeed(agent, msg, isNew, isAI) {
   var list = document.getElementById('feed-list');
   var d = document.createElement('div');
   d.className = 'fi' + (isNew ? ' fi-new' : '');
-  d.innerHTML = '<div class="fi-top"><div class="fi-av">' + agent.code + '</div><div class="fi-name">' + agent.name + '</div><div class="fi-team">' + agent.team + '</div><div class="fi-time">방금</div></div><div class="fi-msg">' + msg + '</div>';
+  var aiTag = isAI ? '<span class="fi-ai">AI</span>' : '';
+  d.innerHTML =
+    '<div class="fi-top">' +
+      '<div class="fi-av">' + esc(agent.code) + '</div>' +
+      '<div class="fi-name">' + esc(agent.name) + aiTag + '</div>' +
+      '<div class="fi-team">' + esc(agent.team) + '</div>' +
+      '<div class="fi-time">방금</div>' +
+    '</div>' +
+    '<div class="fi-msg">' + esc(msg) + '</div>';
   list.insertBefore(d, list.firstChild);
   evCount++;
   document.getElementById('ev-cnt').textContent = evCount + ' events';
-  if (list.children.length > 30) list.removeChild(list.lastChild);
+  if (list.children.length > 50) list.removeChild(list.lastChild);
+  saveMem();
 }
 
+function showThinking() {
+  removeThinking();
+  var list = document.getElementById('feed-list');
+  var d = document.createElement('div');
+  d.id = 'thinking-el';
+  d.className = 'thinking fi-new';
+  d.innerHTML = '<div class="thinking-dots"><span></span><span></span><span></span></div><div class="thinking-txt">CEO가 분석 중...</div>';
+  list.insertBefore(d, list.firstChild);
+}
+
+function removeThinking() {
+  var t = document.getElementById('thinking-el');
+  if (t) t.parentNode.removeChild(t);
+}
+
+// ── BUBBLE & GLOW ──────────────────────────────────────
 function showBubble(agent, msg) {
   var ag = document.getElementById('ag-' + agent.id);
   var b = document.getElementById('b-' + agent.id);
   if (!ag || !b) return;
-  b.textContent = msg.length > 18 ? msg.slice(0, 18) + '…' : msg;
+  b.textContent = msg.length > 20 ? msg.slice(0,20) + '…' : msg;
   ag.classList.add('talking');
-  setTimeout(function() { ag.classList.remove('talking'); }, 4000);
+  setTimeout(function() { ag.classList.remove('talking'); }, 4500);
 }
 
-function randomActivity() {
-  var agent = AGENTS[Math.floor(Math.random() * AGENTS.length)];
-  var msg = agent.msgs[Math.floor(Math.random() * agent.msgs.length)];
-  addFeed(agent, msg, true);
-  showBubble(agent, msg);
-  var agEl = document.getElementById('ag-' + agent.id);
-  if (agEl && !agEl.classList.contains('on')) {
-    agEl.classList.add('on');
-    setTimeout(function() { agEl.classList.remove('on'); }, 5000);
+function glowAgent(id, ms) {
+  var el = document.getElementById('ag-' + id);
+  if (!el || el.classList.contains('on')) return;
+  el.classList.add('on');
+  setTimeout(function() { el.classList.remove('on'); }, ms || 5000);
+}
+
+// ── LEARNING ──────────────────────────────────────────
+function gainXp(id, n) {
+  mem.agXp[id] = (mem.agXp[id] || 0) + (n || 1);
+  mem.xp += (n || 1);
+  updateLevelUI();
+}
+
+function updateLevelUI() {
+  var lv = lvFromXp(mem.xp);
+  var pct = lvPct(mem.xp);
+  document.getElementById('mem-lbl').textContent = 'LV ' + lv;
+  document.getElementById('mem-fill').style.width = pct + '%';
+  AG.forEach(function(a) {
+    var el = document.getElementById('lv-' + a.id);
+    if (el) el.textContent = 'LV ' + lvFromXp(mem.agXp[a.id] || 0);
+  });
+}
+
+function smartMsg(agent) {
+  var kws = topKeywords(10);
+  var match = null;
+  for (var i = 0; i < kws.length; i++) {
+    if (agent.kw.indexOf(kws[i]) !== -1) { match = kws[i]; break; }
   }
+  if (match && mem.xp >= 3 && agent.smart && Math.random() < 0.35) {
+    var tmpl = agent.smart[Math.floor(Math.random() * agent.smart.length)];
+    return tmpl.replace('%s', match);
+  }
+  return agent.msgs[Math.floor(Math.random() * agent.msgs.length)];
 }
 
+// ── RANDOM ACTIVITY ────────────────────────────────────
+function randomActivity() {
+  var agent = AG[Math.floor(Math.random() * AG.length)];
+  var msg = smartMsg(agent);
+  addFeed(agent, msg, true, false);
+  showBubble(agent, msg);
+  glowAgent(agent.id, 5000);
+  gainXp(agent.id, 1);
+}
+
+// ── GEMINI API ─────────────────────────────────────────
+async function askGemini(userMsg) {
+  if (!mem.geminiKey) return null;
+  var hist = mem.cmds.slice(-5).map(function(c){ return '[지시] ' + c; }).join(' / ');
+  var kws = topKeywords(5).join(', ') || '없음';
+  var prompt = '당신은 AYILON 가상 오피스의 CEO AI입니다.\n암호화폐 자동매매 회사를 운영합니다.\n2문장 이내로 전문적이고 간결하게 답하세요.\n' +
+    (hist ? '과거 지시: ' + hist + '\n' : '') +
+    '주요 키워드: ' + kws + '\n\n사용자 지시: ' + userMsg;
+  try {
+    var r = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + mem.geminiKey,
+      { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ contents:[{parts:[{text:prompt}]}], generationConfig:{maxOutputTokens:80,temperature:0.7} }) }
+    );
+    if (!r.ok) return null;
+    var data = await r.json();
+    return (data.candidates && data.candidates[0] && data.candidates[0].content &&
+            data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) || null;
+  } catch(e) { return null; }
+}
+
+// ── LOCAL SMART REPLY ──────────────────────────────────
+function localReply(msg) {
+  var lower = msg.toLowerCase();
+  var relevant = AG.filter(function(a) {
+    return a.id !== 'CEO' && a.kw.some(function(k){ return lower.indexOf(k.toLowerCase()) !== -1 || msg.indexOf(k) !== -1; });
+  }).slice(0,2);
+
+  var replies = ['지시 수신. 즉시 처리하겠습니다.','확인했습니다. 팀에 전달하겠습니다.','검토 후 실행하겠습니다.','전략팀과 협의 후 보고드리겠습니다.','이해했습니다. 관련 팀에 브리핑하겠습니다.'];
+  if (mem.cmds.length >= 3 && Math.random() < 0.4) {
+    var prev = mem.cmds[Math.floor(Math.random() * Math.min(mem.cmds.length,5))];
+    replies.push('이전 지시 "' + prev.slice(0,12) + '…" 건과 함께 처리하겠습니다.');
+  }
+  var ceoReply = replies[Math.floor(Math.random() * replies.length)];
+  addFeed(AG[0], ceoReply, true, false);
+  showBubble(AG[0], ceoReply);
+  glowAgent('CEO', 5000);
+  gainXp('CEO', 1);
+
+  relevant.forEach(function(agent, i) {
+    setTimeout(function() {
+      var m = smartMsg(agent);
+      addFeed(agent, m, true, false);
+      showBubble(agent, m);
+      glowAgent(agent.id, 4000);
+      gainXp(agent.id, 2);
+    }, 2000 + i * 1500);
+  });
+}
+
+// ── SEND COMMAND ───────────────────────────────────────
+var sending = false;
+
+function sendCmd() {
+  if (sending) return;
+  var inp = document.getElementById('cmd-inp');
+  var msg = inp.value.trim();
+  if (!msg) return;
+
+  mem.cmds.push(msg);
+  if (mem.cmds.length > 100) mem.cmds.shift();
+  extractKeywords(msg);
+  gainXp('CEO', 2);
+
+  addFeed(AG[0], '→ 지시: ' + msg, true, false);
+  inp.value = '';
+  showFeed();
+
+  if (mem.geminiKey) {
+    sending = true;
+    document.getElementById('cmd-btn').disabled = true;
+    showThinking();
+    askGemini(msg).then(function(reply) {
+      removeThinking();
+      sending = false;
+      document.getElementById('cmd-btn').disabled = false;
+      if (reply) {
+        addFeed(AG[0], reply, true, true);
+        showBubble(AG[0], reply);
+        glowAgent('CEO', 6000);
+        gainXp('CEO', 3);
+      } else {
+        localReply(msg);
+      }
+      saveMem();
+    });
+  } else {
+    setTimeout(function() { localReply(msg); saveMem(); }, 1200);
+  }
+  saveMem();
+}
+
+// ── TABS ───────────────────────────────────────────────
+function showMap() {
+  document.getElementById('pane-map').style.display = 'block';
+  document.getElementById('pane-feed').style.display = 'none';
+  document.getElementById('btn-map').className = 'tab-btn on';
+  document.getElementById('btn-feed').className = 'tab-btn';
+}
+function showFeed() {
+  document.getElementById('pane-map').style.display = 'none';
+  document.getElementById('pane-feed').style.display = 'block';
+  document.getElementById('btn-map').className = 'tab-btn';
+  document.getElementById('btn-feed').className = 'tab-btn on';
+}
+document.getElementById('btn-map').addEventListener('click', showMap);
+document.getElementById('btn-feed').addEventListener('click', showFeed);
+
+// ── SETTINGS MODAL ─────────────────────────────────────
+function updateAiIndicator() {
+  var el = document.getElementById('ai-indicator');
+  if (mem.geminiKey) el.classList.add('on'); else el.classList.remove('on');
+}
+
+function renderModalStats() {
+  var kws = topKeywords(3);
+  var lv = lvFromXp(mem.xp);
+  document.getElementById('modal-stats').innerHTML =
+    '<div class="modal-stats-row"><span class="msl">총 XP</span><span class="msr">' + mem.xp + ' xp</span></div>' +
+    '<div class="modal-stats-row"><span class="msl">오피스 레벨</span><span class="msr">LV ' + lv + '</span></div>' +
+    '<div class="modal-stats-row"><span class="msl">명령 기록</span><span class="msr">' + mem.cmds.length + '개</span></div>' +
+    '<div class="modal-stats-row"><span class="msl">학습 키워드</span><span class="msr">' + (kws.length ? kws.join(', ') : '없음') + '</span></div>';
+}
+
+document.getElementById('set-btn').addEventListener('click', function() {
+  document.getElementById('gem-key').value = mem.geminiKey || '';
+  document.getElementById('modal-status').className = 'modal-status';
+  renderModalStats();
+  document.getElementById('modal').classList.add('open');
+});
+
+document.getElementById('modal-cancel').addEventListener('click', function() {
+  document.getElementById('modal').classList.remove('open');
+});
+
+document.getElementById('modal-save').addEventListener('click', function() {
+  var key = document.getElementById('gem-key').value.trim();
+  mem.geminiKey = key;
+  saveMem();
+  updateAiIndicator();
+  var st = document.getElementById('modal-status');
+  if (key) {
+    st.className = 'modal-status ok';
+    st.textContent = '✓ Gemini AI 연결됨. 실제 AI 답변이 활성화됩니다.';
+  } else {
+    st.className = 'modal-status err';
+    st.textContent = '키 없음. 스마트 로컬 모드로 작동합니다.';
+  }
+});
+
+document.getElementById('modal-clear').addEventListener('click', function() {
+  if (!confirm('모든 기억과 XP를 초기화할까요?')) return;
+  clearMem();
+  updateLevelUI();
+  updateAiIndicator();
+  document.getElementById('modal').classList.remove('open');
+});
+
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('open');
+});
+
+// ── CMD INPUT ──────────────────────────────────────────
 document.getElementById('cmd-btn').addEventListener('click', sendCmd);
 document.getElementById('cmd-inp').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') sendCmd();
 });
 
-function sendCmd() {
-  var inp = document.getElementById('cmd-inp');
-  var msg = inp.value.trim();
-  if (!msg) return;
-  addFeed(AGENTS[0], '→ CEO: ' + msg, true);
-  inp.value = '';
-  setTimeout(function() {
-    var replies = ['지시 수신. 팀에 전달하겠습니다.', '확인했습니다. 즉시 처리하겠습니다.', '검토 후 보고드리겠습니다.', '전략팀과 협의 후 실행하겠습니다.'];
-    addFeed(AGENTS[0], replies[Math.floor(Math.random() * replies.length)], true);
-  }, 1500);
+// ── INIT ───────────────────────────────────────────────
+loadMem();
+
+if (mem.feed && mem.feed.length) {
+  var list = document.getElementById('feed-list');
+  list.innerHTML = mem.feed.join('');
+  evCount = mem.feed.length;
+  document.getElementById('ev-cnt').textContent = evCount + ' events';
 }
 
-setTimeout(randomActivity, 5000);
-setInterval(randomActivity, 20000);
-</script>
+updateLevelUI();
+updateAiIndicator();
 
+setTimeout(randomActivity, 4000);
+setInterval(randomActivity, 18000);
+</script>
 </body>
 </html>
