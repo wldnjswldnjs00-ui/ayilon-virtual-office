@@ -1,0 +1,52 @@
+name: Deploy to Cloudflare Workers
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Wrangler
+        run: npm install -g wrangler
+
+      - name: Create D1 Database (skip if already exists)
+        run: wrangler d1 create ayilon-db || true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Get D1 Database ID and update wrangler.toml
+        run: |
+          DB_ID=$(wrangler d1 list --json 2>/dev/null | python3 -c "import sys,json; data=json.load(sys.stdin); print(next(d['uuid'] for d in data if d['name']=='ayilon-db'))" 2>/dev/null || echo "")
+          if [ -n "$DB_ID" ]; then
+            sed -i "s/REPLACE_WITH_YOUR_DB_ID/$DB_ID/" wrangler.toml
+            echo "DB_ID=$DB_ID" >> $GITHUB_ENV
+            echo "D1 DB ID: $DB_ID"
+          else
+            echo "Could not get DB ID, trying deploy anyway"
+          fi
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Apply DB Schema
+        run: wrangler d1 execute ayilon-db --remote --file=worker/schema.sql || true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Deploy Worker
+        run: wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
