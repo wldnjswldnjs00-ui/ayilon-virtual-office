@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ayilon Backtest v3</title>
+<title>Ayilon Backtest</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#080810;color:#dde;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px}
@@ -18,15 +18,10 @@ body{background:#080810;color:#dde;font-family:-apple-system,BlinkMacSystemFont,
 .field input,.field select{width:100%;background:#0e0e1c;border:1px solid #1e1e30;color:#dde;padding:10px 11px;border-radius:8px;font-size:14px;-webkit-appearance:none}
 .field input:focus,.field select:focus{outline:none;border-color:#8b7dff}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%23666' d='M5 6L0 0h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
-.tframe-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px}
-.tf-card{background:#0e0e1c;border:1px solid #1e1e30;border-radius:8px;padding:9px 10px;font-size:12px}
-.tf-card .tc{font-size:10px;font-weight:700;margin-bottom:3px}
-.tf-card .td{color:#446;font-size:11px}
-.scalp-c{color:#f7b731}.short-c{color:#4bcffa}.swing-c{color:#a29bfe}
-.cost-box{background:#0a0a18;border:1px solid #1a1a2e;border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.cost-box{background:#0a0a18;border:1px solid #1a1a2e;border-radius:8px;padding:10px 12px}
 .cost-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0}
 .cost-row .ck{color:#446}.cost-row .cv{color:#8b7dff;font-weight:600}
-.btn{width:100%;background:#8b7dff;color:#fff;border:none;padding:14px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px}
+.btn{width:100%;background:#8b7dff;color:#fff;border:none;padding:14px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px}
 .btn:active{background:#6f5de0}.btn:disabled{background:#1e1e30;color:#444;cursor:not-allowed}
 .prog-wrap{padding:14px 16px;display:none}
 .prog-bg{background:#1a1a2a;border-radius:99px;height:4px;overflow:hidden}
@@ -34,22 +29,33 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .prog-txt{font-size:12px;color:#446;margin-top:7px}
 #results{display:none}
 .tabs{display:flex;background:#0a0a15;border-bottom:1px solid #1a1a2a}
-.tab{flex:1;padding:10px 2px;text-align:center;font-size:11px;color:#446;cursor:pointer;border-bottom:2px solid transparent;font-weight:600}
+.tab{flex:1;padding:10px 2px;text-align:center;font-size:12px;color:#446;cursor:pointer;border-bottom:2px solid transparent;font-weight:600}
 .tab.on{color:#8b7dff;border-color:#8b7dff}
-.pane{display:none;padding:14px 16px}
+.pane{display:none;padding:12px 14px}
 .pane.on{display:block}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
-.card{background:#0e0e1c;border:1px solid #1a1a28;border-radius:9px;padding:12px}
-.card .lbl{font-size:10px;color:#446;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
-.card .val{font-size:20px;font-weight:700;line-height:1.1}
-.card .sub{font-size:11px;color:#334;margin-top:3px}
 .pos{color:#1ec96e}.neg{color:#ff4560}.neu{color:#dde}
-.cat-hdr{font-size:12px;font-weight:700;margin:12px 0 8px;padding-bottom:5px;border-bottom:1px solid #1a1a28}
-.scard{background:#0e0e1c;border:1px solid #1a1a28;border-radius:8px;padding:10px 12px}
-.scard .sn{font-size:11px;font-weight:700;margin-bottom:5px}
-.srow{display:flex;justify-content:space-between;font-size:12px;padding:2px 0}
-.srow .k{color:#334}.srow .v{font-weight:600}
+
+/* Strategy list */
+.slist{display:flex;flex-direction:column;gap:8px}
+.sitem{background:#0e0e1c;border:1px solid #1a1a28;border-radius:10px;padding:12px 14px}
+.sitem-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.sitem-name{font-size:14px;font-weight:700}
+.sitem-rank{font-size:11px;color:#556;margin-top:1px}
+.cat-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700}
+.cb-scalp{background:#1a150a;color:#f7b731;border:1px solid #f7b73144}
+.cb-short{background:#0a121a;color:#4bcffa;border:1px solid #4bcffa44}
+.cb-swing{background:#100a1a;color:#a29bfe;border:1px solid #a29bfe44}
+.sitem-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sitem-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px}
+.metric{background:#080810;border-radius:6px;padding:7px 9px}
+.metric .mk{font-size:10px;color:#446;margin-bottom:2px}
+.metric .mv{font-size:14px;font-weight:700}
+.metric .mv.sm{font-size:13px}
+.ann-big{font-size:22px!important}
+.sep8{height:8px}
+.err{background:#2a0a0a;border:1px solid #ff456033;border-radius:8px;padding:12px;color:#ff4560;font-size:13px;margin-top:8px}
+
+/* Trade list */
 .ti{background:#0e0e1c;border:1px solid #1a1a28;border-radius:8px;padding:10px 12px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center}
 .tl .sn{font-size:10px;font-weight:700}
 .tl .dt{font-size:10px;color:#334;margin-top:2px}
@@ -60,28 +66,20 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .tp2{font-size:14px;font-weight:700}
 .tpct{font-size:11px;color:#334;margin-top:1px}
 .reason{font-size:10px;color:#556;margin-top:1px}
-.err{background:#2a0a0a;border:1px solid #ff456033;border-radius:8px;padding:12px;color:#ff4560;font-size:13px;margin-top:8px}
-.sep{height:8px}
-.info{background:#0a0a18;border-radius:7px;padding:8px 10px;margin-top:6px}
-.irow{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #0f0f1e}
-.irow:last-child{border:none}.ik{color:#446}.iv{font-weight:600}
-.warn{background:#1a150a;border:1px solid #f7b73133;border-radius:7px;padding:10px 12px;font-size:12px;color:#f7b731;margin-top:8px}
+.filter-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.fchip{padding:5px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;background:#0e0e1c;border:1px solid #1e1e30;color:#446}
+.fchip.on{background:#1a1230;border-color:#8b7dff;color:#8b7dff}
+.no-trades{color:#334;font-size:13px;padding:20px 0;text-align:center}
+.sort-row{display:flex;gap:6px;margin-bottom:10px;align-items:center}
+.sort-row label{font-size:11px;color:#446}
+.sort-row select{background:#0e0e1c;border:1px solid #1e1e30;color:#dde;padding:6px 10px;border-radius:6px;font-size:12px;-webkit-appearance:none}
 </style>
 </head>
 <body>
 
 <div class="hdr">
-  <h1>Ayilon Backtest v3</h1>
-  <p>스캘핑/단타 → 5분봉 &nbsp;|&nbsp; 스윙 → 1시간봉 &nbsp;|&nbsp; 4H 추세필터</p>
-</div>
-
-<div class="sect">
-  <div class="stitle">전략별 타임프레임</div>
-  <div class="tframe-grid">
-    <div class="tf-card"><div class="tc scalp-c">🔺 스캘핑 ×3</div><div class="td">5분봉 기반<br>RSI·BB·EMA</div></div>
-    <div class="tf-card"><div class="tc short-c">⚡ 단타 ×3</div><div class="td">5분봉 기반<br>MA·돌파·MACD</div></div>
-    <div class="tf-card"><div class="tc swing-c">🌊 스윙 ×3</div><div class="td">1시간봉 기반<br>리본·ATR·다이버전스</div></div>
-  </div>
+  <h1>Ayilon Backtest</h1>
+  <p>전략별 개별 백테스트 &nbsp;|&nbsp; 스캘핑/단타 5분봉 &nbsp;|&nbsp; 스윙 1시간봉</p>
 </div>
 
 <div class="sect">
@@ -94,12 +92,11 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <option value="SOL-USDT-SWAP">SOL/USDT</option>
       </select>
     </div>
-    <div class="field"><label>전략</label>
-      <select id="stratFilter">
-        <option value="all">전체 (9개)</option>
-        <option value="스캘핑">스캘핑만 (3개)</option>
-        <option value="단타">단타만 (3개)</option>
-        <option value="스윙">스윙만 (3개)</option>
+    <div class="field"><label>5분봉 기간</label>
+      <select id="period5m">
+        <option value="2016">7일</option>
+        <option value="4320" selected>15일</option>
+        <option value="8640">30일</option>
       </select>
     </div>
   </div>
@@ -115,12 +112,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="field"><label>진입 규모 (자본의 %)</label>
       <input type="number" id="posSize" value="20" min="1" max="100" step="5">
     </div>
-    <div class="field"><label>5분봉 기간</label>
-      <select id="period5m">
-        <option value="2016">7일 (2016개)</option>
-        <option value="4320" selected>15일 (4320개)</option>
-        <option value="8640">30일 (8640개)</option>
-      </select>
+    <div class="field"><label>&nbsp;</label>
+      <div style="font-size:11px;color:#446;padding:10px 0">최대 동시 포지션 3개</div>
     </div>
   </div>
 </div>
@@ -128,12 +121,11 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <div class="sect">
   <div class="stitle">비용 (현실 반영)</div>
   <div class="cost-box">
-    <div class="cost-row"><span class="ck">수수료 taker × 진입+청산</span><span class="cv">0.1% / 거래</span></div>
+    <div class="cost-row"><span class="ck">수수료 taker (진입+청산)</span><span class="cv">0.1% / 거래</span></div>
     <div class="cost-row"><span class="ck">진입 슬리피지</span><span class="cv">0.03%</span></div>
-    <div class="cost-row"><span class="ck">SL 슬리피지 (갭·충격)</span><span class="cv">+0.1%</span></div>
-    <div class="cost-row"><span class="ck">펀딩피 (롱 8H당)</span><span class="cv">0.01%</span></div>
-    <div class="cost-row"><span class="ck">진입 타이밍</span><span class="cv">신호 다음 봉 시가</span></div>
-    <div class="cost-row"><span class="ck">강제 청산</span><span class="cv">레버리지별 자동 처리</span></div>
+    <div class="cost-row"><span class="ck">SL 슬리피지</span><span class="cv">+0.1%</span></div>
+    <div class="cost-row"><span class="ck">펀딩비 (롱 8H당)</span><span class="cv">0.01%</span></div>
+    <div class="cost-row"><span class="ck">신호 실행</span><span class="cv">다음 봉 시가 진입</span></div>
   </div>
   <button class="btn" id="btnRun" onclick="runBacktest()">백테스트 실행</button>
 </div>
@@ -145,44 +137,25 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
 <div id="results">
   <div class="tabs">
-    <div class="tab on" onclick="showTab('summary',this)">요약</div>
-    <div class="tab" onclick="showTab('cats',this)">카테고리</div>
-    <div class="tab" onclick="showTab('strats',this)">전략별</div>
-    <div class="tab" onclick="showTab('trades',this)">거래</div>
+    <div class="tab on" onclick="showTab('strategies',this)">전략 비교</div>
+    <div class="tab" onclick="showTab('trades',this)">거래 목록</div>
   </div>
 
-  <div class="pane on" id="pane-summary">
-    <div class="g2">
-      <div class="card"><div class="lbl">총 수익률</div><div class="val" id="rTR">-</div><div class="sub" id="rCF">-</div></div>
-      <div class="card"><div class="lbl">연 수익 (복리)</div><div class="val" id="rAnn">-</div><div class="sub" id="rMon">-</div></div>
+  <div class="pane on" id="pane-strategies">
+    <div class="sort-row">
+      <label>정렬:</label>
+      <select id="sortKey" onchange="renderStrategyList()">
+        <option value="ann">연 복리 수익</option>
+        <option value="mon">월 수익률</option>
+        <option value="wr">승률</option>
+        <option value="n">거래 횟수</option>
+      </select>
     </div>
-    <div class="sep"></div>
-    <div class="g2">
-      <div class="card"><div class="lbl">승률</div><div class="val neu" id="rWR">-</div><div class="sub" id="rWL">-</div></div>
-      <div class="card"><div class="lbl">총 거래</div><div class="val neu" id="rN">-</div><div class="sub" id="rTPM">-</div></div>
-      <div class="card"><div class="lbl">수익 팩터</div><div class="val neu" id="rPF">-</div><div class="sub">총이익 ÷ 총손실</div></div>
-      <div class="card"><div class="lbl">MDD</div><div class="val neg" id="rMDD">-</div><div class="sub">최대 낙폭</div></div>
-    </div>
-    <div class="sep"></div>
-    <div class="stitle" style="margin-top:4px">설정 요약</div>
-    <div class="info" id="rConfig"></div>
-    <div class="warn" id="rWarn" style="display:none"></div>
-  </div>
-
-  <div class="pane" id="pane-cats">
-    <div class="cat-hdr scalp-c">🔺 스캘핑 (5분봉)</div>
-    <div class="g2" id="cat-scalp"></div>
-    <div class="cat-hdr short-c">⚡ 단타 (5분봉)</div>
-    <div class="g2" id="cat-short"></div>
-    <div class="cat-hdr swing-c">🌊 스윙 (1시간봉)</div>
-    <div class="g2" id="cat-swing"></div>
-  </div>
-
-  <div class="pane" id="pane-strats">
-    <div id="stratCards"></div>
+    <div class="slist" id="stratList"></div>
   </div>
 
   <div class="pane" id="pane-trades">
+    <div class="filter-row" id="tradeFilters"></div>
     <div id="tradeList"></div>
   </div>
 </div>
@@ -197,11 +170,6 @@ function emaA(a,p){
   if(a.length<p)return r;
   const k=2/(p+1);let v=a.slice(0,p).reduce((s,x)=>s+x,0)/p;
   r[p-1]=v;for(let i=p;i<a.length;i++){v=a[i]*k+v*(1-k);r[i]=v;}return r;
-}
-function emaL(a,p){
-  if(a.length<p)return null;
-  const k=2/(p+1);let v=a.slice(0,p).reduce((s,x)=>s+x,0)/p;
-  for(let i=p;i<a.length;i++)v=a[i]*k+v*(1-k);return v;
 }
 function rsiA(cl,p=14){
   const r=new Array(cl.length).fill(null);
@@ -275,7 +243,6 @@ function build4hTrend(cl4h){
 }
 
 // ═══════════════ STRATEGIES ═══════════════
-// 스캘핑 3개 (5분봉) — tight conditions, SL 2x ATR, TP 3.5x ATR
 function sScalpRSI(i,ind,tr){
   const{cl,rsi,atr}=ind;if(!rsi[i]||!atr[i])return null;
   if(tr==='bull'&&rsi[i]<28)return{side:'long', sl:cl[i]-2*atr[i],tp:cl[i]+3.5*atr[i]};
@@ -299,7 +266,6 @@ function sScalpCross(i,ind,tr){
     return{side:'short',sl:cl[i]+2*atr[i],tp:cl[i]-3.5*atr[i]};
   return null;
 }
-// 단타 3개 (5분봉) — wider SL/TP
 function sShortMA(i,ind,tr){
   const{cl,e50,atr,rsi}=ind;if(!e50[i]||!atr[i]||!rsi[i])return null;
   const dist=(cl[i]-e50[i])/e50[i];
@@ -325,7 +291,6 @@ function sShortMACD(i,ind,tr){
   if(tr==='bear'&&macd[i-1].h>0&&macd[i].h<0&&rsi[i]>35)return{side:'short',sl:cl[i]+2.5*atr[i],tp:cl[i]-5*atr[i]};
   return null;
 }
-// 스윙 3개 (1시간봉)
 function sSwingRib(i,ind,tr){
   const{cl,e9,e21,e50,atr,rsi}=ind;if(!e9[i]||!e21[i]||!e50[i]||!atr[i]||!rsi[i])return null;
   if(tr==='bull'&&e9[i]>e21[i]&&e21[i]>e50[i]&&rsi[i]<68)return{side:'long', sl:e50[i]-atr[i],tp:cl[i]+5*atr[i]};
@@ -353,20 +318,17 @@ function sSwingDiv(i,ind,tr){
   return null;
 }
 
-const STRATS_5M=[
-  {id:'scalp_rsi', cat:'스캘핑',name:'RSI DCA',     fn:sScalpRSI},
-  {id:'scalp_bb',  cat:'스캘핑',name:'BB 반전',     fn:sScalpBB},
-  {id:'scalp_ema', cat:'스캘핑',name:'EMA 교차',    fn:sScalpCross},
-  {id:'short_ma',  cat:'단타',  name:'MA 지지',     fn:sShortMA},
-  {id:'short_brk', cat:'단타',  name:'돌파',        fn:sShortBreak},
-  {id:'short_macd',cat:'단타',  name:'MACD 교차',  fn:sShortMACD},
+const ALL_STRATS=[
+  {id:'scalp_rsi', cat:'스캘핑', tf:'5m', name:'스캘핑 RSI',       fn:sScalpRSI},
+  {id:'scalp_bb',  cat:'스캘핑', tf:'5m', name:'스캘핑 BB반전',    fn:sScalpBB},
+  {id:'scalp_ema', cat:'스캘핑', tf:'5m', name:'스캘핑 EMA교차',   fn:sScalpCross},
+  {id:'short_ma',  cat:'단타',   tf:'5m', name:'단타 MA지지',      fn:sShortMA},
+  {id:'short_brk', cat:'단타',   tf:'5m', name:'단타 돌파',        fn:sShortBreak},
+  {id:'short_macd',cat:'단타',   tf:'5m', name:'단타 MACD',       fn:sShortMACD},
+  {id:'swing_rib', cat:'스윙',   tf:'1H', name:'스윙 MA리본',      fn:sSwingRib},
+  {id:'swing_atr', cat:'스윙',   tf:'1H', name:'스윙 ATR추세',     fn:sSwingATR},
+  {id:'swing_div', cat:'스윙',   tf:'1H', name:'스윙 MACD다이버전스', fn:sSwingDiv},
 ];
-const STRATS_1H=[
-  {id:'swing_rib', cat:'스윙',  name:'MA 리본',     fn:sSwingRib},
-  {id:'swing_atr', cat:'스윙',  name:'ATR 추세',   fn:sSwingATR},
-  {id:'swing_div', cat:'스윙',  name:'MACD 다이버전스',fn:sSwingDiv},
-];
-const ALL_STRATS=[...STRATS_5M,...STRATS_1H];
 
 // ═══════════════ FETCH ═══════════════
 async function fetchOKX(instId,bar,count){
@@ -376,19 +338,19 @@ async function fetchOKX(instId,bar,count){
     let url=`https://www.okx.com/api/v5/market/history-candles?instId=${instId}&bar=${bar}&limit=${lim}`;
     if(after)url+=`&after=${after}`;
     const res=await fetch(url);
-    if(!res.ok)throw new Error(`OKX ${bar} ${res.status}`);
+    if(!res.ok)throw new Error(`OKX ${bar} HTTP ${res.status}`);
     const d=await res.json();
     if(!d.data||!d.data.length)break;
     all.push(...d.data);
     after=d.data[d.data.length-1][0];
     if(d.data.length<lim)break;
-    await new Promise(r=>setTimeout(r,100));
+    await new Promise(r=>setTimeout(r,80));
   }
   return all.reverse();
 }
 
-// ═══════════════ ENGINE ═══════════════
-function runSim(candles,c4h,strats,capital,leverage,posSize,candlesPerFundingPeriod){
+// ═══════════════ ENGINE (single strategy) ═══════════════
+function runOneSim(candles, c4h, strat, capital, leverage, posSize, candlesPerFundingPeriod){
   const cl=candles.map(c=>+c[4]),op=candles.map(c=>+c[1]);
   const hi=candles.map(c=>+c[2]),lo=candles.map(c=>+c[3]);
   const vol=candles.map(c=>+c[5]),ts=candles.map(c=>+c[0]);
@@ -408,26 +370,23 @@ function runSim(candles,c4h,strats,capital,leverage,posSize,candlesPerFundingPer
   }
 
   let equity=capital,peak=capital,mdd=0;
-  const openPos=[],trades=[],SS={};
-  strats.forEach(s=>{SS[s.id]={n:0,wins:0,pnl:0,name:s.name,cat:s.cat};});
-  let pending=[];
+  const openPos=[],trades=[];
+  let pending=null;
 
   for(let i=1;i<cl.length;i++){
     const h=hi[i],l=lo[i],t=ts[i],o=op[i],trend=tmap[i];
 
     // Execute pending at open[i]
-    for(const pend of pending){
-      if(openPos.length>=MAX_POS)break;
-      if(openPos.some(p=>p.side===pend.side))continue;
-      const slip=pend.side==='long'?(1+ENTRY_SLIP):(1-ENTRY_SLIP);
+    if(pending&&openPos.length<MAX_POS){
+      const slip=pending.side==='long'?(1+ENTRY_SLIP):(1-ENTRY_SLIP);
       const entry=o*slip;
       const col=equity*(posSize/100);
       const notional=col*leverage;
       equity-=notional*FEE;
-      const liq=pend.side==='long'?entry*(1-(1-MM)/leverage):entry*(1+(1-MM)/leverage);
-      openPos.push({...pend,entry,col,notional,liq,openBar:i,ts:t});
+      const liq=pending.side==='long'?entry*(1-(1-MM)/leverage):entry*(1+(1-MM)/leverage);
+      openPos.push({...pending,entry,col,notional,liq,openBar:i,ts:t});
     }
-    pending=[];
+    pending=null;
 
     // Funding every N candles
     for(const pos of openPos){
@@ -455,24 +414,18 @@ function runSim(candles,c4h,strats,capital,leverage,posSize,candlesPerFundingPer
         equity+=pnl;
         if(equity>peak)peak=equity;
         const dd=(peak-equity)/peak;if(dd>mdd)mdd=dd;
-        const rec={id:pos.id,name:pos.name,cat:pos.cat,side:pos.side,
+        trades.push({id:strat.id,name:strat.name,cat:strat.cat,side:pos.side,
           entry:pos.entry,exit,reason,entryTs:pos.ts,exitTs:t,
-          pnl,pnlPct:(diff/pos.entry)*leverage*100,win:pnl>0,bars:i-pos.openBar};
-        trades.push(rec);
-        const ss=SS[pos.id];if(ss){ss.n++;if(pnl>0)ss.wins++;ss.pnl+=pnl;}
+          pnl,pnlPct:(diff/pos.entry)*leverage*100,win:pnl>0,bars:i-pos.openBar});
         openPos.splice(p,1);
       }
     }
 
-    // Generate signals
-    if(i>=WU&&i<cl.length-1&&openPos.length<MAX_POS){
-      for(const s of strats){
-        if(openPos.length+pending.length>=MAX_POS)break;
-        const sig=s.fn(i,ind,trend);
-        if(!sig)continue;
-        if(openPos.some(p=>p.side===sig.side))continue;
-        if(pending.some(p=>p.side===sig.side))continue;
-        pending.push({...sig,id:s.id,name:s.name,cat:s.cat});
+    // Generate signal (only when no open pos for this strat)
+    if(i>=WU&&i<cl.length-1&&openPos.length<MAX_POS&&!pending){
+      const sig=strat.fn(i,ind,trend);
+      if(sig&&!openPos.some(p=>p.side===sig.side)){
+        pending={...sig,id:strat.id,name:strat.name,cat:strat.cat};
       }
     }
   }
@@ -483,23 +436,31 @@ function runSim(candles,c4h,strats,capital,leverage,posSize,candlesPerFundingPer
     const diff=pos.side==='long'?lp-pos.entry:pos.entry-lp;
     const pnl=pos.notional*(diff/pos.entry)-pos.notional*FEE;
     equity+=pnl;
-    const rec={id:pos.id,name:pos.name,cat:pos.cat,side:pos.side,
+    trades.push({id:pos.id,name:pos.name,cat:pos.cat,side:pos.side,
       entry:pos.entry,exit:lp,reason:'종료',entryTs:pos.ts,exitTs:ts[ts.length-1],
-      pnl,pnlPct:(diff/pos.entry)*leverage*100,win:pnl>0,bars:cl.length-1-pos.openBar};
-    trades.push(rec);
-    const ss=SS[pos.id];if(ss){ss.n++;if(pnl>0)ss.wins++;ss.pnl+=pnl;}
+      pnl,pnlPct:(diff/pos.entry)*leverage*100,win:pnl>0,bars:cl.length-1-pos.openBar});
   }
 
   const startMs=ts[WU],endMs=ts[ts.length-1];
   const months=(endMs-startMs)/(864e5*30.44);
-  return{equity,mdd,trades,SS,months};
+  const n=trades.length,wins=trades.filter(t=>t.win).length;
+  const totalRet=(equity-capital)/capital;
+  const monthlyRet=months>0?Math.pow(1+totalRet,1/months)-1:0;
+  const annualRet=months>0?Math.pow(1+totalRet,12/months)-1:0;
+  const pnl=equity-capital;
+  return{id:strat.id,name:strat.name,cat:strat.cat,tf:strat.tf,
+    equity,pnl,totalRet,monthlyRet,annualRet,mdd,months,n,wins,
+    winRate:n>0?wins/n:0,tradesPerMonth:months>0?n/months:0,trades};
 }
+
+// ═══════════════ STATE ═══════════════
+let G_RESULTS=[];
+let G_ALL_TRADES=[];
 
 // ═══════════════ MAIN ═══════════════
 async function runBacktest(){
   const btn=document.getElementById('btnRun');
   const sym=document.getElementById('symbol').value;
-  const sf=document.getElementById('stratFilter').value;
   const capital=+document.getElementById('capital').value;
   const leverage=+document.getElementById('leverage').value;
   const posSize=+document.getElementById('posSize').value;
@@ -510,66 +471,38 @@ async function runBacktest(){
   document.getElementById('results').style.display='none';
 
   try{
-    // Fetch data
     prog(5,`${sym} 4H 데이터 로딩...`);
     const c4h=await fetchOKX(sym,'4H',500);
 
-    const do5m=sf==='all'||sf==='스캘핑'||sf==='단타';
-    const do1h=sf==='all'||sf==='스윙';
+    prog(10,`${sym} 5분봉 로딩... (${cnt5m}개)`);
+    const c5m=await fetchOKX(sym,'5m',cnt5m);
 
-    let res5m=null,res1h=null;
+    prog(50,`${sym} 1시간봉 로딩...`);
+    const c1h=await fetchOKX(sym,'1H',2000);
 
-    if(do5m){
-      prog(15,`${sym} 5분봉 로딩 중... (${cnt5m}개, 잠시 기다려주세요)`);
-      const c5m=await fetchOKX(sym,'5m',cnt5m);
-      prog(55,'5분봉 백테스트 계산 중...');
-      await new Promise(r=>setTimeout(r,20));
-      const strats5m=sf==='all'?STRATS_5M:STRATS_5M.filter(s=>s.cat===sf);
-      // 5m: 8H = 96 candles
-      res5m=runSim(c5m,c4h,strats5m,capital,leverage,posSize,96);
+    prog(70,'각 전략 시뮬레이션 중...');
+    await new Promise(r=>setTimeout(r,20));
+
+    G_RESULTS=[];
+    G_ALL_TRADES=[];
+
+    for(let si=0;si<ALL_STRATS.length;si++){
+      const s=ALL_STRATS[si];
+      prog(70+Math.round(si/ALL_STRATS.length*28), `${s.name} 계산 중...`);
+      const candles=s.tf==='5m'?c5m:c1h;
+      const cpf=s.tf==='5m'?96:8;
+      const r=runOneSim(candles,c4h,s,capital,leverage,posSize,cpf);
+      G_RESULTS.push(r);
+      G_ALL_TRADES.push(...r.trades);
+      await new Promise(r2=>setTimeout(r2,5));
     }
 
-    if(do1h){
-      prog(65,`${sym} 1시간봉 로딩 중...`);
-      const c1h=await fetchOKX(sym,'1H',2000);
-      prog(85,'1시간봉 백테스트 계산 중...');
-      await new Promise(r=>setTimeout(r,20));
-      const strats1h=STRATS_1H;
-      // 1H: 8H = 8 candles
-      res1h=runSim(c1h,c4h,strats1h,capital,leverage,posSize,8);
-    }
-
+    G_ALL_TRADES.sort((a,b)=>a.entryTs-b.entryTs);
     prog(100,'완료!');
 
-    // Merge results
-    const allTrades=[...(res5m?res5m.trades:[]),...(res1h?res1h.trades:[])];
-    allTrades.sort((a,b)=>a.entryTs-b.entryTs);
-    const mergedSS={...(res5m?res5m.SS:{}),...(res1h?res1h.SS:{})};
-
-    // Combined equity: avg of the two simulations
-    const finalEquity=((res5m?res5m.equity:capital)+(res1h?res1h.equity:capital))/((do5m&&do1h)?2:1);
-    const combinedMDD=Math.max(res5m?res5m.mdd:0,res1h?res1h.mdd:0);
-    const months=Math.max(res5m?res5m.months:0,res1h?res1h.months:0);
-
-    const n=allTrades.length,wins=allTrades.filter(t=>t.win).length;
-    const gp=allTrades.filter(t=>t.pnl>0).reduce((a,t)=>a+t.pnl,0);
-    const gl=Math.abs(allTrades.filter(t=>t.pnl<0).reduce((a,t)=>a+t.pnl,0));
-    const pf=gl>0?gp/gl:gp>0?99:0;
-    const totalRet=(finalEquity-capital)/capital;
-    const monthlyRet=months>0?Math.pow(1+totalRet,1/months)-1:0;
-    const annualRet=(months/12)>0?Math.pow(1+totalRet,12/months)-1:0;
-
-    const catStats={};
-    allTrades.forEach(t=>{
-      if(!catStats[t.cat])catStats[t.cat]={n:0,wins:0,pnl:0};
-      catStats[t.cat].n++;if(t.win)catStats[t.cat].wins++;catStats[t.cat].pnl+=t.pnl;
-    });
-
-    render({finalEquity,capital,totalRet,winRate:n>0?wins/n:0,wins,losses:n-wins,
-      n,mdd:combinedMDD,pf,monthlyRet,annualRet,months,
-      trades:allTrades,SS:mergedSS,catStats},
-      {sym,sf,capital,leverage,posSize,cnt5m});
-
+    renderStrategyList();
+    renderTrades('all');
+    renderTradeFilters();
     document.getElementById('results').style.display='block';
   }catch(e){
     prog(0,'');
@@ -581,90 +514,124 @@ async function runBacktest(){
 
 // ═══════════════ UI ═══════════════
 function prog(pct,txt){document.getElementById('progBar').style.width=pct+'%';document.getElementById('progTxt').textContent=txt;}
-function pct(v,d=1){return(v>=0?'+':'')+((v*100).toFixed(d))+'%';}
+function pf(v,d=1,sign=true){return(sign&&v>=0?'+':'')+((v*100).toFixed(d))+'%';}
 function fts(ms){const d=new Date(ms);return`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
-function sc(el,v){el.className='val '+(v>0?'pos':v<0?'neg':'neu');}
 function showTab(name,el){
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
   document.getElementById('pane-'+name).classList.add('on');el.classList.add('on');
 }
-function catColor(cat){return cat==='스캘핑'?'scalp-c':cat==='단타'?'short-c':'swing-c';}
+function catBadge(cat){
+  const map={'스캘핑':'cb-scalp','단타':'cb-short','스윙':'cb-swing'};
+  return`<span class="cat-badge ${map[cat]||''}">${cat}</span>`;
+}
 
-function render(res,cfg){
-  // Summary
-  const elTR=document.getElementById('rTR');elTR.textContent=pct(res.totalRet);sc(elTR,res.totalRet);
-  document.getElementById('rCF').textContent=`$${cfg.capital.toFixed(0)} → $${res.finalEquity.toFixed(0)}`;
-  const elAnn=document.getElementById('rAnn');elAnn.textContent=pct(res.annualRet);sc(elAnn,res.annualRet);
-  const elMon=document.getElementById('rMon');
-  elMon.textContent=`월 ${pct(res.monthlyRet)}`;
-  elMon.style.color=res.monthlyRet>=0?'#1ec96e':'#ff4560';
-  document.getElementById('rWR').textContent=(res.winRate*100).toFixed(1)+'%';
-  document.getElementById('rWL').textContent=`승 ${res.wins} / 패 ${res.losses}`;
-  document.getElementById('rN').textContent=res.n;
-  document.getElementById('rTPM').textContent=`월 ${(res.n/Math.max(res.months,0.1)).toFixed(1)}건`;
-  document.getElementById('rPF').textContent=res.pf===99?'∞':res.pf.toFixed(2);
-  document.getElementById('rMDD').textContent='-'+(res.mdd*100).toFixed(1)+'%';
-
-  const symN={'BTC-USDT-SWAP':'BTC/USDT','ETH-USDT-SWAP':'ETH/USDT','SOL-USDT-SWAP':'SOL/USDT'}[cfg.sym]||cfg.sym;
-  const sfN={'all':'전체 9개','스캘핑':'스캘핑 3개','단타':'단타 3개','스윙':'스윙 3개'}[cfg.sf]||cfg.sf;
-  document.getElementById('rConfig').innerHTML=[
-    ['심볼',symN],['전략',sfN],['초기 자본',`$${cfg.capital}`],
-    ['레버리지',`${cfg.leverage}x`],['진입 규모',`${cfg.posSize}%`],
-    ['5분봉 기간',`${cfg.cnt5m}개 (스캘핑/단타)`],['1시간봉',`2000개 (스윙)`],
-    ['비용','수수료+슬리피지+펀딩피 포함'],
-  ].map(([k,v])=>`<div class="irow"><span class="ik">${k}</span><span class="iv">${v}</span></div>`).join('');
-
-  // Warning if high fee drag
-  const totalFee=res.n*cfg.capital*(cfg.posSize/100)*cfg.leverage*0.001;
-  const w=document.getElementById('rWarn');
-  if(res.monthlyRet<0){
-    w.style.display='block';
-    w.textContent=`⚠️ 수수료 부담 주의: ${res.n}건 거래 시 총 수수료 약 $${totalFee.toFixed(0)} — 수익이 나려면 전략 승률/R:R이 더 높아야 해요.`;
-  }else{w.style.display='none';}
-
-  // Categories
-  ['스캘핑','단타','스윙'].forEach((cat,ci)=>{
-    const tgt=['scalp','short','swing'][ci];
-    const ct=res.trades.filter(t=>t.cat===cat);
-    const n2=ct.length,w2=ct.filter(t=>t.win).length;
-    const pnl2=ct.reduce((a,t)=>a+t.pnl,0);
-    const el=document.getElementById('cat-'+tgt);
-    if(!n2){el.innerHTML=`<div style="color:#334;font-size:12px;grid-column:1/-1;padding:4px 0">신호 없음 또는 선택 안 됨</div>`;return;}
-    el.innerHTML=[
-      ['거래 수',n2,'neu'],
-      ['승률',`${(w2/n2*100).toFixed(0)}%`,'neu'],
-      ['총 PnL',`${pnl2>=0?'+':''}$${pnl2.toFixed(0)}`,pnl2>=0?'pos':'neg'],
-      ['월 거래',`${(n2/Math.max(res.months,0.1)).toFixed(1)}건`,'neu']
-    ].map(([k,v,c])=>`<div class="card"><div class="lbl">${k}</div><div class="val ${c}">${v}</div></div>`).join('');
+function renderStrategyList(){
+  const key=document.getElementById('sortKey').value;
+  const sorted=[...G_RESULTS].sort((a,b)=>{
+    if(key==='ann')return b.annualRet-a.annualRet;
+    if(key==='mon')return b.monthlyRet-a.monthlyRet;
+    if(key==='wr')return b.winRate-a.winRate;
+    if(key==='n')return b.n-a.n;
+    return 0;
   });
 
-  // Strategy cards
-  const cats=['스캘핑','단타','스윙'];
-  document.getElementById('stratCards').innerHTML=cats.map(cat=>{
-    const strats=ALL_STRATS.filter(s=>s.cat===cat);
-    return`<div class="cat-hdr ${catColor(cat)}">${cat}</div><div class="g3" style="margin-bottom:10px">${
-      strats.map(s=>{
-        const ss=res.SS[s.id]||{n:0,wins:0,pnl:0};
-        return`<div class="scard"><div class="sn ${catColor(s.cat)}">${s.name}</div>
-          <div class="srow"><span class="k">승률</span><span class="v">${ss.n>0?(ss.wins/ss.n*100).toFixed(0)+'%':'—'}</span></div>
-          <div class="srow"><span class="k">거래</span><span class="v">${ss.n}</span></div>
-          <div class="srow"><span class="k">PnL</span><span class="v" style="color:${ss.pnl>=0?'#1ec96e':'#ff4560'}">${ss.pnl>=0?'+':''}$${ss.pnl.toFixed(0)}</span></div>
-        </div>`;
-      }).join('')
-    }</div>`;
+  const html=sorted.map((r,rank)=>{
+    const mRet=pf(r.monthlyRet);
+    const aRet=pf(r.annualRet);
+    const mCol=r.monthlyRet>=0?'#1ec96e':'#ff4560';
+    const aCol=r.annualRet>=0?'#1ec96e':'#ff4560';
+    const pnlCol=r.pnl>=0?'#1ec96e':'#ff4560';
+    return`<div class="sitem">
+      <div class="sitem-top">
+        <div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:12px;color:#556;font-weight:700">#${rank+1}</span>
+            <div class="sitem-name">${r.name}</div>
+          </div>
+          <div style="margin-top:4px;display:flex;gap:4px;align-items:center">
+            ${catBadge(r.cat)}
+            <span style="font-size:10px;color:#446">${r.tf} &nbsp;|&nbsp; ${r.months.toFixed(1)}개월 데이터</span>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:700;color:${aCol}">${aRet}</div>
+          <div style="font-size:10px;color:#446;margin-top:2px">연 복리</div>
+        </div>
+      </div>
+      <div class="sitem-grid">
+        <div class="metric">
+          <div class="mk">월 수익률</div>
+          <div class="mv" style="color:${mCol}">${mRet}</div>
+        </div>
+        <div class="metric">
+          <div class="mk">총 수익률</div>
+          <div class="mv" style="color:${pnlCol}">${pf(r.totalRet)}</div>
+        </div>
+      </div>
+      <div class="sitem-3">
+        <div class="metric">
+          <div class="mk">승률</div>
+          <div class="mv sm">${r.n>0?(r.winRate*100).toFixed(0)+'%':'—'}</div>
+        </div>
+        <div class="metric">
+          <div class="mk">총 거래</div>
+          <div class="mv sm">${r.n}건</div>
+        </div>
+        <div class="metric">
+          <div class="mk">월 거래</div>
+          <div class="mv sm">${r.tradesPerMonth.toFixed(1)}건</div>
+        </div>
+      </div>
+      <div class="sitem-3" style="margin-top:6px">
+        <div class="metric">
+          <div class="mk">MDD</div>
+          <div class="mv sm neg">-${(r.mdd*100).toFixed(1)}%</div>
+        </div>
+        <div class="metric">
+          <div class="mk">순이익</div>
+          <div class="mv sm" style="color:${pnlCol}">${r.pnl>=0?'+':''}$${r.pnl.toFixed(0)}</div>
+        </div>
+        <div class="metric">
+          <div class="mk">승/패</div>
+          <div class="mv sm">${r.wins}/${r.n-r.wins}</div>
+        </div>
+      </div>
+    </div>`;
   }).join('');
 
-  // Trades
-  const recent=res.trades.slice(-100).reverse();
+  document.getElementById('stratList').innerHTML=html||'<div class="no-trades">결과 없음</div>';
+}
+
+let G_FILTER='all';
+function renderTradeFilters(){
+  const chips=[{k:'all',l:'전체'},
+    ...ALL_STRATS.map(s=>({k:s.id,l:s.name}))
+  ];
+  document.getElementById('tradeFilters').innerHTML=chips.map(c=>
+    `<div class="fchip ${G_FILTER===c.k?'on':''}" onclick="setFilter('${c.k}')">${c.l}</div>`
+  ).join('');
+}
+function setFilter(k){
+  G_FILTER=k;
+  renderTradeFilters();
+  renderTrades(k);
+}
+function renderTrades(filter){
+  const trades=filter==='all'?G_ALL_TRADES:G_ALL_TRADES.filter(t=>t.id===filter);
+  const recent=trades.slice(-120).reverse();
+  const map={'스캘핑':'cb-scalp','단타':'cb-short','스윙':'cb-swing'};
   document.getElementById('tradeList').innerHTML=!recent.length
-    ?'<div style="color:#334;font-size:13px">거래 없음</div>'
+    ?`<div class="no-trades">거래 없음</div>`
     :recent.map(t=>`<div class="ti">
       <div class="tl">
-        <div class="sn ${catColor(t.cat)}">${t.name}</div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <span class="sn" style="font-size:11px;font-weight:700">${t.name}</span>
+          <span class="cat-badge ${map[t.cat]||''}" style="font-size:9px">${t.cat}</span>
+        </div>
         <div><span class="badge ${t.side==='long'?'bl':'bs'}">${t.side==='long'?'LONG':'SHORT'}</span></div>
         <div class="dt">${fts(t.entryTs)} → ${fts(t.exitTs)}</div>
-        <div class="reason">${t.reason==='TP'?'✅ TP':'⛔ '+t.reason}</div>
+        <div class="reason">${t.reason==='TP'?'✅ TP':'⛔ '+t.reason} &nbsp;(${t.bars}봉)</div>
       </div>
       <div class="tr">
         <div class="tp2 ${t.win?'pos':'neg'}">${t.pnl>=0?'+':'-'}$${Math.abs(t.pnl).toFixed(1)}</div>
