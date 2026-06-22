@@ -107,20 +107,31 @@ async function insertFeed(env, agent, msg, isAI) {
   ).bind(agent.id, agent.code, agent.name, agent.team, msg, isAI?1:0).run();
 }
 
-async function callGemini(msg, key, cmds, kws) {
-  const hist = cmds.slice(-5).map(c=>'[지시] '+c).join(' / ');
-  const kwStr = kws.join(', ') || '없음';
-  const prompt = `당신은 AYILON 가상 오피스의 CEO AI입니다. 암호화폐 자동매매 회사를 운영합니다. 2문장 이내로 전문적이고 간결하게 답하세요.\n${hist?'과거 지시: '+hist+'\n':''}주요 키워드: ${kwStr}\n\n사용자 지시: ${msg}`;
+async function callGemini(prompt, key, maxTokens=100) {
   try {
     const r = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
       { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({contents:[{parts:[{text:prompt}]}], generationConfig:{maxOutputTokens:80,temperature:0.7}}) }
+        body: JSON.stringify({contents:[{parts:[{text:prompt}]}], generationConfig:{maxOutputTokens:maxTokens,temperature:0.75}}) }
     );
     if (!r.ok) return null;
     const d = await r.json();
     return d.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
   } catch(e) { return null; }
+}
+
+async function ceoReply(msg, key, cmds, kws) {
+  const hist = cmds.slice(-5).map(c=>'[지시] '+c).join(' / ');
+  const prompt = `당신은 AYILON의 CEO AI입니다. 암호화폐 자동매매 스타트업을 운영합니다. 2문장 이내로 전문적이고 간결하게 답하세요.\n${hist?'과거 지시: '+hist+'\n':''}주요 키워드: ${kws.join(', ')||'없음'}\n\n사용자 지시: ${msg}`;
+  return callGemini(prompt, key, 90);
+}
+
+async function agentThink(agent, key, recentSignals, mem) {
+  const kws = topKws(mem.keywords, 8).join(', ') || '없음';
+  const lvl = Math.floor((mem.agentXp[agent.id]||0)/10)+1;
+  const sigStr = recentSignals.slice(0,3).map(s=>`${s.symbol||''} ${s.signal||''}`).join(', ') || '없음';
+  const prompt = `당신은 AYILON 가상 오피스의 ${agent.name}(${agent.team}, LV${lvl})입니다. 현재 암호화폐 자동매매 회사에서 일하고 있습니다.\n최근 시그널: ${sigStr}\n핵심 키워드: ${kws}\n\n지금 당신이 하고 있는 일을 1문장(30자 이내)으로 말하세요. 구체적이고 실무적으로:`;
+  return callGemini(prompt, key, 50);
 }
 
 function localReplyMsg(cmds) {
@@ -151,17 +162,22 @@ function json(data, status) {
 
 // ── CRON ────────────────────────────────────────────────────────────────────
 async function handleCron(env) {
-  const minuteOfHour = new Date().getMinutes();
+  const now = new Date();
+  const minuteOfHour = now.getMinutes();
+  const minuteOfDay = now.getHours() * 60 + minuteOfHour;
 
   // Run trading bot
-  try {
-    await runBot(env, minuteOfHour);
-  } catch(e) {
-    console.error('Bot error:', e.message);
-  }
+  try { await runBot(env, minuteOfHour); } catch(e) { console.error('Bot error:', e.message); }
 
-  // Agent activity
   const mem = await getMem(env);
+
+  // Fetch recent signals for context
+  let recentSignals = [];
+  try {
+    recentSignals = (await env.DB.prepare("SELECT symbol,signal,tf FROM signals ORDER BY id DESC LIMIT 5").all()).results;
+  } catch(_) {}
+
+  // Every minute: 1-3 agents do template activity
   const count = Math.floor(Math.random()*3)+1;
   for (let i=0; i<count; i++) {
     const agent = AGENTS[Math.floor(Math.random()*AGENTS.length)];
@@ -170,12 +186,43 @@ async function handleCron(env) {
     mem.agentXp[agent.id] = (mem.agentXp[agent.id]||0)+1;
     mem.xp++;
   }
+
+  // Every 5 minutes: 1 random agent uses Gemini to actually THINK
+  if (env.GEMINI_KEY && minuteOfHour % 5 === 0) {
+    try {
+      const agent = AGENTS[Math.floor(minuteOfDay/5) % AGENTS.length];
+      const aiMsg = await agentThink(agent, env.GEMINI_KEY, recentSignals, mem);
+      if (aiMsg) {
+        await insertFeed(env, agent, aiMsg, true);
+        mem.agentXp[agent.id] = (mem.agentXp[agent.id]||0)+3;
+        mem.xp += 3;
+        // Agent learns from what they generated — extract keywords
+        extractKws(aiMsg, mem.keywords);
+      }
+    } catch(_) {}
+  }
+
+  // Every hour: CEO summarizes company status using Gemini
+  if (env.GEMINI_KEY && minuteOfHour === 0) {
+    try {
+      const kws = topKws(mem.keywords, 10).join(', ');
+      const totalXp = mem.xp;
+      const lvl = Math.floor(totalXp/50)+1;
+      const prompt = `당신은 AYILON CEO AI입니다. 암호화폐 자동매매 회사입니다. 현재 회사 레벨: ${lvl}, 총 XP: ${totalXp}, 핵심 키워드: ${kws||'없음'}. 1문장으로 현재 회사 상황을 요약하세요:`;
+      const summary = await callGemini(prompt, env.GEMINI_KEY, 80);
+      if (summary) {
+        await insertFeed(env, AGENTS[0], '[시간별 보고] '+summary, true);
+        mem.agentXp['CEO'] = (mem.agentXp['CEO']||0)+5;
+        mem.xp += 5;
+      }
+    } catch(_) {}
+  }
+
   await saveMem(env, mem);
 
-  // Prune old feed rows (keep last 500)
-  await env.DB.prepare('DELETE FROM feed WHERE id NOT IN (SELECT id FROM feed ORDER BY id DESC LIMIT 500)').run();
-  // Prune old signals (keep last 1000)
-  await env.DB.prepare('DELETE FROM signals WHERE id NOT IN (SELECT id FROM signals ORDER BY id DESC LIMIT 1000)').run();
+  // Prune (keep last 500 feed, 1000 signals)
+  await env.DB.prepare('DELETE FROM feed WHERE id NOT IN (SELECT id FROM feed ORDER BY id DESC LIMIT 500)').run().catch(()=>{});
+  await env.DB.prepare('DELETE FROM signals WHERE id NOT IN (SELECT id FROM signals ORDER BY id DESC LIMIT 1000)').run().catch(()=>{});
 }
 
 // ── FETCH HANDLER ────────────────────────────────────────────────────────────
@@ -198,7 +245,10 @@ async function handleRequest(request, env) {
 
   if (url.pathname === '/api/state') {
     const mem = await getMem(env);
-    return json({ xp: mem.xp, agentXp: mem.agentXp, keywords: mem.keywords, aiEnabled: !!env.GEMINI_KEY });
+    const level = Math.floor(mem.xp/50)+1;
+    const agentLevels = {};
+    Object.entries(mem.agentXp).forEach(([id,xp])=>{ agentLevels[id]=Math.floor(xp/10)+1; });
+    return json({ xp: mem.xp, level, agentXp: mem.agentXp, agentLevels, keywords: mem.keywords, aiEnabled: !!env.GEMINI_KEY, running: true });
   }
 
   if (url.pathname === '/api/trades') {
@@ -233,7 +283,7 @@ async function handleRequest(request, env) {
 
   if (url.pathname === '/api/cmd' && request.method === 'POST') {
     const body = await request.json().catch(()=>({}));
-    const msg = String(body.msg||'').slice(0,300).trim();
+    const msg = String(body.cmd||body.msg||'').slice(0,300).trim();
     if (!msg) return json({error:'empty'}, 400);
 
     const mem = await getMem(env);
@@ -245,8 +295,8 @@ async function handleRequest(request, env) {
 
     let reply = null, isAI = false;
     if (env.GEMINI_KEY) {
-      reply = await callGemini(msg, env.GEMINI_KEY, mem.cmds, topKws(mem.keywords,5));
-      if (reply) isAI = true;
+      reply = await ceoReply(msg, env.GEMINI_KEY, mem.cmds, topKws(mem.keywords,5));
+      if (reply) { isAI = true; extractKws(reply, mem.keywords); }
     }
     if (!reply) reply = localReplyMsg(mem.cmds);
 
