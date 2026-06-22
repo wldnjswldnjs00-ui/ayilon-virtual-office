@@ -2,782 +2,827 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
 <title>AYILON Virtual Office</title>
 <style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#0a0a12;--s1:#0f0f1e;--s2:#161628;--b1:#1e1e38;--b2:#252540;
-  --t1:#e8e8ff;--t2:#8888bb;--t3:#444466;--accent:#7c5cfc;
+  --bg:#07071a;--s1:#0c0c20;--s2:#111128;--b1:#1a1a38;--b2:#222244;
+  --t1:#e0e0ff;--t2:#8888cc;--t3:#333366;
+  --acc:#6c5ce7;--green:#00d97e;--red:#ff4560;--yellow:#ffd32a;
 }
-html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--t1);font-family:-apple-system,'Helvetica Neue',sans-serif;display:flex;flex-direction:column}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{color:var(--t1);font-family:-apple-system,'Helvetica Neue',sans-serif;display:flex;flex-direction:column}
 
 /* ── HEADER ── */
-#hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--b1);flex-shrink:0;z-index:20}
-.logo{font-size:14px;font-weight:900;letter-spacing:.18em;color:#fff}
-.logo em{color:var(--accent);font-style:normal}
-.hdr-right{display:flex;align-items:center;gap:8px}
-.live-dot{width:6px;height:6px;background:#4eff91;border-radius:50%;animation:blink 2s infinite}
-.live-label{font-size:9px;font-weight:700;letter-spacing:.1em;color:#4eff91}
-.company-lvl{font-size:9px;color:var(--t2);background:var(--b1);border-radius:4px;padding:2px 7px}
+#hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(7,7,26,.97);border-bottom:1px solid var(--b1);flex-shrink:0;z-index:30;backdrop-filter:blur(10px)}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-mark{font-size:15px;font-weight:900;letter-spacing:.2em;color:#fff}
+.logo-mark span{color:var(--acc)}
+.live-pill{display:flex;align-items:center;gap:4px;background:#0d2a15;border:1px solid #1a5530;border-radius:12px;padding:2px 8px}
+.live-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:blink 1.8s infinite}
+.live-txt{font-size:8px;font-weight:700;color:var(--green);letter-spacing:.1em}
+.hdr-right{display:flex;align-items:center;gap:6px}
+.lvl-badge{font-size:9px;font-weight:800;color:var(--acc);background:rgba(108,92,231,.15);border:1px solid rgba(108,92,231,.3);border-radius:10px;padding:2px 8px}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
-/* ── NAV ── */
-#nav{display:flex;background:var(--bg);border-top:1px solid var(--b1);flex-shrink:0;order:99}
-.nav-btn{flex:1;padding:9px 4px 11px;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;color:var(--t3);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:color .2s}
-.nav-btn.on{color:var(--accent)}
-.nav-ic{font-size:18px}
-.nav-lb{font-size:8px;font-weight:700;letter-spacing:.06em}
+/* ── STATUS STRIP ── */
+#strip{display:flex;align-items:center;justify-content:space-between;padding:4px 14px;background:var(--s1);border-bottom:1px solid var(--b1);flex-shrink:0;gap:6px;overflow-x:auto;scrollbar-width:none}
+#strip::-webkit-scrollbar{display:none}
+.strip-time{font-size:8px;color:var(--t3);font-family:monospace;flex-shrink:0}
+.strip-chips{display:flex;gap:5px;flex-shrink:0}
+.chip{font-size:7px;font-weight:700;letter-spacing:.06em;padding:2px 6px;border-radius:3px;transition:all .3s}
+.chip.ok{background:#0d2a1540;color:var(--green);border:1px solid #1a553050}
+.chip.warn{background:#2a1a0d40;color:var(--yellow);border:1px solid #55331050}
+.chip.off{background:var(--b1);color:var(--t3);border:1px solid var(--b1)}
+.strip-stat{font-size:8px;color:var(--t2);flex-shrink:0}
+.strip-stat b{color:var(--t1)}
 
 /* ── PANES ── */
 #panes{flex:1;overflow:hidden;position:relative}
-.pane{position:absolute;inset:0;overflow-y:auto;display:none;padding-bottom:8px}
+.pane{position:absolute;inset:0;overflow-y:auto;display:none;-webkit-overflow-scrolling:touch}
 .pane.on{display:block}
 
-/* ── OFFICE MAP ── */
+/* ════════════════════════════════
+   OFFICE PANE
+════════════════════════════════ */
 #p-office{background:var(--bg)}
-.office-wrap{padding:12px}
-.company-status-bar{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;gap:12px;flex-wrap:wrap}
-.stat-chip{display:flex;flex-direction:column;gap:2px}
-.stat-chip .sl{font-size:7px;color:var(--t3);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-.stat-chip .sv{font-size:12px;font-weight:800;color:var(--t1)}
-.stat-chip .sv.green{color:#4eff91}
-.stat-chip .sv.yellow{color:#ffd32a}
-.stat-chip .sv.red{color:#ff4560}
-.stat-chip .sv.purple{color:#a29bfe}
+.office-scroll{padding:10px}
 
-.rooms-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.room{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:12px;position:relative;overflow:hidden}
-.room::before{content:'';position:absolute;inset:0;border-radius:12px;background:linear-gradient(135deg,rgba(124,92,252,.04) 0%,transparent 60%)}
-.room.full-w{grid-column:1/-1}
-.room-tag{font-size:7px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:10px;display:flex;align-items:center;gap:5px}
-.room-tag-dot{width:4px;height:4px;border-radius:50%;background:var(--accent)}
-.chars-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+/* Company metrics */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.metric{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:7px 8px;text-align:center}
+.m-lbl{font-size:6px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:2px}
+.m-val{font-size:12px;font-weight:900;color:var(--t1)}
+.m-val.g{color:var(--green)}.m-val.r{color:var(--red)}.m-val.y{color:var(--yellow)}.m-val.p{color:var(--acc)}
+
+/* FLOOR */
+.floor{display:flex;flex-direction:column;gap:6px}
+.floor-row{display:grid;gap:6px}
+.fr-2{grid-template-columns:1fr 1fr}
+.fr-1{grid-template-columns:1fr}
+.fr-3{grid-template-columns:1fr 1fr 1fr}
+
+/* ROOM */
+.room{border:1px solid var(--b1);border-radius:10px;position:relative;overflow:visible;min-height:110px;
+  background-color:var(--s1);
+  background-image:radial-gradient(circle,var(--b1) 1px,transparent 1px);
+  background-size:18px 18px}
+.room::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0;background:var(--room-c,var(--acc))}
+.room-lbl{position:absolute;top:6px;left:9px;font-size:7px;font-weight:700;letter-spacing:.1em;color:var(--t3);text-transform:uppercase;pointer-events:none}
 
 /* ── CHARACTER ── */
-.char{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;position:relative}
-.char-body{position:relative}
-.char-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid transparent;transition:border-color .3s,box-shadow .3s;animation:cfloat 4s ease-in-out infinite}
-.char.ceo .char-av{width:56px;height:56px;font-size:26px}
-.char.active .char-av{animation:cfloat 4s ease-in-out infinite,glow 2s ease-in-out infinite}
-.char-name{font-size:8px;font-weight:800;letter-spacing:.06em;color:var(--t2);margin-top:1px}
-.char.active .char-name{color:var(--t1)}
-.char-status{font-size:7px;color:var(--t3);max-width:60px;text-align:center;line-height:1.3}
-.char.active .char-status{color:var(--accent)}
-
-.bubble{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:5px 8px;font-size:8px;color:var(--t1);white-space:nowrap;max-width:160px;white-space:normal;text-align:center;line-height:1.4;pointer-events:none;opacity:0;transition:opacity .3s;z-index:10}
-.bubble::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--b1)}
+.char{position:absolute;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;z-index:10;transition:left 1.8s cubic-bezier(.45,.05,.55,.95),top 1.8s cubic-bezier(.45,.05,.55,.95)}
+.char-inner{position:relative;display:flex;flex-direction:column;align-items:center;gap:1px}
+.bubble{
+  position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:var(--s2);border:1px solid var(--b2);border-radius:8px;
+  padding:5px 8px;font-size:8px;color:var(--t1);max-width:130px;text-align:center;
+  line-height:1.45;pointer-events:none;opacity:0;transition:opacity .3s;z-index:50;
+  white-space:normal;box-shadow:0 4px 16px rgba(0,0,0,.6)
+}
+.bubble::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--b2)}
 .char:hover .bubble,.char.talking .bubble{opacity:1}
 
-@keyframes cfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-@keyframes glow{0%,100%{box-shadow:0 0 12px var(--char-c,#7c5cfc)}50%{box-shadow:0 0 24px var(--char-c,#7c5cfc)}}
+.char-av{
+  width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:18px;border:2px solid var(--cc,var(--acc));
+  background:color-mix(in srgb,var(--cc,var(--acc)) 18%,transparent);
+  animation:idle 3.5s ease-in-out infinite;
+  box-shadow:0 0 0 0 var(--cc,var(--acc));
+  transition:box-shadow .3s
+}
+.char.is-ceo .char-av{width:48px;height:48px;font-size:24px}
+.char.active .char-av{box-shadow:0 0 14px var(--cc,var(--acc))}
+.char.walking .char-av{animation:walk 0.4s ease-in-out infinite}
+.char-shadow{width:24px;height:5px;background:rgba(0,0,0,.35);border-radius:50%;animation:shad 3.5s ease-in-out infinite}
+.char.is-ceo .char-shadow{width:32px}
+.char-name{font-size:7px;font-weight:900;color:var(--t1);letter-spacing:.04em;text-shadow:0 1px 4px rgba(0,0,0,.9);white-space:nowrap}
+.char-act{font-size:6px;color:var(--cc,var(--t2));max-width:68px;text-align:center;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px rgba(0,0,0,.9)}
 
-/* ── FEED ── */
+@keyframes idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes walk{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-5px) rotate(8deg)}}
+@keyframes shad{0%,100%{transform:scaleX(1);opacity:.35}50%{transform:scaleX(.65);opacity:.15}}
+
+/* char facing */
+.char.face-l .char-av{transform-origin:center;transform:scaleX(-1)}
+.char.face-l.walking .char-av{animation:walk-l 0.4s ease-in-out infinite}
+@keyframes walk-l{0%,100%{transform:scaleX(-1) translateY(0) rotate(-8deg)}50%{transform:scaleX(-1) translateY(-5px) rotate(8deg)}}
+
+/* ════════════════════════════════
+   FEED PANE
+════════════════════════════════ */
 #p-feed{}
-.feed-header{padding:12px 16px;border-bottom:1px solid var(--b1);display:flex;justify-content:space-between;align-items:center;background:var(--bg);position:sticky;top:0;z-index:5}
-.feed-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t2)}
-.feed-count{font-size:9px;color:var(--t3);background:var(--b1);padding:2px 7px;border-radius:10px}
-.feed-body{padding:10px 14px;display:flex;flex-direction:column;gap:8px}
-.feed-item{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:9px 12px;display:flex;gap:10px;align-items:flex-start}
-.fi-av{font-size:18px;flex-shrink:0;margin-top:1px}
-.fi-right{flex:1;min-width:0}
-.fi-top{display:flex;align-items:center;gap:6px;margin-bottom:3px}
-.fi-name{font-size:9px;font-weight:800;color:var(--t1)}
-.fi-team{font-size:7px;color:var(--t3);background:var(--b2);padding:1px 5px;border-radius:3px}
-.fi-time{font-size:7px;color:var(--t3);margin-left:auto}
-.fi-msg{font-size:10px;color:var(--t2);line-height:1.5}
-.fi-tag{display:inline-block;font-size:7px;font-weight:700;letter-spacing:.05em;padding:1px 5px;border-radius:3px;margin-top:4px}
-.fi-tag.sig{background:#0d2a15;color:#4eff91;border:1px solid #1a5530}
-.fi-tag.warn{background:#2a1a0d;color:#ffd32a;border:1px solid #553310}
-.fi-tag.info{background:#0d1a2a;color:#74b9ff;border:1px solid #103050}
-.fi-tag.code{background:#1a0d2a;color:#a29bfe;border:1px solid #3a1a5a}
-.fi-tag.err{background:#2a0d0d;color:#ff4560;border:1px solid #550a1a}
-
-.cmd-box{margin:12px 14px;background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:12px}
-.cmd-lbl{font-size:8px;font-weight:700;letter-spacing:.1em;color:var(--t3);text-transform:uppercase;margin-bottom:6px}
+.feed-top{padding:10px 14px;border-bottom:1px solid var(--b1);display:flex;justify-content:space-between;align-items:center;background:var(--bg);position:sticky;top:0;z-index:5}
+.feed-ttl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t2)}
+.feed-cnt{font-size:8px;color:var(--t3);background:var(--b1);padding:2px 7px;border-radius:10px}
+.cmd-box{margin:10px 12px;background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:10px 12px}
+.cmd-lbl{font-size:7px;font-weight:700;letter-spacing:.1em;color:var(--t3);text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:4px}
 .cmd-row{display:flex;gap:8px}
-.cmd-input{flex:1;background:var(--bg);border:1px solid var(--b2);border-radius:6px;padding:8px 10px;color:var(--t1);font-size:11px;outline:none;-webkit-appearance:none}
-.cmd-input:focus{border-color:var(--accent)}
-.cmd-send{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:8px 12px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap}
+.cmd-in{flex:1;background:var(--bg);border:1px solid var(--b2);border-radius:7px;padding:8px 10px;color:var(--t1);font-size:11px;outline:none;-webkit-appearance:none}
+.cmd-in:focus{border-color:var(--acc)}
+.cmd-btn{background:var(--acc);color:#fff;border:none;border-radius:7px;padding:8px 14px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.feed-list{padding:8px 12px;display:flex;flex-direction:column;gap:6px}
+.fi{background:var(--s1);border:1px solid var(--b1);border-radius:9px;padding:9px 11px;display:flex;gap:9px;align-items:flex-start;border-left:3px solid var(--fi-c,var(--b1))}
+.fi-ic{font-size:17px;flex-shrink:0;margin-top:1px}
+.fi-r{flex:1;min-width:0}
+.fi-top{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.fi-who{font-size:9px;font-weight:800;color:var(--t1)}
+.fi-team{font-size:7px;color:var(--t3);background:var(--b2);padding:1px 5px;border-radius:3px}
+.fi-when{font-size:7px;color:var(--t3);margin-left:auto;flex-shrink:0}
+.fi-msg{font-size:10px;color:var(--t2);line-height:1.5}
+.fi-badge{display:inline-block;font-size:7px;font-weight:700;letter-spacing:.05em;padding:1px 6px;border-radius:3px;margin-top:4px}
+.b-sig{background:#0d2a1540;color:var(--green);border:1px solid #1a553050}
+.b-warn{background:#2a1a0d40;color:var(--yellow);border:1px solid #55331050}
+.b-code{background:#1a0d2a40;color:#a29bfe;border:1px solid #3a1a5a50}
+.b-info{background:#0d1a2a40;color:#74b9ff;border:1px solid #10305050}
+.b-err{background:#2a0d0d40;color:var(--red);border:1px solid #550a1a50}
 
-/* ── TRADING ── */
+/* ════════════════════════════════
+   TRADING PANE
+════════════════════════════════ */
 #p-trading{}
-.trade-section{margin:12px 14px}
-.sec-title{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--b1)}
-.signal-card{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:10px 12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
-.sig-left .sym{font-size:12px;font-weight:800;color:var(--t1)}
-.sig-left .tf{font-size:8px;color:var(--t3);margin-top:1px}
-.sig-dir{font-size:10px;font-weight:800;padding:4px 10px;border-radius:5px}
-.sig-dir.long{background:#0d2a15;color:#4eff91;border:1px solid #1a5530}
-.sig-dir.short{background:#2a0d0d;color:#ff4560;border:1px solid #550a1a}
-.sig-dir.hold{background:#1a1a2a;color:#8888bb;border:1px solid #2a2a4a}
-.sig-meta{font-size:7px;color:var(--t3);text-align:right;margin-top:2px}
-.perf-row{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px}
-.perf-card{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:10px}
-.pc-label{font-size:8px;color:var(--t3);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
-.pc-val{font-size:18px;font-weight:800}
-.pc-val.green{color:#4eff91}
-.pc-val.red{color:#ff4560}
-.pc-val.yellow{color:#ffd32a}
-.trade-row{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:8px 10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.t-section{margin:12px 12px 0}
+.t-head{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:5px}
+.sig-card{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:10px 12px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center}
+.sig-l .sym{font-size:13px;font-weight:800}
+.sig-l .tf{font-size:8px;color:var(--t3);margin-top:1px}
+.dir{font-size:10px;font-weight:800;padding:4px 10px;border-radius:5px}
+.dir.long{background:#0d2a1540;color:var(--green);border:1px solid #1a553060}
+.dir.short{background:#2a0d0d40;color:var(--red);border:1px solid #550a1a60}
+.dir.hold{background:var(--b1);color:var(--t3);border:1px solid var(--b1)}
+.perf-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px}
+.pc{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:10px}
+.pc .pl{font-size:7px;color:var(--t3);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.pc .pv{font-size:17px;font-weight:900}
+.pv.g{color:var(--green)}.pv.r{color:var(--red)}.pv.y{color:var(--yellow)}
+.tr-row{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:7px 10px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center}
 .tr-sym{font-size:10px;font-weight:700}
 .tr-dir{font-size:8px;font-weight:700;padding:2px 6px;border-radius:3px}
-.tr-dir.long{color:#4eff91;background:#0d2a1550}
-.tr-dir.short{color:#ff4560;background:#2a0d0d50}
+.tr-dir.long{color:var(--green);background:#0d2a1540}.tr-dir.short{color:var(--red);background:#2a0d0d40}
 .tr-pnl{font-size:11px;font-weight:800}
-.tr-pnl.pos{color:#4eff91}
-.tr-pnl.neg{color:#ff4560}
+.tr-pnl.pos{color:var(--green)}.tr-pnl.neg{color:var(--red)}
 
-/* ── GITHUB ── */
-.gh-section{margin:12px 14px}
-.gh-card{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:10px 12px;margin-bottom:8px}
-.gh-repo{font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px}
+/* GH */
+.gh-card{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:10px 12px;margin-bottom:7px}
+.gh-repo{font-size:10px;font-weight:700;color:var(--acc);margin-bottom:6px;display:flex;align-items:center;gap:6px}
 .gh-commit{display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--b1)}
 .gh-commit:last-child{border-bottom:none}
-.gh-sha{font-size:8px;color:var(--accent);font-family:monospace;flex-shrink:0}
+.gh-sha{font-size:8px;color:var(--acc);font-family:monospace;flex-shrink:0}
 .gh-msg{font-size:9px;color:var(--t2);flex:1;line-height:1.4}
-.gh-when{font-size:7px;color:var(--t3);flex-shrink:0}
+.gh-ago{font-size:7px;color:var(--t3);flex-shrink:0;white-space:nowrap}
 
-/* ── SETTINGS ── */
+/* ════════════════════════════════
+   SETTINGS PANE
+════════════════════════════════ */
 #p-settings{}
-.settings-wrap{padding:14px}
-.setting-group{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:12px;margin-bottom:10px}
-.sg-title{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
-.setting-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--b1)}
-.setting-row:last-child{border-bottom:none}
-.sr-label{font-size:10px;color:var(--t2)}
-.sr-val{font-size:9px;color:var(--t3);font-family:monospace}
-.sr-val.ok{color:#4eff91}
-.sr-val.err{color:#ff4560}
-.agent-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--b1)}
-.agent-item:last-child{border-bottom:none}
-.ai-icon{font-size:18px}
-.ai-info{flex:1}
-.ai-name{font-size:10px;font-weight:700;color:var(--t1)}
-.ai-role{font-size:8px;color:var(--t3)}
-.ai-lv{font-size:9px;color:var(--t3);background:var(--b2);padding:2px 7px;border-radius:4px}
+.sg{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:12px;margin:10px 12px 0}
+.sg-ttl{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--b1)}
+.sr:last-child{border-bottom:none}
+.sr-l{font-size:10px;color:var(--t2)}
+.sr-v{font-size:9px;color:var(--t3);font-family:monospace;text-align:right}
+.sr-v.ok{color:var(--green)}.sr-v.er{color:var(--red)}.sr-v.p{color:var(--acc)}
+.ag-row{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--b1)}
+.ag-row:last-child{border-bottom:none}
+.ag-ic{font-size:18px;flex-shrink:0}
+.ag-info{flex:1}
+.ag-name{font-size:10px;font-weight:700}
+.ag-sub{font-size:8px;color:var(--t3)}
+.ag-lv{font-size:8px;color:var(--t3);background:var(--b2);padding:2px 7px;border-radius:4px;flex-shrink:0}
 
-/* ── UTILS ── */
-.loading{text-align:center;padding:24px;color:var(--t3);font-size:10px;letter-spacing:.1em}
-.empty{text-align:center;padding:20px;color:var(--t3);font-size:10px}
-.err-msg{background:#2a0d0d;border:1px solid #550a1a;border-radius:6px;padding:8px 12px;color:#ff4560;font-size:9px;margin:8px 14px}
+/* ── NAV ── */
+#nav{display:flex;background:rgba(7,7,26,.97);border-top:1px solid var(--b1);flex-shrink:0;order:99;z-index:20;backdrop-filter:blur(10px)}
+.nb{flex:1;padding:9px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;color:var(--t3);cursor:pointer;transition:color .2s}
+.nb.on{color:var(--acc)}
+.nb-ic{font-size:19px}
+.nb-lb{font-size:7px;font-weight:700;letter-spacing:.06em}
 
-/* ── STATUS BAR ── */
-#status-bar{display:flex;align-items:center;justify-content:space-between;padding:5px 14px;background:var(--s1);border-bottom:1px solid var(--b1);flex-shrink:0}
-.sb-left{font-size:8px;color:var(--t3);font-family:monospace}
-.sb-right{display:flex;gap:8px;align-items:center}
-.sb-chip{font-size:7px;font-weight:700;letter-spacing:.06em;padding:1px 6px;border-radius:3px}
-.sb-chip.ok{background:#0d2a15;color:#4eff91;border:1px solid #1a5530}
-.sb-chip.warn{background:#2a1a0d;color:#ffd32a;border:1px solid #553310}
-.sb-chip.offline{background:#1a1a2a;color:#555577;border:1px solid #2a2a4a}
+/* misc */
+.loading{text-align:center;padding:20px;color:var(--t3);font-size:9px;letter-spacing:.1em}
+.empty{text-align:center;padding:16px;color:var(--t3);font-size:9px}
+
+/* scrollbar */
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <div id="hdr">
-  <div class="logo"><em>AYILON</em> VIRTUAL OFFICE</div>
+  <div class="logo">
+    <div class="logo-mark"><span>A</span>YILON</div>
+    <div class="live-pill"><div class="live-dot"></div><div class="live-txt">LIVE</div></div>
+  </div>
   <div class="hdr-right">
-    <div class="live-dot"></div>
-    <div class="live-label">LIVE</div>
-    <div class="company-lvl" id="company-lvl">LV ?</div>
+    <div class="lvl-badge" id="lvl-badge">LV —</div>
   </div>
 </div>
 
-<div id="status-bar">
-  <div class="sb-left" id="sb-time">--:--:--</div>
-  <div class="sb-right">
-    <div class="sb-chip offline" id="chip-api">API</div>
-    <div class="sb-chip offline" id="chip-bot">BOT</div>
-    <div class="sb-chip offline" id="chip-gh">GITHUB</div>
+<!-- STATUS STRIP -->
+<div id="strip">
+  <div class="strip-time" id="strip-time">--:--:--</div>
+  <div class="strip-chips">
+    <div class="chip off" id="c-api">API</div>
+    <div class="chip off" id="c-bot">BOT</div>
+    <div class="chip off" id="c-gh">GH</div>
   </div>
+  <div class="strip-stat">PNL <b id="s-pnl">—</b> &nbsp; WIN <b id="s-wr">—</b> &nbsp; 배포 <b id="s-dep" style="color:var(--acc)">—</b></div>
 </div>
 
+<!-- PANES -->
 <div id="panes">
-  <!-- OFFICE -->
+
+  <!-- ═══ OFFICE ═══ -->
   <div class="pane on" id="p-office">
-    <div class="office-wrap">
-      <div class="company-status-bar" id="company-status-bar">
-        <div class="stat-chip"><div class="sl">BOT STATUS</div><div class="sv" id="cs-bot">—</div></div>
-        <div class="stat-chip"><div class="sl">PNL TODAY</div><div class="sv" id="cs-pnl">—</div></div>
-        <div class="stat-chip"><div class="sl">OPEN TRADES</div><div class="sv" id="cs-trades">—</div></div>
-        <div class="stat-chip"><div class="sl">WIN RATE</div><div class="sv" id="cs-wr">—</div></div>
-        <div class="stat-chip"><div class="sl">LAST DEPLOY</div><div class="sv purple" id="cs-deploy">—</div></div>
+    <div class="office-scroll">
+
+      <!-- metrics -->
+      <div class="metrics">
+        <div class="metric"><div class="m-lbl">BOT</div><div class="m-val y" id="m-bot">—</div></div>
+        <div class="metric"><div class="m-lbl">오픈</div><div class="m-val" id="m-open">—</div></div>
+        <div class="metric"><div class="m-lbl">승률</div><div class="m-val g" id="m-wr">—</div></div>
+        <div class="metric"><div class="m-lbl">PNL</div><div class="m-val" id="m-pnl">—</div></div>
       </div>
 
-      <div class="rooms-grid" id="rooms-grid">
-        <!-- Dynamically built -->
-      </div>
+      <!-- FLOOR MAP -->
+      <div class="floor" id="floor">
+
+        <!-- CEO -->
+        <div class="floor-row fr-1">
+          <div class="room" id="room-executive" style="--room-c:#f7b731;min-height:100px">
+            <div class="room-lbl">🏛 임원실</div>
+          </div>
+        </div>
+
+        <!-- TRADING + RESEARCH -->
+        <div class="floor-row fr-2">
+          <div class="room" id="room-trading" style="--room-c:#4bcffa;min-height:130px">
+            <div class="room-lbl">📈 트레이딩</div>
+          </div>
+          <div class="room" id="room-research" style="--room-c:#1ec96e;min-height:130px">
+            <div class="room-lbl">🔬 리서치</div>
+          </div>
+        </div>
+
+        <!-- DEV + RISK -->
+        <div class="floor-row fr-2">
+          <div class="room" id="room-dev" style="--room-c:#ff9f43;min-height:130px">
+            <div class="room-lbl">💻 개발실</div>
+          </div>
+          <div class="room" id="room-risk" style="--room-c:#ff4560;min-height:130px">
+            <div class="room-lbl">⚠️ 리스크</div>
+          </div>
+        </div>
+
+        <!-- MARKETING + FINANCE -->
+        <div class="floor-row fr-2">
+          <div class="room" id="room-marketing" style="--room-c:#fd79a8;min-height:120px">
+            <div class="room-lbl">🎯 마케팅</div>
+          </div>
+          <div class="room" id="room-finance" style="--room-c:#55efc4;min-height:120px">
+            <div class="room-lbl">💰 재무</div>
+          </div>
+        </div>
+
+        <!-- SUPPORT + SECURITY -->
+        <div class="floor-row fr-2">
+          <div class="room" id="room-support" style="--room-c:#ffeaa7;min-height:120px">
+            <div class="room-lbl">🤝 지원</div>
+          </div>
+          <div class="room" id="room-security" style="--room-c:#e17055;min-height:120px">
+            <div class="room-lbl">🔐 보안/법무</div>
+          </div>
+        </div>
+
+      </div><!-- /floor -->
     </div>
-  </div>
+  </div><!-- /p-office -->
 
-  <!-- FEED -->
+  <!-- ═══ FEED ═══ -->
   <div class="pane" id="p-feed">
-    <div class="feed-header">
-      <div class="feed-title">ACTIVITY FEED</div>
-      <div class="feed-count" id="feed-count">0 events</div>
+    <div class="feed-top">
+      <div class="feed-ttl">🗞 ACTIVITY FEED</div>
+      <div class="feed-cnt" id="feed-cnt">0 events</div>
     </div>
     <div class="cmd-box">
-      <div class="cmd-lbl">👔 CEO 에게 명령</div>
+      <div class="cmd-lbl">👔 CEO에게 명령</div>
       <div class="cmd-row">
-        <input class="cmd-input" id="cmd-input" placeholder="전략 지시, 상황 보고 요청…" />
-        <button class="cmd-send" id="cmd-send">전송</button>
+        <input class="cmd-in" id="cmd-in" placeholder="전략 지시, 상황 보고 요청…"/>
+        <button class="cmd-btn" id="cmd-btn">전송</button>
       </div>
     </div>
-    <div class="feed-body" id="feed-body">
+    <div class="feed-list" id="feed-list">
       <div class="loading">피드 로딩 중…</div>
     </div>
   </div>
 
-  <!-- TRADING -->
+  <!-- ═══ TRADING ═══ -->
   <div class="pane" id="p-trading">
-    <div class="trade-section">
-      <div class="sec-title">📡 LIVE SIGNALS</div>
-      <div id="signals-wrap"><div class="loading">신호 로딩 중…</div></div>
+    <div class="t-section">
+      <div class="t-head">📡 LIVE SIGNALS</div>
+      <div id="sigs-wrap"><div class="loading">신호 로딩 중…</div></div>
     </div>
-    <div class="trade-section">
-      <div class="sec-title">📈 PERFORMANCE</div>
-      <div class="perf-row" id="perf-wrap">
-        <div class="perf-card"><div class="pc-label">누적 PNL</div><div class="pc-val" id="pf-pnl">—</div></div>
-        <div class="perf-card"><div class="pc-label">승률</div><div class="pc-val" id="pf-wr">—</div></div>
-        <div class="perf-card"><div class="pc-label">총 거래</div><div class="pc-val" id="pf-total">—</div></div>
-        <div class="perf-card"><div class="pc-label">최대 손실</div><div class="pc-val red" id="pf-mdd">—</div></div>
+    <div class="t-section" style="margin-top:14px">
+      <div class="t-head">📈 PERFORMANCE</div>
+      <div class="perf-grid">
+        <div class="pc"><div class="pl">누적 PNL</div><div class="pv" id="pf-pnl">—</div></div>
+        <div class="pc"><div class="pl">승률</div><div class="pv" id="pf-wr">—</div></div>
+        <div class="pc"><div class="pl">총 거래</div><div class="pv" id="pf-tot">—</div></div>
+        <div class="pc"><div class="pl">최대손실</div><div class="pv r" id="pf-mdd">—</div></div>
       </div>
     </div>
-    <div class="trade-section">
-      <div class="sec-title">🔄 RECENT TRADES</div>
+    <div class="t-section" style="margin-top:4px">
+      <div class="t-head">🔄 RECENT TRADES</div>
       <div id="trades-wrap"><div class="loading">거래 로딩 중…</div></div>
     </div>
-    <div class="gh-section">
-      <div class="sec-title" style="margin-bottom:8px;border-bottom:1px solid var(--b1);padding-bottom:6px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t3)">🔧 GITHUB REPOS</div>
-      <div id="gh-wrap"><div class="loading">레포 정보 로딩 중…</div></div>
+    <div class="t-section" style="margin-top:4px;margin-bottom:14px">
+      <div class="t-head">🔧 GITHUB REPOS</div>
+      <div id="gh-wrap"><div class="loading">레포 로딩 중…</div></div>
     </div>
   </div>
 
-  <!-- SETTINGS -->
+  <!-- ═══ SETTINGS ═══ -->
   <div class="pane" id="p-settings">
-    <div class="settings-wrap">
-      <div class="setting-group">
-        <div class="sg-title">연결 상태</div>
-        <div class="setting-row"><div class="sr-label">Worker URL</div><div class="sr-val" id="set-url">ayiloncompany.xyz</div></div>
-        <div class="setting-row"><div class="sr-label">API 상태</div><div class="sr-val" id="set-api">—</div></div>
-        <div class="setting-row"><div class="sr-label">D1 DB</div><div class="sr-val" id="set-db">—</div></div>
-        <div class="setting-row"><div class="sr-label">BOT</div><div class="sr-val" id="set-bot">—</div></div>
-        <div class="setting-row"><div class="sr-label">OKX</div><div class="sr-val" id="set-okx">—</div></div>
-        <div class="setting-row"><div class="sr-label">Gemini AI</div><div class="sr-val" id="set-ai">—</div></div>
-      </div>
-
-      <div class="setting-group">
-        <div class="sg-title">AI 에이전트 팀 (13명)</div>
-        <div id="agents-list"></div>
-      </div>
-
-      <div class="setting-group">
-        <div class="sg-title">회사 정보</div>
-        <div class="setting-row"><div class="sr-label">회사명</div><div class="sr-val">AYILON</div></div>
-        <div class="setting-row"><div class="sr-label">설립일</div><div class="sr-val">2024</div></div>
-        <div class="setting-row"><div class="sr-label">도메인</div><div class="sr-val">ayiloncompany.xyz</div></div>
-        <div class="setting-row"><div class="sr-label">플랫폼</div><div class="sr-val">Cloudflare Workers + D1</div></div>
-        <div class="setting-row"><div class="sr-label">거래소</div><div class="sr-val">OKX (선물)</div></div>
-      </div>
+    <div class="sg">
+      <div class="sg-ttl">연결 상태</div>
+      <div class="sr"><div class="sr-l">Worker</div><div class="sr-v p">ayiloncompany.xyz</div></div>
+      <div class="sr"><div class="sr-l">API</div><div class="sr-v" id="set-api">—</div></div>
+      <div class="sr"><div class="sr-l">D1 DB</div><div class="sr-v" id="set-db">—</div></div>
+      <div class="sr"><div class="sr-l">BOT</div><div class="sr-v" id="set-bot">—</div></div>
+      <div class="sr"><div class="sr-l">OKX</div><div class="sr-v" id="set-okx">—</div></div>
+      <div class="sr"><div class="sr-l">Gemini AI</div><div class="sr-v" id="set-ai">—</div></div>
+    </div>
+    <div class="sg" style="margin-bottom:10px">
+      <div class="sg-ttl">AI 에이전트 팀 (13명)</div>
+      <div id="ag-list"></div>
     </div>
   </div>
-</div>
 
+</div><!-- /panes -->
+
+<!-- NAV -->
 <nav id="nav">
-  <button class="nav-btn on" data-pane="p-office">
-    <div class="nav-ic">🏢</div>
-    <div class="nav-lb">오피스</div>
-  </button>
-  <button class="nav-btn" data-pane="p-feed">
-    <div class="nav-ic">💬</div>
-    <div class="nav-lb">피드</div>
-  </button>
-  <button class="nav-btn" data-pane="p-trading">
-    <div class="nav-ic">📊</div>
-    <div class="nav-lb">트레이딩</div>
-  </button>
-  <button class="nav-btn" data-pane="p-settings">
-    <div class="nav-ic">⚙️</div>
-    <div class="nav-lb">설정</div>
-  </button>
+  <button class="nb on" data-p="p-office"><div class="nb-ic">🏢</div><div class="nb-lb">오피스</div></button>
+  <button class="nb" data-p="p-feed"><div class="nb-ic">💬</div><div class="nb-lb">피드</div></button>
+  <button class="nb" data-p="p-trading"><div class="nb-ic">📊</div><div class="nb-lb">트레이딩</div></button>
+  <button class="nb" data-p="p-settings"><div class="nb-ic">⚙️</div><div class="nb-lb">설정</div></button>
 </nav>
 
 <script>
-// ── CONFIG ──
-const API = '';  // same origin
-
-// ── AGENT DEFINITIONS ──
+// ═══════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════
 const AGENTS = [
-  {id:'CEO',   ic:'👔', team:'Executive',   c:'#f7b731', room:'executive',  role:'최고경영자',
-   actions:['전략 회의 진행 중','시장 분석 검토 중','팀 성과 확인 중','투자 결정 논의 중','주간 보고서 작성 중']},
-  {id:'IRON',  ic:'📈', team:'전략팀',      c:'#4bcffa', room:'trading',    role:'전략 개발',
-   actions:['BTC 롱 신호 분석 중','ETH 추세 모니터링','RSI 과매도 포착','볼린저 밴드 전략 실행','MACD 신호 확인 중']},
-  {id:'GRID',  ic:'📊', team:'전략팀',      c:'#a29bfe', room:'trading',    role:'백테스팅',
-   actions:['6개월 백테스트 실행','전략 수익률 계산 중','최적 파라미터 탐색','MDD 분석 완료','승률 98.2% 전략 발견']},
-  {id:'SCOUT', ic:'🔍', team:'리서치팀',    c:'#1ec96e', room:'research',   role:'시장 리서치',
-   actions:['온체인 데이터 분석','뉴스 감성 분석 중','고래 지갑 추적','소셜 트렌드 모니터링','거래량 이상 감지']},
-  {id:'WARD',  ic:'🛡️', team:'리스크팀',    c:'#ff4560', room:'risk',       role:'리스크 관리',
-   actions:['포지션 리스크 점검','손절 라인 업데이트','변동성 모니터링','드로다운 경고 없음','레버리지 한도 검토']},
-  {id:'FORGE', ic:'⚙️', team:'개발팀',      c:'#ff9f43', room:'dev',        role:'백엔드 개발',
-   actions:['Worker 코드 최적화','API 엔드포인트 추가','D1 쿼리 성능 개선','배포 파이프라인 점검','새 기능 커밋 완료']},
-  {id:'ATLAS', ic:'🖥️', team:'인프라팀',    c:'#74b9ff', room:'dev',        role:'인프라 관리',
-   actions:['Cloudflare 상태 점검','크론잡 정상 실행 중','D1 DB 백업 완료','네트워크 레이턴시 모니터링','워커 메모리 최적화']},
-  {id:'LUNA',  ic:'📣', team:'마케팅팀',    c:'#fd79a8', room:'marketing',  role:'마케팅',
-   actions:['SNS 콘텐츠 제작 중','브랜드 전략 수립','성과 지표 분석','트위터 캠페인 준비','커뮤니티 관리 중']},
-  {id:'PIXEL', ic:'🎨', team:'디자인팀',    c:'#00b894', room:'marketing',  role:'UI/UX 디자인',
-   actions:['대시보드 UI 개선','차트 컴포넌트 디자인','모바일 UX 최적화','디자인 시스템 업데이트','아이콘 세트 제작']},
-  {id:'ECHO',  ic:'💬', team:'CS팀',        c:'#ffeaa7', room:'support',    role:'고객 지원',
-   actions:['사용자 문의 처리 중','FAQ 문서 업데이트','버그 리포트 검토','온보딩 가이드 작성','피드백 수집 완료']},
-  {id:'REX',   ic:'⚖️', team:'법률팀',      c:'#6c5ce7', room:'support',    role:'법률 자문',
-   actions:['규정 준수 검토','금융법 모니터링','이용약관 업데이트','데이터 보호 감사','규제 리스크 평가']},
-  {id:'LEDGER',ic:'📋', team:'세무팀',      c:'#55efc4', room:'finance',    role:'재무/세무',
-   actions:['월간 손익 계산','세금 보고서 준비','수익 배분 검토','비용 최적화 분석','재무제표 업데이트']},
-  {id:'SHIELD',ic:'🔒', team:'보안팀',      c:'#e17055', room:'security',   role:'보안 관리',
-   actions:['API 키 보안 점검','침입 탐지 모니터링','취약점 스캔 완료','접근 권한 감사','암호화 상태 확인']},
+  {id:'CEO',   ic:'👔', team:'Executive',  c:'#f7b731', room:'executive', role:'최고경영자',
+   lines:['전략 회의 진행 중','시장 리뷰 완료','팀 지시 전달 중','분기 목표 점검','투자 결정 논의 중']},
+  {id:'IRON',  ic:'📈', team:'전략팀',     c:'#4bcffa', room:'trading',   role:'전략 개발',
+   lines:['BTC 롱 신호 탐색','ETH 추세 모니터링','RSI 과매도 감지','MACD 크로스 확인','볼밴 돌파 포착']},
+  {id:'GRID',  ic:'📊', team:'전략팀',     c:'#a29bfe', room:'trading',   role:'백테스팅',
+   lines:['6개월 백테스트 실행','최적 파라미터 탐색','MDD 분석 중','전략 수익률 검증','승률 시뮬레이션']},
+  {id:'SCOUT', ic:'🔍', team:'리서치팀',   c:'#1ec96e', room:'research',  role:'시장 리서치',
+   lines:['온체인 데이터 분석','고래 지갑 추적 중','뉴스 감성 분석','거래량 이상 감지','시장 심리 측정']},
+  {id:'WARD',  ic:'🛡️', team:'리스크팀',   c:'#ff4560', room:'risk',      role:'리스크 관리',
+   lines:['포지션 리스크 점검','손절 라인 업데이트','변동성 경보 없음','드로다운 모니터링','레버리지 한도 검토']},
+  {id:'FORGE', ic:'⚙️', team:'개발팀',     c:'#ff9f43', room:'dev',       role:'백엔드 개발',
+   lines:['Worker 코드 최적화','API 엔드포인트 추가','새 기능 커밋 완료','배포 파이프라인 점검','D1 쿼리 개선']},
+  {id:'ATLAS', ic:'🖥️', team:'인프라팀',   c:'#74b9ff', room:'dev',       role:'인프라 관리',
+   lines:['Cloudflare 상태 점검','크론잡 정상 실행','D1 DB 백업 완료','네트워크 레이턴시 OK','워커 메모리 최적화']},
+  {id:'LUNA',  ic:'📣', team:'마케팅팀',   c:'#fd79a8', room:'marketing', role:'마케팅',
+   lines:['SNS 콘텐츠 제작','브랜드 전략 수립','트위터 캠페인 준비','성과 지표 분석','커뮤니티 운영 중']},
+  {id:'PIXEL', ic:'🎨', team:'디자인팀',   c:'#00b894', room:'marketing', role:'UI/UX 디자인',
+   lines:['대시보드 UI 개선','차트 컴포넌트 제작','모바일 UX 최적화','디자인 시스템 업데이트','아이콘 세트 완성']},
+  {id:'ECHO',  ic:'💬', team:'CS팀',       c:'#ffeaa7', room:'support',   role:'고객 지원',
+   lines:['사용자 문의 처리','FAQ 문서 업데이트','버그 리포트 검토','온보딩 가이드 작성','피드백 수집 완료']},
+  {id:'REX',   ic:'⚖️', team:'법률팀',     c:'#6c5ce7', room:'security',  role:'법률 자문',
+   lines:['규정 준수 검토','금융법 모니터링','이용약관 업데이트','데이터 보호 감사','규제 리스크 평가']},
+  {id:'LEDGER',ic:'📋', team:'세무팀',     c:'#55efc4', room:'finance',   role:'재무/세무',
+   lines:['월간 손익 계산','세금 보고서 준비','수익 배분 검토','비용 최적화 분석','재무제표 업데이트']},
+  {id:'SHIELD',ic:'🔒', team:'보안팀',     c:'#e17055', room:'security',  role:'보안 관리',
+   lines:['API 키 보안 점검','침입 탐지 모니터링','취약점 스캔 완료','접근 권한 감사','암호화 상태 확인']},
 ];
 
-const ROOMS = {
-  executive: {name:'임원실', emoji:'🏛️', agents:[]},
-  trading:   {name:'트레이딩 룸', emoji:'📈', agents:[]},
-  research:  {name:'리서치 룸', emoji:'🔬', agents:[]},
-  risk:      {name:'리스크 룸', emoji:'⚠️', agents:[]},
-  dev:       {name:'개발실', emoji:'💻', agents:[]},
-  marketing: {name:'마케팅/디자인', emoji:'🎯', agents:[]},
-  support:   {name:'지원팀', emoji:'🤝', agents:[]},
-  finance:   {name:'재무실', emoji:'💰', agents:[]},
-  security:  {name:'보안실', emoji:'🔐', agents:[]},
-};
-
-AGENTS.forEach(a => ROOMS[a.room].agents.push(a));
-
-// ── STATE ──
-const state = {
-  signals: [],
-  trades: [],
-  feed: [],
-  perf: null,
-  botState: null,
-  ghData: {},
-  agentActions: {},
-  lastUpdate: 0,
-};
-
-// randomize initial action per agent
-AGENTS.forEach(a => {
-  state.agentActions[a.id] = a.actions[Math.floor(Math.random() * a.actions.length)];
-});
-
-// ── GITHUB REPOS ──
-const GH_REPOS = [
-  {owner:'wldnjswldnjs00-ui', repo:'ayilon-virtual-office', label:'🤖 Virtual Office'},
-  {owner:'wldnjswldnjs00-ui', repo:'oracletrading',         label:'📈 Trading Platform'},
+const GH = [
+  {owner:'wldnjswldnjs00-ui', repo:'ayilon-virtual-office', label:'🤖 Virtual Office Worker'},
+  {owner:'wldnjswldnjs00-ui', repo:'oracletrading',         label:'📈 Oracle Trading Platform'},
 ];
 
-// ── NAV ──
-document.querySelectorAll('.nav-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
-    document.querySelectorAll('.pane').forEach(p => p.classList.remove('on'));
-    btn.classList.add('on');
-    document.getElementById(btn.dataset.pane).classList.add('on');
+// ═══════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════
+document.querySelectorAll('.nb').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.nb').forEach(x => x.classList.remove('on'));
+    document.querySelectorAll('.pane').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    document.getElementById(b.dataset.p).classList.add('on');
   });
 });
 
-// ── BUILD OFFICE ROOMS ──
-function buildOffice() {
-  const grid = document.getElementById('rooms-grid');
-  grid.innerHTML = '';
+// ═══════════════════════════════════════
+// BUILD SETTINGS AGENT LIST
+// ═══════════════════════════════════════
+function buildAgList() {
+  document.getElementById('ag-list').innerHTML = AGENTS.map(a =>
+    `<div class="ag-row">
+      <div class="ag-ic">${a.ic}</div>
+      <div class="ag-info"><div class="ag-name">${a.id}</div><div class="ag-sub">${a.team} · ${a.role}</div></div>
+      <div class="ag-lv" id="alv-${a.id}">LV 1</div>
+    </div>`
+  ).join('');
+}
 
-  const roomOrder = ['executive','trading','research','risk','dev','marketing','support','finance','security'];
-  const fullWidth = ['executive','dev','marketing','support'];
-
-  roomOrder.forEach(rk => {
-    const room = ROOMS[rk];
-    if (!room.agents.length) return;
-
-    const div = document.createElement('div');
-    div.className = 'room' + (fullWidth.includes(rk) ? ' full-w' : '');
-    div.id = 'room-' + rk;
-
-    const tag = `<div class="room-tag"><div class="room-tag-dot"></div>${room.emoji} ${room.name}</div>`;
-    const chars = room.agents.map(a => buildCharHTML(a)).join('');
-
-    div.innerHTML = tag + `<div class="chars-row" id="chars-${rk}">${chars}</div>`;
-    grid.appendChild(div);
+// ═══════════════════════════════════════
+// BUILD OFFICE CHARACTERS
+// ═══════════════════════════════════════
+function buildChars() {
+  // group by room
+  const byRoom = {};
+  AGENTS.forEach(a => {
+    if (!byRoom[a.room]) byRoom[a.room] = [];
+    byRoom[a.room].push(a);
   });
-}
 
-function buildCharHTML(a) {
-  const action = state.agentActions[a.id] || a.actions[0];
-  const isCeo = a.id === 'CEO';
-  return `
-  <div class="char${isCeo?' ceo':''}" id="char-${a.id}" style="--char-c:${a.c}">
-    <div class="char-body">
-      <div class="bubble" id="bubble-${a.id}">${action}</div>
-      <div class="char-av" style="background:${a.c}22;border-color:${a.c}44">${a.ic}</div>
-    </div>
-    <div class="char-name">${a.id}</div>
-    <div class="char-status" id="cstatus-${a.id}">${a.role}</div>
-  </div>`;
-}
-
-function updateCharAction(id, action) {
-  state.agentActions[id] = action;
-  const bubble = document.getElementById('bubble-' + id);
-  const status = document.getElementById('cstatus-' + id);
-  const char = document.getElementById('char-' + id);
-  if (bubble) bubble.textContent = action;
-  if (status) {
-    const a = AGENTS.find(x => x.id === id);
-    status.textContent = a ? a.role : id;
-  }
-  if (char) {
-    char.classList.add('active', 'talking');
-    setTimeout(() => char.classList.remove('talking'), 4000);
-  }
-}
-
-// ── FEED ──
-function renderFeed(items) {
-  const body = document.getElementById('feed-body');
-  const count = document.getElementById('feed-count');
-  if (!items || !items.length) {
-    body.innerHTML = '<div class="empty">피드 없음</div>';
-    count.textContent = '0 events';
-    return;
-  }
-  count.textContent = items.length + ' events';
-  body.innerHTML = items.slice(0, 40).map(it => {
-    const a = AGENTS.find(x => x.id === it.agent) || {ic:'🤖', team:'System'};
-    const tag = it.type === 'signal' ? 'sig' : it.type === 'warn' ? 'warn' : it.type === 'code' ? 'code' : it.type === 'error' ? 'err' : 'info';
-    const tagLabel = {signal:'SIGNAL',warn:'WARN',code:'CODE',error:'ERROR',info:'INFO',trade:'TRADE'}[it.type] || 'INFO';
-    const ts = it.ts ? new Date(it.ts * 1000).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) : '';
-    return `<div class="feed-item">
-      <div class="fi-av">${a.ic}</div>
-      <div class="fi-right">
-        <div class="fi-top">
-          <div class="fi-name">${it.agent || '?'}</div>
-          <div class="fi-team">${a.team}</div>
-          <div class="fi-time">${ts}</div>
+  Object.entries(byRoom).forEach(([roomId, agents]) => {
+    const room = document.getElementById('room-' + roomId);
+    if (!room) return;
+    agents.forEach((a, i) => {
+      const el = document.createElement('div');
+      el.className = 'char' + (a.id === 'CEO' ? ' is-ceo' : '');
+      el.id = 'char-' + a.id;
+      el.style.cssText = `--cc:${a.c};left:20px;top:28px`;
+      el.innerHTML = `
+        <div class="char-inner">
+          <div class="bubble" id="bub-${a.id}">${a.lines[0]}</div>
+          <div class="char-av">${a.ic}</div>
+          <div class="char-shadow"></div>
         </div>
-        <div class="fi-msg">${it.msg || it.message || ''}</div>
-        <span class="fi-tag ${tag}">${tagLabel}</span>
-      </div>
-    </div>`;
-  }).join('');
+        <div class="char-name">${a.id}</div>
+        <div class="char-act" id="act-${a.id}" style="color:${a.c}">${a.role}</div>`;
+      room.appendChild(el);
+    });
+  });
+
+  // Spread initial positions after paint
+  setTimeout(() => {
+    AGENTS.forEach(a => {
+      const el = document.getElementById('char-' + a.id);
+      if (!el) return;
+      const room = el.closest('.room');
+      const {x, y} = randPos(el, room);
+      el.style.transition = 'none';
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      setTimeout(() => { el.style.transition = ''; }, 50);
+    });
+  }, 100);
 }
 
-// ── SIGNALS ──
-function renderSignals(sigs) {
-  const wrap = document.getElementById('signals-wrap');
-  if (!sigs || !sigs.length) {
-    wrap.innerHTML = '<div class="empty">신호 없음</div>';
-    return;
+function randPos(charEl, room) {
+  const rw = room.offsetWidth;
+  const rh = room.offsetHeight;
+  const cw = charEl.id.includes('CEO') ? 50 : 38;
+  const ch = 72;
+  const pad = 10;
+  const topPad = 26; // room label
+  const x = pad + Math.random() * Math.max(rw - cw - pad * 2, 10);
+  const y = topPad + Math.random() * Math.max(rh - ch - topPad - pad, 5);
+  return {x: Math.max(pad, x), y: Math.max(topPad, y)};
+}
+
+function walkChars() {
+  AGENTS.forEach(a => {
+    const el = document.getElementById('char-' + a.id);
+    if (!el) return;
+    const room = el.closest('.room');
+    const prevLeft = parseFloat(el.style.left || '20');
+    const {x, y} = randPos(el, room);
+
+    el.classList.add('walking');
+    if (x < prevLeft) { el.classList.add('face-l'); el.classList.remove('face-r'); }
+    else { el.classList.remove('face-l'); }
+
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    setTimeout(() => el.classList.remove('walking'), 1900);
+  });
+}
+
+// ═══════════════════════════════════════
+// UPDATE CHARACTER BUBBLE
+// ═══════════════════════════════════════
+function setAction(id, text, flash) {
+  const bub = document.getElementById('bub-' + id);
+  const act = document.getElementById('act-' + id);
+  const el  = document.getElementById('char-' + id);
+  if (bub) bub.textContent = text.slice(0, 60);
+  if (act) act.textContent = text.slice(0, 40);
+  if (el && flash) {
+    el.classList.add('talking', 'active');
+    setTimeout(() => el.classList.remove('talking'), 4500);
   }
-  wrap.innerHTML = sigs.slice(0, 6).map(s => {
-    const dir = (s.direction || s.side || 'HOLD').toUpperCase();
-    const cls = dir === 'LONG' ? 'long' : dir === 'SHORT' ? 'short' : 'hold';
-    return `<div class="signal-card">
-      <div class="sig-left">
-        <div class="sym">${s.symbol || s.sym || '—'}</div>
-        <div class="tf">${s.tf || s.timeframe || ''} · ${s.strategy || ''}</div>
-      </div>
-      <div>
-        <div class="sig-dir ${cls}">${dir}</div>
-        <div class="sig-meta">${s.confidence ? Math.round(s.confidence*100)+'%' : ''}</div>
+}
+
+function randomChatter() {
+  const a = AGENTS[Math.floor(Math.random() * AGENTS.length)];
+  const line = a.lines[Math.floor(Math.random() * a.lines.length)];
+  setAction(a.id, line, true);
+}
+
+// ═══════════════════════════════════════
+// FEED
+// ═══════════════════════════════════════
+function renderFeed(items) {
+  const list = document.getElementById('feed-list');
+  const cnt  = document.getElementById('feed-cnt');
+  if (!items?.length) { list.innerHTML = '<div class="empty">피드 없음</div>'; cnt.textContent='0 events'; return; }
+  cnt.textContent = items.length + ' events';
+  const TAG = {signal:'b-sig',warn:'b-warn',code:'b-code',error:'b-err',info:'b-info',trade:'b-sig'};
+  const LBL = {signal:'SIGNAL',warn:'WARN',code:'CODE',error:'ERR',info:'INFO',trade:'TRADE'};
+  const COL = {signal:'#1a553050',warn:'#55331050',code:'#3a1a5a50',error:'#550a1a50'};
+  list.innerHTML = items.slice(0,40).map(it => {
+    const a = AGENTS.find(x => x.id === it.agent) || {ic:'🤖',team:'System',c:'#888'};
+    const t = it.type || 'info';
+    const ts = it.ts ? new Date(it.ts*1000).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) : '';
+    return `<div class="fi" style="--fi-c:${a.c}40">
+      <div class="fi-ic">${a.ic}</div>
+      <div class="fi-r">
+        <div class="fi-top">
+          <div class="fi-who">${it.agent||'?'}</div>
+          <div class="fi-team">${a.team}</div>
+          <div class="fi-when">${ts}</div>
+        </div>
+        <div class="fi-msg">${it.msg||it.message||''}</div>
+        <span class="fi-badge ${TAG[t]||'b-info'}">${LBL[t]||'INFO'}</span>
       </div>
     </div>`;
   }).join('');
 }
 
-// ── PERFORMANCE ──
+// ═══════════════════════════════════════
+// SIGNALS
+// ═══════════════════════════════════════
+function renderSignals(sigs) {
+  const wrap = document.getElementById('sigs-wrap');
+  if (!sigs?.length) { wrap.innerHTML='<div class="empty">신호 없음</div>'; return; }
+  wrap.innerHTML = sigs.slice(0,6).map(s => {
+    const dir = (s.direction||s.side||'HOLD').toUpperCase();
+    const cls = dir==='LONG'?'long':dir==='SHORT'?'short':'hold';
+    return `<div class="sig-card">
+      <div class="sig-l"><div class="sym">${s.symbol||s.sym||'—'}</div><div class="tf">${s.tf||s.timeframe||''} · ${s.strategy||''}</div></div>
+      <div><div class="dir ${cls}">${dir}</div></div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// PERFORMANCE
+// ═══════════════════════════════════════
 function renderPerf(p) {
   if (!p) return;
-  const fmt = v => v >= 0 ? '+' + v.toFixed(2) + '%' : v.toFixed(2) + '%';
-  const pnlEl = document.getElementById('pf-pnl');
-  const wrEl = document.getElementById('pf-wr');
-  const totEl = document.getElementById('pf-total');
-  const mddEl = document.getElementById('pf-mdd');
-  if (pnlEl) { pnlEl.textContent = p.totalPnl != null ? fmt(p.totalPnl) : '—'; pnlEl.className = 'pc-val ' + (p.totalPnl >= 0 ? 'green' : 'red'); }
-  if (wrEl)  wrEl.textContent = p.winRate != null ? (p.winRate*100).toFixed(1)+'%' : '—';
-  if (totEl) totEl.textContent = p.totalTrades != null ? p.totalTrades : '—';
-  if (mddEl) mddEl.textContent = p.maxDrawdown != null ? fmt(-Math.abs(p.maxDrawdown)) : '—';
+  const fmt = v => (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
+  const el = (id, val, cls) => {
+    const e = document.getElementById(id);
+    if (e) { e.textContent = val; if (cls) e.className = 'pv ' + cls; }
+  };
+  if (p.totalPnl != null) el('pf-pnl', fmt(p.totalPnl), p.totalPnl >= 0 ? 'g' : 'r');
+  if (p.winRate  != null) el('pf-wr',  (p.winRate*100).toFixed(1)+'%', p.winRate>=.5?'g':'r');
+  if (p.totalTrades != null) el('pf-tot', p.totalTrades, '');
+  if (p.maxDrawdown != null) el('pf-mdd', fmt(-Math.abs(p.maxDrawdown)), 'r');
 }
 
-// ── TRADES ──
+// ═══════════════════════════════════════
+// TRADES
+// ═══════════════════════════════════════
 function renderTrades(trades) {
   const wrap = document.getElementById('trades-wrap');
-  if (!trades || !trades.length) {
-    wrap.innerHTML = '<div class="empty">거래 없음</div>';
-    return;
-  }
-  wrap.innerHTML = trades.slice(0, 10).map(t => {
-    const dir = (t.side || t.direction || 'LONG').toUpperCase();
-    const cls = dir === 'LONG' ? 'long' : 'short';
-    const pnl = t.pnl != null ? t.pnl : t.realizedPnl;
-    const pnlStr = pnl != null ? (pnl >= 0 ? '+' + pnl.toFixed(2) : pnl.toFixed(2)) + '%' : '—';
-    const pnlCls = pnl >= 0 ? 'pos' : 'neg';
-    return `<div class="trade-row">
-      <span class="tr-sym">${t.symbol || t.sym || '—'}</span>
-      <span class="tr-dir ${cls}">${dir}</span>
-      <span class="tr-pnl ${pnlCls}">${pnlStr}</span>
+  if (!trades?.length) { wrap.innerHTML='<div class="empty">거래 없음</div>'; return; }
+  wrap.innerHTML = trades.slice(0,10).map(t => {
+    const dir = (t.side||t.direction||'LONG').toUpperCase();
+    const pnl = t.pnl ?? t.realizedPnl;
+    const pnlStr = pnl != null ? (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '%' : '—';
+    return `<div class="tr-row">
+      <span class="tr-sym">${t.symbol||t.sym||'—'}</span>
+      <span class="tr-dir ${dir==='LONG'?'long':'short'}">${dir}</span>
+      <span class="tr-pnl ${pnl >= 0 ? 'pos':'neg'}">${pnlStr}</span>
     </div>`;
   }).join('');
 }
 
-// ── COMPANY STATUS BAR ──
-function updateStatusBar(botState, perf, trades) {
-  const botEl = document.getElementById('cs-bot');
-  const pnlEl = document.getElementById('cs-pnl');
-  const trEl  = document.getElementById('cs-trades');
-  const wrEl  = document.getElementById('cs-wr');
-
-  if (botState) {
-    const running = botState.running || botState.status === 'running';
-    if (botEl) { botEl.textContent = running ? '실행 중' : '대기'; botEl.className = 'sv ' + (running ? 'green' : 'yellow'); }
-  }
-  if (perf) {
-    if (pnlEl && perf.totalPnl != null) {
-      pnlEl.textContent = (perf.totalPnl >= 0 ? '+' : '') + perf.totalPnl.toFixed(2) + '%';
-      pnlEl.className = 'sv ' + (perf.totalPnl >= 0 ? 'green' : 'red');
-    }
-    if (wrEl && perf.winRate != null) {
-      wrEl.textContent = (perf.winRate * 100).toFixed(1) + '%';
-      wrEl.className = 'sv ' + (perf.winRate >= 0.5 ? 'green' : 'red');
-    }
-  }
-  if (trades && trEl) {
-    const open = trades.filter(t => t.status === 'open' || t.open).length;
-    trEl.textContent = open;
-    trEl.className = 'sv ' + (open > 0 ? 'yellow' : 'green');
-  }
-}
-
-// ── GITHUB ──
-async function loadGitHub() {
-  const wrap = document.getElementById('gh-wrap');
-  const ghChip = document.getElementById('chip-gh');
-  let html = '';
-
-  for (const {owner, repo, label} of GH_REPOS) {
-    try {
-      const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/commits?per_page=5`, {
-        headers: {'Accept': 'application/vnd.github.v3+json'}
-      });
-      if (!r.ok) throw new Error('fetch failed');
-      const commits = await r.json();
-      const rows = commits.map(c => {
-        const sha = c.sha.slice(0, 7);
-        const msg = (c.commit.message || '').split('\n')[0].slice(0, 60);
-        const when = timeAgo(new Date(c.commit.author.date));
-        return `<div class="gh-commit">
-          <span class="gh-sha">${sha}</span>
-          <span class="gh-msg">${msg}</span>
-          <span class="gh-when">${when}</span>
-        </div>`;
-      }).join('');
-      html += `<div class="gh-card"><div class="gh-repo">${label}</div>${rows}</div>`;
-
-      // update deploy status
-      if (commits[0]) {
-        const when = timeAgo(new Date(commits[0].commit.author.date));
-        const deployEl = document.getElementById('cs-deploy');
-        if (deployEl && repo === 'ayilon-virtual-office') deployEl.textContent = when;
-        // update FORGE / ATLAS actions
-        updateCharAction('FORGE', `최신 커밋: ${commits[0].commit.message.split('\n')[0].slice(0,30)}`);
-        updateCharAction('ATLAS', `${repo} 배포 완료 (${when})`);
-      }
-
-      state.ghData[repo] = commits;
-      ghChip.className = 'sb-chip ok';
-      ghChip.textContent = 'GITHUB';
-    } catch(e) {
-      html += `<div class="gh-card"><div class="gh-repo">${label}</div><div style="color:var(--t3);font-size:9px">GitHub API 연결 실패</div></div>`;
-      ghChip.className = 'sb-chip warn';
-    }
-  }
-  if (wrap) wrap.innerHTML = html || '<div class="empty">레포 없음</div>';
-}
-
-function timeAgo(d) {
+// ═══════════════════════════════════════
+// GITHUB
+// ═══════════════════════════════════════
+function ago(d) {
   const s = Math.floor((Date.now() - d) / 1000);
-  if (s < 60) return s + '초 전';
-  if (s < 3600) return Math.floor(s/60) + '분 전';
-  if (s < 86400) return Math.floor(s/3600) + '시간 전';
-  return Math.floor(s/86400) + '일 전';
+  return s < 60 ? s+'초 전' : s < 3600 ? Math.floor(s/60)+'분 전' : s < 86400 ? Math.floor(s/3600)+'시간 전' : Math.floor(s/86400)+'일 전';
 }
 
-// ── SETTINGS AGENTS LIST ──
-function buildSettingsAgents() {
-  const list = document.getElementById('agents-list');
-  if (!list) return;
-  list.innerHTML = AGENTS.map(a => `
-    <div class="agent-item">
-      <div class="ai-icon">${a.ic}</div>
-      <div class="ai-info">
-        <div class="ai-name">${a.id}</div>
-        <div class="ai-role">${a.team} · ${a.role}</div>
-      </div>
-      <div class="ai-lv" id="ailv-${a.id}">LV 1</div>
-    </div>`).join('');
+async function loadGH() {
+  const wrap = document.getElementById('gh-wrap');
+  const chip = document.getElementById('c-gh');
+  let html = '';
+  let anyOk = false;
+
+  for (const {owner, repo, label} of GH) {
+    try {
+      const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/commits?per_page=4`, {
+        headers: {'Accept':'application/vnd.github.v3+json'}
+      });
+      if (!r.ok) throw new Error(r.status);
+      const cs = await r.json();
+      anyOk = true;
+      const rows = cs.map(c => `<div class="gh-commit">
+        <span class="gh-sha">${c.sha.slice(0,7)}</span>
+        <span class="gh-msg">${(c.commit.message||'').split('\n')[0].slice(0,55)}</span>
+        <span class="gh-ago">${ago(new Date(c.commit.author.date))}</span>
+      </div>`).join('');
+      html += `<div class="gh-card"><div class="gh-repo">${label}</div>${rows}</div>`;
+      if (cs[0]) {
+        const w = ago(new Date(cs[0].commit.author.date));
+        const msg = cs[0].commit.message.split('\n')[0];
+        document.getElementById('s-dep').textContent = w;
+        if (repo === 'ayilon-virtual-office') {
+          setAction('FORGE', '최신 커밋: ' + msg.slice(0, 35), false);
+          setAction('ATLAS', repo + ' 배포 ' + w, false);
+        }
+      }
+    } catch(e) {
+      html += `<div class="gh-card"><div class="gh-repo">${label}</div><div class="empty" style="padding:8px">GitHub 연결 안됨</div></div>`;
+    }
+  }
+  if (wrap) wrap.innerHTML = html || '<div class="empty">없음</div>';
+  chip.className = 'chip ' + (anyOk ? 'ok' : 'warn');
 }
 
-// ── CMD ──
-document.getElementById('cmd-send').addEventListener('click', async () => {
-  const input = document.getElementById('cmd-input');
-  const msg = input.value.trim();
-  if (!msg) return;
-  input.value = '';
-
-  updateCharAction('CEO', '명령 처리 중…');
-
-  try {
-    await fetch(API + '/api/cmd', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({cmd: msg, agent: 'CEO'}),
-    });
-  } catch(e) {}
-
-  // Simulate response after short delay
-  setTimeout(() => {
-    updateCharAction('CEO', '팀에게 지시 전달 완료');
-    const item = {agent:'CEO',type:'info',msg:`[CMD] ${msg}`,ts:Math.floor(Date.now()/1000)};
-    state.feed.unshift(item);
-    renderFeed(state.feed);
-  }, 1200);
-});
-
-document.getElementById('cmd-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('cmd-send').click();
-});
-
-// ── API FETCH ──
-async function fetchAPI(path) {
-  const r = await fetch(API + path);
+// ═══════════════════════════════════════
+// API FETCH
+// ═══════════════════════════════════════
+async function api(path) {
+  const r = await fetch(path);
   if (!r.ok) throw new Error(r.status);
   return r.json();
 }
 
 async function loadAll() {
-  const apiChip = document.getElementById('chip-api');
-  const botChip = document.getElementById('chip-bot');
+  const chipApi = document.getElementById('c-api');
+  const chipBot = document.getElementById('c-bot');
+  let ok = false;
 
+  // FEED
   try {
-    // Feed
-    const feedData = await fetchAPI('/api/feed');
-    state.feed = feedData.items || feedData || [];
-    renderFeed(state.feed);
-
-    // Update agent actions from feed
-    state.feed.slice(0, 10).forEach(item => {
-      if (item.agent && AGENTS.find(a => a.id === item.agent)) {
-        updateCharAction(item.agent, (item.msg || '').slice(0, 50));
+    const d = await api('/api/feed');
+    const items = d.items || d || [];
+    renderFeed(items);
+    items.slice(0,8).forEach(it => {
+      if (it.agent && AGENTS.find(a => a.id === it.agent)) {
+        setAction(it.agent, (it.msg || '').slice(0, 55), false);
       }
     });
+    ok = true;
+  } catch(e) { renderFeed([]); }
 
-    apiChip.className = 'sb-chip ok';
-    apiChip.textContent = 'API';
-  } catch(e) {
-    apiChip.className = 'sb-chip warn';
-    apiChip.textContent = 'API';
-    // Activate agents anyway with defaults
-    AGENTS.forEach(a => {
-      const action = a.actions[Math.floor(Math.random() * a.actions.length)];
-      updateCharAction(a.id, action);
-    });
+  // SIGNALS
+  try {
+    const d = await api('/api/signals');
+    const sigs = d.signals || d || [];
+    renderSignals(sigs);
+    if (sigs[0]) {
+      const s = sigs[0];
+      const dir = (s.direction||s.side||'HOLD').toUpperCase();
+      setAction('IRON',  `${s.symbol||'BTC'} ${dir} 신호 발생`, true);
+      setAction('SCOUT', `${s.symbol||'BTC'} 시장 분석 완료`, false);
+    }
+  } catch(e) { renderSignals([]); }
+
+  // PERF
+  try {
+    const d = await api('/api/performance');
+    const p = d.performance || d;
+    renderPerf(p);
+    if (p.winRate != null) {
+      setAction('GRID', `승률 ${(p.winRate*100).toFixed(1)}% 확인`, false);
+      document.getElementById('s-wr').textContent = (p.winRate*100).toFixed(1)+'%';
+      document.getElementById('m-wr').textContent = (p.winRate*100).toFixed(1)+'%';
+    }
+    if (p.totalPnl != null) {
+      const v = p.totalPnl;
+      const str = (v>=0?'+':'')+v.toFixed(2)+'%';
+      document.getElementById('s-pnl').textContent = str;
+      document.getElementById('m-pnl').textContent = str;
+      document.getElementById('m-pnl').className = 'm-val ' + (v>=0?'g':'r');
+      setAction('LEDGER', `누적 PNL ${str}`, false);
+    }
+  } catch(e) {}
+
+  // TRADES
+  try {
+    const d = await api('/api/trades');
+    const trades = d.trades || d || [];
+    renderTrades(trades);
+    const open = trades.filter(t => t.status==='open'||t.open);
+    document.getElementById('m-open').textContent = open.length;
+    document.getElementById('m-open').className = 'm-val ' + (open.length>0?'y':'g');
+    if (open.length) setAction('WARD', `오픈 ${open.length}개 모니터링 중`, false);
+  } catch(e) {}
+
+  // STATE
+  try {
+    const d = await api('/api/state');
+    const running = d.running || d.status === 'running';
+    chipBot.className = 'chip ' + (running ? 'ok' : 'warn');
+    document.getElementById('m-bot').textContent = running ? '실행' : '대기';
+    document.getElementById('m-bot').className = 'm-val ' + (running ? 'g' : 'y');
+    document.getElementById('set-bot').textContent = running ? '실행 중' : '대기 중';
+    document.getElementById('set-bot').className = 'sr-v ' + (running ? 'ok' : '');
+    if (d.level) {
+      document.getElementById('lvl-badge').textContent = 'LV ' + d.level;
+      document.querySelectorAll('[id^="alv-"]').forEach(e => e.textContent = 'LV ' + d.level);
+    }
+    if (d.okxConnected != null) {
+      const e = document.getElementById('set-okx');
+      e.textContent = d.okxConnected ? '연결됨' : '미연결';
+      e.className = 'sr-v ' + (d.okxConnected ? 'ok' : 'er');
+    }
+    if (d.aiEnabled != null) {
+      const e = document.getElementById('set-ai');
+      e.textContent = d.aiEnabled ? '활성화' : '비활성화';
+      e.className = 'sr-v ' + (d.aiEnabled ? 'ok' : '');
+    }
+  } catch(e) { chipBot.className = 'chip warn'; }
+
+  chipApi.className = 'chip ' + (ok ? 'ok' : 'warn');
+  if (ok) {
+    document.getElementById('set-api').textContent = '연결됨';
+    document.getElementById('set-api').className = 'sr-v ok';
+    document.getElementById('set-db').textContent = '정상';
+    document.getElementById('set-db').className = 'sr-v ok';
   }
-
-  try {
-    const sigData = await fetchAPI('/api/signals');
-    state.signals = sigData.signals || sigData || [];
-    renderSignals(state.signals);
-    if (state.signals.length) {
-      const s = state.signals[0];
-      const dir = (s.direction || s.side || 'HOLD').toUpperCase();
-      updateCharAction('IRON', `${s.symbol || 'BTC'} ${dir} 신호 발생`);
-      updateCharAction('SCOUT', `${s.symbol || 'BTC'} 시장 데이터 분석 완료`);
-    }
-  } catch(e) {}
-
-  try {
-    const perfData = await fetchAPI('/api/performance');
-    state.perf = perfData.performance || perfData;
-    renderPerf(state.perf);
-    if (state.perf && state.perf.winRate != null) {
-      updateCharAction('GRID', `승률 ${(state.perf.winRate*100).toFixed(1)}% 백테스트 확인`);
-      updateCharAction('LEDGER', `누적 PNL ${state.perf.totalPnl != null ? state.perf.totalPnl.toFixed(2) : 0}% 계산 완료`);
-    }
-  } catch(e) {}
-
-  try {
-    const tradesData = await fetchAPI('/api/trades');
-    state.trades = tradesData.trades || tradesData || [];
-    renderTrades(state.trades);
-    const open = state.trades.filter(t => t.status === 'open' || t.open);
-    if (open.length) updateCharAction('WARD', `오픈 포지션 ${open.length}개 리스크 모니터링`);
-  } catch(e) {}
-
-  try {
-    const stateData = await fetchAPI('/api/state');
-    state.botState = stateData;
-    const running = stateData.running || stateData.status === 'running';
-    botChip.className = 'sb-chip ' + (running ? 'ok' : 'warn');
-    botChip.textContent = 'BOT';
-
-    // Settings
-    const setOkx = document.getElementById('set-okx');
-    const setAi = document.getElementById('set-ai');
-    const setBot = document.getElementById('set-bot');
-    if (setBot) { setBot.textContent = running ? '실행 중' : '대기 중'; setBot.className = 'sr-val ' + (running ? 'ok' : ''); }
-    if (setOkx && stateData.okxConnected != null) { setOkx.textContent = stateData.okxConnected ? '연결됨' : '미연결'; setOkx.className = 'sr-val ' + (stateData.okxConnected ? 'ok' : 'err'); }
-    if (setAi && stateData.aiEnabled != null) { setAi.textContent = stateData.aiEnabled ? '활성화' : '비활성화'; setAi.className = 'sr-val ' + (stateData.aiEnabled ? 'ok' : ''); }
-
-    if (stateData.level) {
-      document.getElementById('company-lvl').textContent = 'LV ' + stateData.level;
-      document.querySelectorAll('[id^="ailv-"]').forEach(el => {
-        el.textContent = 'LV ' + stateData.level;
-      });
-    }
-  } catch(e) {
-    botChip.className = 'sb-chip warn';
-  }
-
-  updateStatusBar(state.botState, state.perf, state.trades);
-
-  const setApi = document.getElementById('set-api');
-  const setDb = document.getElementById('set-db');
-  if (setApi) { setApi.textContent = '연결됨'; setApi.className = 'sr-val ok'; }
-  if (setDb) { setDb.textContent = '정상'; setDb.className = 'sr-val ok'; }
-
-  state.lastUpdate = Date.now();
 }
 
-// ── CLOCK ──
-function updateClock() {
-  const el = document.getElementById('sb-time');
-  if (el) el.textContent = new Date().toLocaleTimeString('ko-KR');
+// ═══════════════════════════════════════
+// CEO COMMAND
+// ═══════════════════════════════════════
+const cmdIn  = document.getElementById('cmd-in');
+const cmdBtn = document.getElementById('cmd-btn');
+
+cmdBtn.addEventListener('click', async () => {
+  const msg = cmdIn.value.trim();
+  if (!msg) return;
+  cmdIn.value = '';
+  setAction('CEO', '명령 처리 중…', true);
+  try {
+    await fetch('/api/cmd', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cmd:msg,agent:'CEO'})});
+  } catch(e) {}
+  setTimeout(() => setAction('CEO', '팀에게 지시 전달', true), 1200);
+  const feed = document.getElementById('feed-list');
+  const el = document.createElement('div');
+  el.className = 'fi';
+  el.style.setProperty('--fi-c', '#f7b73140');
+  el.innerHTML = `<div class="fi-ic">👔</div><div class="fi-r">
+    <div class="fi-top"><div class="fi-who">CEO</div><div class="fi-team">Executive</div><div class="fi-when">${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}</div></div>
+    <div class="fi-msg">${msg}</div>
+    <span class="fi-badge b-info">CMD</span>
+  </div>`;
+  feed.insertBefore(el, feed.firstChild);
+});
+cmdIn.addEventListener('keydown', e => { if (e.key==='Enter') cmdBtn.click(); });
+
+// ═══════════════════════════════════════
+// CLOCK
+// ═══════════════════════════════════════
+function tick() {
+  document.getElementById('strip-time').textContent = new Date().toLocaleTimeString('ko-KR');
 }
 
-// ── RANDOM AGENT CHATTER ──
-function randomChatter() {
-  const a = AGENTS[Math.floor(Math.random() * AGENTS.length)];
-  const action = a.actions[Math.floor(Math.random() * a.actions.length)];
-  updateCharAction(a.id, action);
-}
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+buildAgList();
+buildChars();
+tick();
 
-// ── INIT ──
-buildOffice();
-buildSettingsAgents();
 loadAll();
-loadGitHub();
-updateClock();
+loadGH();
 
-setInterval(updateClock, 1000);
+// Activate all chars initially
+setTimeout(() => {
+  AGENTS.forEach(a => {
+    const line = a.lines[Math.floor(Math.random() * a.lines.length)];
+    setAction(a.id, line, false);
+    document.getElementById('char-' + a.id)?.classList.add('active');
+  });
+}, 300);
+
+setInterval(tick, 1000);
 setInterval(loadAll, 30000);
-setInterval(loadGitHub, 120000);
-setInterval(randomChatter, 8000);
+setInterval(loadGH, 120000);
+setInterval(walkChars, 5000);
+setInterval(randomChatter, 7000);
+
+// First walk after initial spread
+setTimeout(walkChars, 2000);
 </script>
 </body>
 </html>
