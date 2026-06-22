@@ -330,190 +330,364 @@ const AGENTS = [
    lines:['API 키 보안 점검','침입 탐지 모니터링','취약점 스캔 완료']},
 ];
 
-// Canvas room bounds (in internal 380x560 px)
+// Canvas walking bounds per zone (internal 380x528 coords)
 const ROOMS = {
-  executive: {x1:8,  y1:8,  x2:372, y2:86},
-  trading:   {x1:8,  y1:94, x2:186, y2:200},
-  research:  {x1:194,y1:94, x2:372, y2:200},
-  dev:       {x1:8,  y1:208,x2:186, y2:314},
-  risk:      {x1:194,y1:208,x2:372, y2:314},
-  marketing: {x1:8,  y1:322,x2:186, y2:416},
-  finance:   {x1:194,y1:322,x2:372, y2:416},
-  support:   {x1:8,  y1:424,x2:186, y2:518},
-  security:  {x1:194,y1:424,x2:372, y2:518},
+  executive: {x1:12,  y1:22,  x2:366, y2:104},
+  trading:   {x1:12,  y1:118, x2:184, y2:220},
+  research:  {x1:196, y1:118, x2:366, y2:220},
+  dev:       {x1:12,  y1:234, x2:184, y2:336},
+  risk:      {x1:196, y1:234, x2:366, y2:336},
+  marketing: {x1:12,  y1:350, x2:184, y2:430},
+  finance:   {x1:196, y1:350, x2:366, y2:430},
+  support:   {x1:12,  y1:442, x2:184, y2:520},
+  security:  {x1:196, y1:442, x2:366, y2:520},
 };
 const CW = 380, CH = 528;
 
 // ═══════════════════════════════════════
-// DRAW PIXEL ART OFFICE (runs ONCE)
+// DRAW PIXEL ART OFFICE — ONE UNIFIED OPEN FLOOR (runs ONCE)
 // ═══════════════════════════════════════
 function drawOffice() {
   const canvas = document.getElementById('office-canvas');
   canvas.width = CW; canvas.height = CH;
   const ctx = canvas.getContext('2d');
 
-  // Background
-  ctx.fillStyle = '#060606';
+  // ── FLOOR BASE ──
+  ctx.fillStyle = '#080808';
   ctx.fillRect(0, 0, CW, CH);
 
-  // Tile grid
-  ctx.strokeStyle = 'rgba(255,255,255,0.025)';
+  // Checkerboard floor tiles (16px each)
+  const TS = 16;
+  for (let fy = 0; fy < CH; fy += TS) {
+    for (let fx = 0; fx < CW; fx += TS) {
+      ctx.fillStyle = ((fx/TS|0)+(fy/TS|0))%2===0 ? '#0d0d0d' : '#0b0b0b';
+      ctx.fillRect(fx, fy, TS, TS);
+    }
+  }
+
+  // Subtle tile grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 0.5;
+  for (let fx = 0; fx <= CW; fx += TS) {
+    ctx.beginPath(); ctx.moveTo(fx, 0); ctx.lineTo(fx, CH); ctx.stroke();
+  }
+  for (let fy = 0; fy <= CH; fy += TS) {
+    ctx.beginPath(); ctx.moveTo(0, fy); ctx.lineTo(CW, fy); ctx.stroke();
+  }
+
+  // ── OUTER WALLS ──
+  // Wall fill (thick border region)
+  ctx.fillStyle = '#050505';
+  ctx.fillRect(0, 0, CW, 6);
+  ctx.fillRect(0, CH-6, CW, 6);
+  ctx.fillRect(0, 0, 6, CH);
+  ctx.fillRect(CW-6, 0, 6, CH);
+  // Outer glow
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(1.5, 1.5, CW-3, CH-3);
+  // Inner wall line
+  ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(4.5, 4.5, CW-9, CH-9);
+
+  // ── FURNITURE HELPERS ──
+  function shadow(x, y, w, h) {
+    ctx.fillStyle = 'rgba(0,0,0,0.45)';
+    ctx.fillRect(x+2, y+3, w, h);
+  }
+
+  function desk(x, y, w, h) {
+    shadow(x, y, w, h);
+    ctx.fillStyle = '#181818';
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = 'rgba(255,255,255,0.32)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x+.5, y+.5, w-1, h-1);
+    // Surface highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    ctx.fillRect(x+1, y+1, w-2, 2);
+  }
+
+  function monitor(x, y) {
+    // Screen bezel
+    ctx.fillStyle = '#111';
+    ctx.fillRect(x, y, 14, 10);
+    ctx.strokeStyle = 'rgba(255,255,255,0.38)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x+.5, y+.5, 13, 9);
+    // Screen glow (simulated display)
+    ctx.fillStyle = 'rgba(255,255,255,0.1)';
+    ctx.fillRect(x+1, y+1, 12, 8);
+    // Code/data lines
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fillRect(x+2, y+2, 7, 1);
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    ctx.fillRect(x+2, y+4, 5, 1);
+    ctx.fillRect(x+2, y+6, 8, 1);
+    // Stand
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    ctx.fillRect(x+5, y+10, 4, 3);
+    ctx.fillRect(x+3, y+13, 8, 1.5);
+  }
+
+  function chair(x, y) {
+    shadow(x, y, 10, 10);
+    ctx.fillStyle = '#151515';
+    ctx.fillRect(x, y, 10, 10);
+    ctx.strokeStyle = 'rgba(255,255,255,0.24)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x+.5, y+.5, 9, 9);
+    // Cushion
+    ctx.fillStyle = 'rgba(255,255,255,0.07)';
+    ctx.fillRect(x+2, y+2, 6, 6);
+    // Backrest highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.14)';
+    ctx.fillRect(x+1, y+1, 8, 2);
+  }
+
+  function plant(x, y) {
+    // Pot shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillRect(x-3, y+1, 9, 8);
+    // Pot
+    ctx.fillStyle = '#141414';
+    ctx.fillRect(x-4, y, 8, 7);
+    ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x-3.5, y+.5, 7, 6);
+    // Leaves (main circle)
+    ctx.fillStyle = '#101010';
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(x, y-5, 7, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    // Leaf highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.1)';
+    ctx.beginPath(); ctx.arc(x-2, y-7, 2.5, 0, Math.PI*2); ctx.fill();
+    // Second smaller leaf
+    ctx.fillStyle = '#0f0f0f';
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.beginPath(); ctx.arc(x+4, y-3, 4, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  }
+
+  function server(x, y) {
+    shadow(x, y, 13, 28);
+    ctx.fillStyle = '#121212';
+    ctx.fillRect(x, y, 13, 28);
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x+.5, y+.5, 12, 27);
+    // Rack units
+    for (let i = 0; i < 5; i++) {
+      ctx.fillStyle = 'rgba(255,255,255,0.04)';
+      ctx.fillRect(x+1, y+2+i*5, 11, 3);
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.strokeRect(x+1.5, y+2.5+i*5, 10, 2);
+      // LED (alternating bright/dim)
+      ctx.fillStyle = i%2===0 ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.15)';
+      ctx.fillRect(x+2, y+3+i*5, 2, 1);
+    }
+  }
+
+  function whiteboard(x, y, w, h) {
+    shadow(x, y, w, h);
+    ctx.fillStyle = '#0f0f0f';
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x+.5, y+.5, w-1, h-1);
+    // Top frame highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.12)';
+    ctx.fillRect(x+1, y+1, w-2, 2);
+    // Content lines (written text simulation)
+    for (let i = 0; i < 4; i++) {
+      ctx.fillStyle = `rgba(255,255,255,${0.1-i*0.015})`;
+      ctx.fillRect(x+4, y+6+i*5, w-12-(i%3)*8, 2);
+    }
+    // Small bar chart bottom-right
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.fillRect(x+w-10, y+h-8, 2, 5);
+    ctx.fillStyle = 'rgba(255,255,255,0.12)';
+    ctx.fillRect(x+w-7, y+h-6, 2, 3);
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    ctx.fillRect(x+w-13, y+h-10, 2, 7);
+  }
+
+  function bigTable(cx, cy, rx, ry) {
+    // Shadow ellipse
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.beginPath(); ctx.ellipse(cx+3, cy+4, rx, ry, 0, 0, Math.PI*2); ctx.fill();
+    // Table surface
+    ctx.fillStyle = '#191919';
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    // Surface sheen
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    ctx.beginPath(); ctx.ellipse(cx-rx*0.22, cy-ry*0.32, rx*0.38, ry*0.24, -0.3, 0, Math.PI*2); ctx.fill();
+    // Edge highlight
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.ellipse(cx, cy, rx-2, ry-2, 0, 0, Math.PI*2); ctx.stroke();
+  }
+
+  function shelf(x, y, w, h) {
+    shadow(x, y, w, h);
+    ctx.fillStyle = '#131313';
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x+.5, y+.5, w-1, h-1);
+    // Shelf dividers
+    for (let i = 0; i < 4; i++) {
+      ctx.fillStyle = 'rgba(255,255,255,0.04)';
+      ctx.fillRect(x+1, y+3+i*9, w-2, 6);
+      // Book spines (3 per shelf row)
+      for (let j = 0; j < 3; j++) {
+        const bw = Math.floor((w-6)/3);
+        ctx.fillStyle = `rgba(255,255,255,${0.05+j*0.04})`;
+        ctx.fillRect(x+3+j*bw, y+4+i*9, bw-2, 5);
+      }
+    }
+  }
+
+  function zoneDivider(x1, y1, x2, y2) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 9]);
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  function zoneLabel(text, x, y) {
+    ctx.font = 'bold 6px "Courier New",monospace';
+    ctx.fillStyle = 'rgba(255,255,255,0.28)';
+    ctx.fillText(text.toUpperCase(), x, y);
+  }
+
+  // ════════════════════════════════════════
+  // ZONE LAYOUT (unified single floor)
+  //  CEO:        y 8  → 108  (100px, full-width)
+  //  Trading|Research: y 112 → 224  (112px)
+  //  Dev|Risk:         y 228 → 340  (112px)
+  //  Mktg|Finance:     y 344 → 432  (88px)
+  //  CS|Security:      y 436 → 524  (88px)
+  //  MX = 190 (center vertical divider)
+  // ════════════════════════════════════════
+  const MX = 190;
+
+  // ── CEO / EXECUTIVE ──
+  zoneLabel('EXECUTIVE · CEO', 14, 18);
+  // CEO personal desk (top-left corner)
+  desk(10, 22, 60, 16);
+  monitor(12, 18); monitor(28, 18);
+  chair(14, 38); chair(30, 38);
+  // Main conference table (center)
+  bigTable(MX, 64, 58, 28);
+  // 8 chairs around the conference table
+  for (let i = 0; i < 8; i++) {
+    const a = (i/8)*Math.PI*2 - Math.PI/2;
+    chair(MX + Math.cos(a)*72 - 5, 64 + Math.sin(a)*40 - 5);
+  }
+  // Whiteboard on right wall
+  whiteboard(CW-50, 10, 42, 28);
+  // Corner plants
+  plant(14, 94); plant(CW-18, 94);
+  // Rug under conference table
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
   ctx.lineWidth = 1;
-  for(let x=0;x<=CW;x+=16){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,CH);ctx.stroke()}
-  for(let y=0;y<=CH;y+=16){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(CW,y);ctx.stroke()}
+  ctx.strokeRect(MX-68, 36, 136, 56);
 
-  function room(x,y,w,h,label) {
-    ctx.fillStyle='#0a0a0a';
-    ctx.fillRect(x,y,w,h);
-    ctx.strokeStyle='rgba(255,255,255,0.1)';
-    ctx.lineWidth=1;
-    ctx.strokeRect(x+.5,y+.5,w-1,h-1);
-    ctx.fillStyle='rgba(255,255,255,0.18)';
-    ctx.fillRect(x,y,w,1);
-    ctx.font='bold 7px "Courier New",monospace';
-    ctx.fillStyle='rgba(255,255,255,0.22)';
-    ctx.fillText(label.toUpperCase(),x+7,y+11);
-  }
-  function desk(x,y,w,h){
-    ctx.fillStyle='#141414';
-    ctx.fillRect(x,y,w,h);
-    ctx.strokeStyle='rgba(255,255,255,0.07)';
-    ctx.lineWidth=1;
-    ctx.strokeRect(x+.5,y+.5,w-1,h-1);
-  }
-  function monitor(x,y){
-    ctx.fillStyle='#0e0e0e';
-    ctx.strokeStyle='rgba(255,255,255,0.12)';
-    ctx.lineWidth=1;
-    ctx.fillRect(x,y,13,10);
-    ctx.strokeRect(x+.5,y+.5,12,9);
-    ctx.fillStyle='rgba(255,255,255,0.04)';
-    ctx.fillRect(x+1,y+1,11,8);
-    ctx.fillStyle='rgba(255,255,255,0.06)';
-    ctx.fillRect(x+4,y+10,5,3);
-    ctx.fillRect(x+1,y+13,11,2);
-  }
-  function chair(x,y){
-    ctx.fillStyle='#111';
-    ctx.strokeStyle='rgba(255,255,255,0.06)';
-    ctx.lineWidth=1;
-    ctx.fillRect(x,y,9,9);
-    ctx.strokeRect(x+.5,y+.5,8,8);
-    ctx.fillStyle='rgba(255,255,255,0.03)';
-    ctx.fillRect(x+1,y+1,7,7);
-  }
-  function plant(x,y){
-    ctx.fillStyle='#0e0e0e';
-    ctx.strokeStyle='rgba(255,255,255,0.08)';
-    ctx.lineWidth=1;
-    ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);ctx.fill();ctx.stroke();
-    ctx.fillStyle='rgba(255,255,255,0.04)';
-    ctx.fillRect(x-3,y+7,6,5);
-    ctx.strokeRect(x-2.5,y+7.5,5,4);
-  }
-  function shelf(x,y,w,h){
-    ctx.fillStyle='#0f0f0f';
-    ctx.strokeStyle='rgba(255,255,255,0.07)';
-    ctx.lineWidth=1;
-    ctx.fillRect(x,y,w,h);
-    ctx.strokeRect(x+.5,y+.5,w-1,h-1);
-    for(let i=0;i<5;i++){ctx.fillStyle=`rgba(255,255,255,${0.02+i*.01})`;ctx.fillRect(x+1,y+2+i*6,w-2,4);}
-  }
-  function server(x,y){
-    ctx.fillStyle='#0d0d0d';
-    ctx.strokeStyle='rgba(255,255,255,0.1)';
-    ctx.lineWidth=1;
-    ctx.fillRect(x,y,10,26);
-    ctx.strokeRect(x+.5,y+.5,9,25);
-    for(let i=0;i<5;i++){ctx.fillStyle='rgba(255,255,255,0.05)';ctx.fillRect(x+1,y+2+i*5,8,3);}
-  }
-  function table(cx,cy,rx,ry){
-    ctx.fillStyle='#111';
-    ctx.strokeStyle='rgba(255,255,255,0.1)';
-    ctx.lineWidth=1;
-    ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);ctx.fill();ctx.stroke();
-  }
-  function screen(x,y,w,h){
-    ctx.fillStyle='#0c0c0c';
-    ctx.strokeStyle='rgba(255,255,255,0.12)';
-    ctx.lineWidth=1;
-    ctx.fillRect(x,y,w,h);
-    ctx.strokeRect(x+.5,y+.5,w-1,h-1);
-    for(let i=0;i<3;i++){ctx.fillStyle='rgba(255,255,255,0.04)';ctx.fillRect(x+2,y+3+i*6,w-4,4);}
-  }
+  zoneDivider(8, 108, CW-8, 108);
 
-  const P=8,G=6,col=(CW-P*2-G)/2;
+  // ── ROW 2: TRADING (left) │ RESEARCH (right) ──
+  const z2 = 112;
+  // TRADING
+  zoneLabel('TRADING', 14, z2+12);
+  desk(10, z2+20, MX-22, 16);
+  monitor(12, z2+16); monitor(28, z2+16); monitor(44, z2+16); monitor(60, z2+16);
+  chair(14, z2+36); chair(30, z2+36); chair(46, z2+36); chair(62, z2+36);
+  whiteboard(10, z2+60, 48, 34);
+  plant(MX-22, z2+64);
 
-  // ── CEO ──
-  room(P,P,CW-P*2,78,'Executive / CEO');
-  table(CW/2,P+46,32,22);
-  for(let i=0;i<8;i++){const a=(i/8)*Math.PI*2-Math.PI/2;chair(CW/2+Math.cos(a)*42-4, P+46+Math.sin(a)*30-4);}
-  plant(P+10,P+24);plant(CW-P-18,P+24);
-  desk(P+10,P+16,60,18);monitor(P+13,P+12);
+  zoneDivider(MX, z2+2, MX, z2+110);
 
-  // ── TRADING ──
-  const ty=P+78+G;
-  room(P,ty,col,106,'Trading Room');
-  desk(P+8,ty+30,col-16,18);
-  monitor(P+10,ty+26);monitor(P+26,ty+26);monitor(P+42,ty+26);monitor(P+58,ty+26);
-  chair(P+14,ty+48);chair(P+30,ty+48);chair(P+46,ty+48);
-  screen(P+col-30,ty+14,22,34);
+  // RESEARCH
+  zoneLabel('RESEARCH', MX+6, z2+12);
+  desk(MX+6, z2+20, MX-22, 16);
+  monitor(MX+8, z2+16); monitor(MX+24, z2+16); monitor(MX+40, z2+16);
+  chair(MX+10, z2+36); chair(MX+26, z2+36); chair(MX+42, z2+36);
+  shelf(CW-30, z2+60, 22, 44);
+  plant(MX+8, z2+64);
 
-  // ── RESEARCH ──
-  room(P+col+G,ty,col,106,'Research Lab');
-  shelf(P+col+G+col-20,ty+14,14,36);
-  desk(P+col+G+8,ty+30,col-34,18);
-  monitor(P+col+G+10,ty+26);monitor(P+col+G+26,ty+26);
-  chair(P+col+G+14,ty+48);chair(P+col+G+30,ty+48);
-  plant(P+col+G+8,ty+14);
+  zoneDivider(8, z2+112, CW-8, z2+112);
 
-  // ── DEV ──
-  const dy=ty+106+G;
-  room(P,dy,col,106,'Dev / Infra');
-  server(P+8,dy+14);server(P+22,dy+14);
-  desk(P+40,dy+30,col-52,18);
-  monitor(P+42,dy+26);monitor(P+58,dy+26);
-  chair(P+46,dy+48);chair(P+62,dy+48);
+  // ── ROW 3: DEV/INFRA (left) │ RISK (right) ──
+  const z3 = z2+116;
+  // DEV / INFRA
+  zoneLabel('DEV · INFRA', 14, z3+12);
+  server(10, z3+18); server(26, z3+18);
+  desk(46, z3+20, MX-58, 16);
+  monitor(48, z3+16); monitor(64, z3+16); monitor(80, z3+16);
+  chair(50, z3+36); chair(66, z3+36); chair(82, z3+36);
+  // Second desk row
+  desk(10, z3+64, MX-22, 14);
+  monitor(12, z3+60); monitor(28, z3+60);
+  chair(14, z3+78); chair(30, z3+78);
 
-  // ── RISK ──
-  room(P+col+G,dy,col,106,'Risk Management');
-  screen(P+col+G+col-32,dy+14,26,38);
-  desk(P+col+G+8,dy+30,col-44,18);
-  monitor(P+col+G+10,dy+26);monitor(P+col+G+26,dy+26);
-  chair(P+col+G+14,dy+48);chair(P+col+G+30,dy+48);
+  zoneDivider(MX, z3+2, MX, z3+110);
 
-  // ── MARKETING ──
-  const mry=dy+106+G;
-  room(P,mry,col,94,'Marketing / Design');
-  desk(P+8,mry+28,col-16,16);
-  monitor(P+10,mry+24);monitor(P+26,mry+24);
-  plant(P+col-18,mry+14);plant(P+col-8,mry+36);
-  chair(P+14,mry+44);chair(P+30,mry+44);
+  // RISK
+  zoneLabel('RISK MGT', MX+6, z3+12);
+  whiteboard(MX+6, z3+18, 48, 30);
+  desk(MX+6, z3+62, MX-22, 16);
+  monitor(MX+8, z3+58); monitor(MX+24, z3+58); monitor(MX+40, z3+58);
+  chair(MX+10, z3+78); chair(MX+26, z3+78); chair(MX+42, z3+78);
 
-  // ── FINANCE ──
-  room(P+col+G,mry,col,94,'Finance / Tax');
-  shelf(P+col+G+col-22,mry+14,14,34);
-  desk(P+col+G+8,mry+28,col-36,16);
-  monitor(P+col+G+10,mry+24);
-  chair(P+col+G+14,mry+44);
+  zoneDivider(8, z3+112, CW-8, z3+112);
 
-  // ── SUPPORT ──
-  const suy=mry+94+G;
-  room(P,suy,col,94,'CS / Legal');
-  desk(P+8,suy+28,(col/2)-12,16);
-  desk(P+(col/2)+4,suy+28,(col/2)-12,16);
-  monitor(P+10,suy+24);monitor(P+(col/2)+6,suy+24);
-  chair(P+14,suy+44);chair(P+(col/2)+10,suy+44);
-  ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.setLineDash([2,4]);
-  ctx.beginPath();ctx.moveTo(P+col/2,suy+14);ctx.lineTo(P+col/2,suy+86);ctx.stroke();
-  ctx.setLineDash([]);
+  // ── ROW 4: MARKETING/DESIGN (left) │ FINANCE (right) ──
+  const z4 = z3+116;
+  // MARKETING
+  zoneLabel('MARKETING · DESIGN', 14, z4+12);
+  desk(10, z4+20, MX-22, 16);
+  monitor(12, z4+16); monitor(28, z4+16); monitor(44, z4+16);
+  chair(14, z4+36); chair(30, z4+36); chair(46, z4+36);
+  plant(14, z4+58); plant(MX-22, z4+58);
 
-  // ── SECURITY ──
-  room(P+col+G,suy,col,94,'Security');
-  server(P+col+G+col-20,suy+16);
-  desk(P+col+G+8,suy+28,col-34,16);
-  monitor(P+col+G+10,suy+24);monitor(P+col+G+26,suy+24);
-  chair(P+col+G+14,suy+44);chair(P+col+G+30,suy+44);
+  zoneDivider(MX, z4+2, MX, z4+88);
+
+  // FINANCE / TAX
+  zoneLabel('FINANCE · TAX', MX+6, z4+12);
+  desk(MX+6, z4+20, MX-22, 16);
+  monitor(MX+8, z4+16); monitor(MX+24, z4+16);
+  chair(MX+10, z4+36); chair(MX+26, z4+36);
+  shelf(CW-28, z4+18, 20, 58);
+
+  zoneDivider(8, z4+90, CW-8, z4+90);
+
+  // ── ROW 5: CS/LEGAL (left) │ SECURITY (right) ──
+  const z5 = z4+94;
+  // CS / LEGAL
+  zoneLabel('CS · LEGAL', 14, z5+12);
+  desk(10, z5+20, (MX/2)-8, 14);
+  desk(MX/2+2, z5+20, (MX/2)-10, 14);
+  monitor(12, z5+16); monitor(MX/2+4, z5+16);
+  chair(14, z5+34); chair(MX/2+6, z5+34);
+
+  zoneDivider(MX, z5+2, MX, CH-8);
+
+  // SECURITY
+  zoneLabel('SECURITY', MX+6, z5+12);
+  server(MX+8, z5+18); server(MX+24, z5+18);
+  desk(MX+44, z5+20, MX-58, 14);
+  monitor(MX+46, z5+16); monitor(MX+62, z5+16);
+  chair(MX+48, z5+34); chair(MX+64, z5+34);
+
+  // Bottom corner plants
+  plant(12, CH-14); plant(CW-16, CH-14);
 }
 
 // ═══════════════════════════════════════
