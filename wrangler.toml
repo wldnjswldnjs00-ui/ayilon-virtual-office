@@ -2,6 +2,10 @@ name = "ayilon-office"
 main = "worker/index.js"
 compatibility_date = "2024-09-23"
 
+[[rules]]
+type = "Text"
+globs = ["**/*.html"]
+
 [[d1_databases]]
 binding = "DB"
 database_name = "ayilon-db"

@@ -1,4 +1,5 @@
 import { runBot } from './bot.js';
+import indexHtml from '../index.html';
 
 const AGENTS = [
   {id:'CEO',   code:'CEO', name:'CEO',    team:'Executive',
@@ -182,6 +183,10 @@ async function handleRequest(request, env) {
   const url = new URL(request.url);
 
   if (request.method === 'OPTIONS') return new Response(null, {status:204, headers:CORS_H});
+
+  if (url.pathname === '/' || url.pathname === '/index.html') {
+    return new Response(indexHtml, { headers: { 'Content-Type': 'text/html;charset=UTF-8' } });
+  }
 
   if (url.pathname === '/api/feed') {
     const since = parseInt(url.searchParams.get('since')||'0');
