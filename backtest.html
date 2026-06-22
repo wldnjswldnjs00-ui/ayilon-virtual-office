@@ -73,6 +73,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .sort-row{display:flex;gap:6px;margin-bottom:10px;align-items:center}
 .sort-row label{font-size:11px;color:#446}
 .sort-row select{background:#0e0e1c;border:1px solid #1e1e30;color:#dde;padding:6px 10px;border-radius:6px;font-size:12px;-webkit-appearance:none}
+.conf-bar{height:3px;border-radius:99px;margin-top:8px}
+.conf-low{background:#ff4560}.conf-mid{background:#f7b731}.conf-high{background:#1ec96e}
+.conf-label{font-size:10px;margin-top:3px}
 </style>
 </head>
 <body>
@@ -92,12 +95,24 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <option value="SOL-USDT-SWAP">SOL/USDT</option>
       </select>
     </div>
-    <div class="field"><label>5분봉 기간</label>
+    <div class="field"><label>5분봉 기간 (스캘핑/단타)</label>
       <select id="period5m">
-        <option value="2016">7일</option>
-        <option value="4320" selected>15일</option>
-        <option value="8640">30일</option>
+        <option value="25920">90일 ~900건</option>
+        <option value="51840" selected>180일 ~1800건</option>
+        <option value="105120">365일 ~3600건 ⏳</option>
       </select>
+    </div>
+  </div>
+  <div class="row">
+    <div class="field"><label>1시간봉 기간 (스윙)</label>
+      <select id="period1h">
+        <option value="8760">1년</option>
+        <option value="17520" selected>2년</option>
+        <option value="26280">3년</option>
+      </select>
+    </div>
+    <div class="field"><label>&nbsp;</label>
+      <div style="font-size:11px;color:#887;padding:10px 0;line-height:1.5">⏳ 365일/3년 선택 시<br>로딩 30초+ 소요</div>
     </div>
   </div>
   <div class="row">
@@ -465,6 +480,7 @@ async function runBacktest(){
   const leverage=+document.getElementById('leverage').value;
   const posSize=+document.getElementById('posSize').value;
   const cnt5m=+document.getElementById('period5m').value;
+  const cnt1h=+document.getElementById('period1h').value;
 
   btn.disabled=true;btn.textContent='실행 중...';
   document.getElementById('progWrap').style.display='block';
@@ -477,8 +493,8 @@ async function runBacktest(){
     prog(10,`${sym} 5분봉 로딩... (${cnt5m}개)`);
     const c5m=await fetchOKX(sym,'5m',cnt5m);
 
-    prog(50,`${sym} 1시간봉 로딩...`);
-    const c1h=await fetchOKX(sym,'1H',2000);
+    prog(50,`${sym} 1시간봉 로딩... (${cnt1h}개)`);
+    const c1h=await fetchOKX(sym,'1H',cnt1h);
 
     prog(70,'각 전략 시뮬레이션 중...');
     await new Promise(r=>setTimeout(r,20));
@@ -542,21 +558,25 @@ function renderStrategyList(){
     const mCol=r.monthlyRet>=0?'#1ec96e':'#ff4560';
     const aCol=r.annualRet>=0?'#1ec96e':'#ff4560';
     const pnlCol=r.pnl>=0?'#1ec96e':'#ff4560';
+    const confPct=Math.min(100,r.n/10);
+    const confCls=r.n<50?'conf-low':r.n<200?'conf-mid':'conf-high';
+    const confTxt=r.n<50?`⚠ 거래 ${r.n}건 — 신뢰도 낮음`:r.n<200?`△ 거래 ${r.n}건 — 보통`:`✓ 거래 ${r.n}건 — 신뢰도 높음`;
+    const confTxtCol=r.n<50?'#ff4560':r.n<200?'#f7b731':'#1ec96e';
     return`<div class="sitem">
       <div class="sitem-top">
         <div>
           <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:12px;color:#556;font-weight:700">#${rank+1}</span>
+            <span style="font-size:13px;color:#556;font-weight:700">#${rank+1}</span>
             <div class="sitem-name">${r.name}</div>
           </div>
           <div style="margin-top:4px;display:flex;gap:4px;align-items:center">
             ${catBadge(r.cat)}
-            <span style="font-size:10px;color:#446">${r.tf} &nbsp;|&nbsp; ${r.months.toFixed(1)}개월 데이터</span>
+            <span style="font-size:10px;color:#446">${r.tf} &nbsp;|&nbsp; ${r.months.toFixed(0)}개월</span>
           </div>
         </div>
         <div style="text-align:right">
-          <div style="font-size:22px;font-weight:700;color:${aCol}">${aRet}</div>
-          <div style="font-size:10px;color:#446;margin-top:2px">연 복리</div>
+          <div style="font-size:24px;font-weight:700;color:${aCol};line-height:1">${aRet}</div>
+          <div style="font-size:10px;color:#446;margin-top:3px">연 복리 수익률</div>
         </div>
       </div>
       <div class="sitem-grid">
@@ -569,17 +589,17 @@ function renderStrategyList(){
           <div class="mv" style="color:${pnlCol}">${pf(r.totalRet)}</div>
         </div>
       </div>
-      <div class="sitem-3">
+      <div class="sitem-3" style="margin-top:6px">
         <div class="metric">
           <div class="mk">승률</div>
-          <div class="mv sm">${r.n>0?(r.winRate*100).toFixed(0)+'%':'—'}</div>
+          <div class="mv sm">${r.n>0?(r.winRate*100).toFixed(1)+'%':'—'}</div>
         </div>
         <div class="metric">
-          <div class="mk">총 거래</div>
-          <div class="mv sm">${r.n}건</div>
+          <div class="mk">총 거래 수</div>
+          <div class="mv sm" style="font-weight:800">${r.n}건</div>
         </div>
         <div class="metric">
-          <div class="mk">월 거래</div>
+          <div class="mk">월 거래 수</div>
           <div class="mv sm">${r.tradesPerMonth.toFixed(1)}건</div>
         </div>
       </div>
@@ -593,9 +613,13 @@ function renderStrategyList(){
           <div class="mv sm" style="color:${pnlCol}">${r.pnl>=0?'+':''}$${r.pnl.toFixed(0)}</div>
         </div>
         <div class="metric">
-          <div class="mk">승/패</div>
-          <div class="mv sm">${r.wins}/${r.n-r.wins}</div>
+          <div class="mk">승 / 패</div>
+          <div class="mv sm">${r.wins} / ${r.n-r.wins}</div>
         </div>
+      </div>
+      <div style="background:#080810;border-radius:6px;padding:7px 9px;margin-top:6px">
+        <div class="conf-bar ${confCls}" style="width:${confPct}%"></div>
+        <div class="conf-label" style="color:${confTxtCol}">${confTxt}</div>
       </div>
     </div>`;
   }).join('');
