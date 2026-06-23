@@ -716,6 +716,18 @@ async function handleRequest(request, env) {
     });
   }
 
+  if (url.pathname === '/api/strat-stats') {
+    const { results } = await env.DB.prepare(
+      `SELECT strategy,
+        COUNT(*) as total,
+        SUM(CASE WHEN status='closed' THEN 1 ELSE 0 END) as closed,
+        SUM(CASE WHEN pnl_usdt>0 THEN 1 ELSE 0 END) as wins,
+        ROUND(SUM(COALESCE(pnl_usdt,0)),2) as total_pnl
+       FROM trades GROUP BY strategy`
+    ).all();
+    return json({ stats: results||[] });
+  }
+
   if (url.pathname === '/api/signals') {
     const { results } = await env.DB.prepare(
       "SELECT * FROM signals WHERE signal != 'hold' ORDER BY created_at DESC LIMIT 30"

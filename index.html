@@ -123,6 +123,37 @@ body::before{content:'';position:fixed;inset:0;z-index:-2;background:radial-grad
 .ad-file-info .n{font-size:11.5px;font-weight:600;color:var(--accent)}
 .ad-file-info .m{font-size:10px;color:var(--dim)}
 
+/* ── BOT STRATEGIES ── */
+.strat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.strat-card{background:rgba(255,255,255,.025);border:1.5px solid var(--line);border-radius:11px;padding:14px;transition:all .2s;position:relative;overflow:hidden}
+.strat-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.strat-card.buy::before{background:var(--ok)}
+.strat-card.sell::before{background:var(--danger)}
+.strat-card.hold::before{background:var(--muted)}
+.strat-card:hover{border-color:rgba(251,191,36,.25);background:rgba(255,255,255,.04)}
+.sc-name{font-size:12px;font-weight:700;color:var(--bright);margin-bottom:2px}
+.sc-tf{font-size:9.5px;color:var(--accent);font-family:monospace;margin-bottom:6px}
+.sc-desc{font-size:11px;color:var(--dim);line-height:1.4;margin-bottom:10px}
+.sc-stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.sc-stat{text-align:center;flex:1;min-width:48px}
+.sc-stat-n{font-size:13px;font-weight:700;color:var(--bright)}
+.sc-stat-l{font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.sc-signal{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:6px;font-size:10.5px;font-weight:600}
+.sc-signal.buy{background:rgba(52,211,153,.12);color:var(--ok);border:1px solid rgba(52,211,153,.25)}
+.sc-signal.sell{background:rgba(255,82,96,.1);color:var(--danger);border:1px solid rgba(255,82,96,.2)}
+.sc-signal.hold{background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--line)}
+.sc-sl-tp{display:flex;gap:6px;margin-top:7px}
+.sc-sl{font-size:9.5px;padding:2px 7px;border-radius:4px;background:rgba(255,82,96,.08);color:var(--danger);border:1px solid rgba(255,82,96,.15)}
+.sc-tp{font-size:9.5px;padding:2px 7px;border-radius:4px;background:rgba(52,211,153,.08);color:var(--ok);border:1px solid rgba(52,211,153,.15)}
+.pos-row{display:flex;gap:8px;padding:8px 10px;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:8px;margin-bottom:5px;align-items:center}
+.pos-side{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px}
+.pos-side.buy{background:rgba(52,211,153,.15);color:var(--ok)}
+.pos-side.sell{background:rgba(255,82,96,.12);color:var(--danger)}
+.pos-sym{font-size:11.5px;font-weight:600;color:var(--bright)}
+.pos-strat{font-size:9.5px;color:var(--dim);font-family:monospace}
+.pos-pnl{margin-left:auto;font-size:12px;font-weight:700;font-family:monospace}
+.pos-pnl.g{color:var(--ok)}.pos-pnl.r{color:var(--danger)}
+
 /* ── TEAMS ── */
 .team-card{background:var(--bg-2);border:1px solid var(--line);border-radius:13px;padding:16px;position:relative;overflow:hidden;margin-bottom:12px;transition:border-color .2s}
 .team-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0 3px 3px 0}
@@ -309,11 +340,11 @@ input.intel-inp::placeholder{color:var(--muted)}
     <div class="hero-brand">
       <div class="logo">⬡</div>
       <div>
-        <div class="eyebrow">AI Virtual Office</div>
+        <div class="eyebrow">24/7 자동매매 플랫폼</div>
         <div class="title">AYILON</div>
         <div class="hero-meta">
-          <span class="pill"><span class="dot g"></span>LIVE</span>
-          <span class="pill"><span class="dot y"></span>Workers</span>
+          <span class="pill"><span class="dot g"></span>BOT LIVE</span>
+          <span class="pill"><span class="dot y"></span>OKX 연동</span>
           <span class="pill" id="pill-date">—</span>
           <span class="pill" id="pill-ai">AI —</span>
         </div>
@@ -329,16 +360,17 @@ input.intel-inp::placeholder{color:var(--muted)}
 
 <!-- KPI -->
 <div class="kpi-strip">
-  <div class="kpi"><div class="kpi-ic">📅</div><div class="kpi-n" id="k-days">0</div><div class="kpi-l">운영일</div></div>
-  <div class="kpi"><div class="kpi-ic">🤖</div><div class="kpi-n">14</div><div class="kpi-l">Agents</div></div>
-  <div class="kpi"><div class="kpi-ic">💬</div><div class="kpi-n" id="k-feed">—</div><div class="kpi-l">피드</div></div>
-  <div class="kpi"><div class="kpi-ic">⭐</div><div class="kpi-n" id="k-xp">—</div><div class="kpi-l">XP</div></div>
-  <div class="kpi"><div class="kpi-ic">📁</div><div class="kpi-n" id="k-files">—</div><div class="kpi-l">리포트</div></div>
+  <div class="kpi"><div class="kpi-ic">🤖</div><div class="kpi-n" id="k-bots">9</div><div class="kpi-l">전략 운영 중</div></div>
+  <div class="kpi"><div class="kpi-ic">📈</div><div class="kpi-n" id="k-trades">—</div><div class="kpi-l">누적 거래</div></div>
+  <div class="kpi"><div class="kpi-ic">🎯</div><div class="kpi-n" id="k-wr">—</div><div class="kpi-l">승률</div></div>
+  <div class="kpi"><div class="kpi-ic">💰</div><div class="kpi-n" id="k-pnl">—</div><div class="kpi-l">누적 PnL</div></div>
+  <div class="kpi"><div class="kpi-ic">⚡</div><div class="kpi-n" id="k-open">—</div><div class="kpi-l">활성 포지션</div></div>
 </div>
 
 <!-- TABS -->
 <div class="tabs">
   <button class="tab on" onclick="go('office')"  data-t="office">🏢 오피스</button>
+  <button class="tab"    onclick="go('bot')"     data-t="bot">📊 봇 전략</button>
   <button class="tab"    onclick="go('teams')"   data-t="teams">👥 팀</button>
   <button class="tab"    onclick="go('files')"   data-t="files">📁 리포트</button>
   <button class="tab"    onclick="go('feed')"    data-t="feed">💬 피드</button>
@@ -381,6 +413,33 @@ input.intel-inp::placeholder{color:var(--muted)}
             <div class="m" id="ad-file-meta">클릭하여 열기</div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- BOT STRATEGIES -->
+    <div class="sec" id="sec-bot">
+      <!-- Active trades -->
+      <div class="card" id="bot-positions-card">
+        <div class="ch">
+          <div class="ct"><span class="ct-ic">⚡</span>활성 포지션</div>
+          <span class="badge ok" id="bot-pos-badge">0개</span>
+        </div>
+        <div id="bot-positions"><div class="empty"><div class="empty-i">💤</div><div class="empty-t">활성 포지션 없음</div></div></div>
+      </div>
+      <!-- Scalping -->
+      <div class="card">
+        <div class="ch"><div class="ct"><span class="ct-ic">⚡</span>스캘핑 전략 <span style="font-size:9px;color:var(--muted);margin-left:4px">1분봉 · 5분봉 · 매분 실행</span></div></div>
+        <div class="strat-grid" id="strat-scalp"></div>
+      </div>
+      <!-- Short-term -->
+      <div class="card">
+        <div class="ch"><div class="ct"><span class="ct-ic">📈</span>단기 전략 <span style="font-size:9px;color:var(--muted);margin-left:4px">15분봉 · 1시간봉 · 15분마다 실행</span></div></div>
+        <div class="strat-grid" id="strat-short"></div>
+      </div>
+      <!-- Swing -->
+      <div class="card">
+        <div class="ch"><div class="ct"><span class="ct-ic">🌊</span>스윙 전략 <span style="font-size:9px;color:var(--muted);margin-left:4px">4시간봉 · 1시간마다 실행</span></div></div>
+        <div class="strat-grid" id="strat-swing"></div>
       </div>
     </div>
 
@@ -596,6 +655,107 @@ function seedActivityChat(items){
   items.slice().reverse().slice(0,20).forEach(f=>logActivity(f.agent_id,f.msg,f.created_at));
 }
 
+/* ── BOT STRATEGY DEFINITIONS ── */
+const STRAT_INFO = {
+  scalp_emaCross:  { name:'EMA 크로스',        tf:'1분봉',  desc:'EMA9 / EMA21 골든·데드크로스 포착 — 단기 모멘텀 진입',   sl:'0.3%', tp:'0.7%',  type:'scalp' },
+  scalp_rsiBounce: { name:'RSI 반등',           tf:'5분봉',  desc:'RSI 32 이하 과매도 반등 / 68 이상 과매수 하락 포착',      sl:'0.5%', tp:'1.2%',  type:'scalp' },
+  scalp_volBreak:  { name:'볼륨 폭발',          tf:'1분봉',  desc:'평균 볼륨 2.5배 급증 + 가격 방향성 확인 후 추종',         sl:'0.4%', tp:'0.9%',  type:'scalp' },
+  short_macdCross: { name:'MACD 골든크로스',    tf:'15분봉', desc:'제로라인 하방에서 MACD 크로스 — 반등 초입 진입',          sl:'1.5%', tp:'3.5%',  type:'short' },
+  short_stochEma:  { name:'스토캐스틱+EMA50',   tf:'1시간봉',desc:'스토캐스틱 과매도 반등 + 현재가 EMA50 위 조건 동시 충족', sl:'2.0%', tp:'4.5%',  type:'short' },
+  short_breakout:  { name:'박스권 돌파',         tf:'4시간봉',desc:'20봉 고점/저점 0.2% 이상 유효 돌파 확인 후 추종',        sl:'2.5%', tp:'7.0%',  type:'short' },
+  swing_emaTrend:  { name:'EMA 추세추종',        tf:'4시간봉',desc:'EMA50>EMA200 골든크로스 + 가격 EMA50 위 + RSI 50~70',  sl:'5.0%', tp:'12%',   type:'swing' },
+  swing_bbBounce:  { name:'볼린저밴드 반등',     tf:'4시간봉',desc:'볼린저밴드 상/하단 0.6% 이내 터치 시 평균 회귀 전략',    sl:'3.0%', tp:'6.5%',  type:'swing' },
+  swing_rsiDiv:    { name:'RSI 다이버전스',      tf:'4시간봉',desc:'가격 신고점(저점) + RSI 역행 — 추세 전환 조기 포착',     sl:'4.0%', tp:'10%',   type:'swing' },
+};
+
+async function loadBotTab() {
+  try {
+    const [perfR, posR, sigR] = await Promise.all([
+      apiFetch('/api/performance'),
+      apiFetch('/api/trades?status=open'),
+      apiFetch('/api/signals')
+    ]);
+
+    // KPI
+    const total = perfR.total||0, wins = perfR.wins||0, closed = perfR.closed||0;
+    const wr = closed>0 ? ((wins/closed)*100).toFixed(1)+'%' : '—';
+    const pnl = perfR.total_pnl != null ? (perfR.total_pnl>=0?'+':'')+`$${Number(perfR.total_pnl).toFixed(2)}` : '—';
+    setEl('k-trades', total);
+    setEl('k-wr', wr);
+    setEl('k-pnl', pnl);
+    setEl('k-open', (posR.trades||[]).length);
+
+    // Active positions
+    const posEl = document.getElementById('bot-positions');
+    const posBadge = document.getElementById('bot-pos-badge');
+    const trades = posR.trades || [];
+    posBadge.textContent = trades.length+'개';
+    if (trades.length) {
+      posEl.innerHTML = trades.map(t => {
+        const unrealPct = 0; // no live price in this view
+        return `<div class="pos-row">
+          <span class="pos-side ${t.side}">${t.side==='buy'?'LONG':'SHORT'}</span>
+          <div>
+            <div class="pos-sym">${esc(t.symbol)}</div>
+            <div class="pos-strat">${esc(t.strategy)} · $${Number(t.usdt_size).toFixed(0)}</div>
+          </div>
+          <div style="margin-left:auto;text-align:right">
+            <div style="font-size:10px;color:var(--dim)">진입 $${Number(t.entry_price).toFixed(2)}</div>
+            <div style="font-size:9.5px;color:var(--muted)">SL $${Number(t.sl_price).toFixed(2)} / TP $${Number(t.tp_price).toFixed(2)}</div>
+          </div>
+        </div>`;
+      }).join('');
+    } else {
+      posEl.innerHTML = '<div class="empty"><div class="empty-i">💤</div><div class="empty-t">활성 포지션 없음 — 봇이 신호 대기 중</div></div>';
+    }
+
+    // Latest signal per strategy
+    const sigs = sigR.signals || [];
+    const latestSig = {};
+    sigs.forEach(s => { if (!latestSig[s.strategy]) latestSig[s.strategy] = s; });
+
+    // Per-strategy stats from trades DB
+    const statsByStrat = {};
+    try {
+      const sr = await apiFetch('/api/strat-stats');
+      (sr.stats||[]).forEach(s => { statsByStrat[s.strategy] = s; });
+    } catch(_) {}
+
+    function renderStratCards(type, containerId) {
+      const el = document.getElementById(containerId);
+      const cards = Object.entries(STRAT_INFO).filter(([,v])=>v.type===type);
+      el.innerHTML = cards.map(([key, info]) => {
+        const sig = latestSig[key];
+        const sigSignal = sig?.signal || 'hold';
+        const sigLabel = sigSignal==='buy'?'▲ BUY':sigSignal==='sell'?'▼ SELL':'— 대기중';
+        const stats = statsByStrat[key] || {};
+        const stWr = stats.closed>0 ? ((stats.wins/stats.closed)*100).toFixed(0)+'%' : '—';
+        const stPnl = stats.total_pnl!=null ? (stats.total_pnl>=0?'+':'')+Number(stats.total_pnl).toFixed(1) : '—';
+        return `<div class="strat-card ${sigSignal}">
+          <div class="sc-name">${info.name}</div>
+          <div class="sc-tf">${info.tf}</div>
+          <div class="sc-desc">${info.desc}</div>
+          <div class="sc-stats">
+            <div class="sc-stat"><div class="sc-stat-n">${stats.total||0}</div><div class="sc-stat-l">거래</div></div>
+            <div class="sc-stat"><div class="sc-stat-n">${stWr}</div><div class="sc-stat-l">승률</div></div>
+            <div class="sc-stat"><div class="sc-stat-n" style="color:${(stats.total_pnl||0)>=0?'var(--ok)':'var(--danger)'}">${stPnl}</div><div class="sc-stat-l">PnL($)</div></div>
+          </div>
+          <span class="sc-signal ${sigSignal}">${sigLabel}${sig?' · '+esc(sig.reason.slice(0,22)):''}</span>
+          <div class="sc-sl-tp">
+            <span class="sc-sl">SL ${info.sl}</span>
+            <span class="sc-tp">TP ${info.tp}</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    renderStratCards('scalp','strat-scalp');
+    renderStratCards('short','strat-short');
+    renderStratCards('swing','strat-swing');
+
+  } catch(e) { console.error('bot tab', e); }
+}
+
 /* ── INIT ── */
 window.addEventListener('DOMContentLoaded', () => {
   initDays();
@@ -633,6 +793,7 @@ function animN(id, target) {
 function go(name) {
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.t === name));
   document.querySelectorAll('.sec').forEach(s => s.classList.toggle('on', s.id === 'sec-' + name));
+  if (name === 'bot') loadBotTab();
 }
 function focusCmd() { document.getElementById('chat-inp').focus(); }
 
@@ -646,6 +807,7 @@ function loadAll() {
   loadGH();
   loadCrossTalk();
   loadPerf();
+  loadBotKpi();
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1188,6 +1350,21 @@ async function loadPerf() {
     const pe=document.getElementById('p-pnl'); pe.textContent=pnl?'$'+pnl:'—'; pe.style.color=pnl?(parseFloat(pnl)>=0?'var(--ok)':'var(--danger)'):'var(--bright)';
   } catch(e) {}
 }
+async function loadBotKpi() {
+  try {
+    const [perf, pos] = await Promise.all([apiFetch('/api/performance'), apiFetch('/api/trades?status=open')]);
+    const total=perf.total||0, wins=perf.wins||0, closed=perf.closed||0;
+    const wr = closed>0?((wins/closed)*100).toFixed(1)+'%':'—';
+    const pnl = perf.total_pnl!=null?(perf.total_pnl>=0?'+':'')+`$${Number(perf.total_pnl).toFixed(2)}`:'—';
+    setEl('k-trades',total); setEl('k-wr',wr); setEl('k-pnl',pnl);
+    const openN = (pos.trades||[]).length;
+    setEl('k-open',openN);
+    const openEl = document.getElementById('k-open');
+    if (openEl) openEl.style.color = openN>0?'var(--ok)':'var(--bright)';
+    const pnlEl = document.getElementById('k-pnl');
+    if (pnlEl&&perf.total_pnl!=null) pnlEl.style.color = perf.total_pnl>=0?'var(--ok)':'var(--danger)';
+  } catch(_) {}
+}
 
 /* ── INTELLIGENCE CONFIG ── */
 const PERSONALITIES = ['분석형','창의형','신중형','공격형','균형형'];
@@ -1306,6 +1483,7 @@ function addBubble(type, label, text) {
 }
 
 /* ── UTILS ── */
+function setEl(id, v) { const e=document.getElementById(id); if(e) e.textContent=v; }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function ago(ts) {
   if (!ts) return '';
