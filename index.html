@@ -246,6 +246,12 @@ body{display:flex;flex-direction:column}
 .cross-msg{font-size:8px;color:rgba(255,255,255,.5);margin-top:3px;line-height:1.4}
 .cross-ts{font-size:6px;color:rgba(255,255,255,.15);font-family:monospace;float:right}
 .cross-reply{background:rgba(255,180,60,.04);border-left:2px solid rgba(255,180,60,.3);padding-left:8px;margin-top:3px}
+/* GitHub commits */
+.gh-commit{padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.gh-commit:last-child{border-bottom:none}
+.gh-sha{font-size:7px;color:rgba(100,180,255,.6);font-family:monospace;letter-spacing:.06em;margin-bottom:2px}
+.gh-msg{font-size:8px;color:rgba(255,255,255,.6);line-height:1.4;margin-bottom:2px}
+.gh-meta{font-size:7px;color:rgba(255,255,255,.2)}
 </style>
 </head>
 <body>
@@ -374,6 +380,7 @@ body{display:flex;flex-direction:column}
         <div class="sr"><div class="sr-l">BOT</div><div class="sr-v" id="set-bot">—</div></div>
         <div class="sr"><div class="sr-l">Gemini AI</div><div class="sr-v" id="set-ai">—</div></div>
         <div class="sr"><div class="sr-l">OKX</div><div class="sr-v" id="set-okx">—</div></div>
+        <div class="sr"><div class="sr-l">GitHub</div><div class="sr-v" id="set-gh">—</div></div>
         <div class="sr"><div class="sr-l">24h Cron</div><div class="sr-v ok">매분 실행 중</div></div>
       </div>
       <div class="sec">
@@ -435,6 +442,10 @@ body{display:flex;flex-direction:column}
           <div class="dept-card"><div class="dept-hd"><div class="dept-dot"></div><div class="dept-nm">LEGAL / CS</div></div><div class="dept-ag">REX · ECHO</div></div>
           <div class="dept-card"><div class="dept-hd"><div class="dept-dot"></div><div class="dept-nm">SECURITY</div></div><div class="dept-ag">SHIELD</div></div>
         </div>
+      </div>
+      <div class="sec">
+        <div class="sec-t">GITHUB ACTIVITY</div>
+        <div id="co-github"><div class="loading">—</div></div>
       </div>
       <div class="sec">
         <div class="sec-t">MILESTONES</div>
@@ -1038,33 +1049,75 @@ function renderTrades(trades){
 // GITHUB
 // ═══════════════════════════════════════
 function ago(d){const s=Math.floor((Date.now()-d)/1000);return s<60?s+'s':s<3600?Math.floor(s/60)+'m':s<86400?Math.floor(s/3600)+'h':Math.floor(s/86400)+'d';}
+
+function renderGHActivity(activity){
+  var el=document.getElementById('co-github');
+  if(!el||!activity||!activity.length)return;
+  el.innerHTML=activity.slice(0,6).map(function(c){
+    var d=new Date(c.date);
+    var agoStr=ago(d);
+    return '<div class="gh-commit">'
+      +'<div class="gh-sha">'+c.sha+'</div>'
+      +'<div class="gh-msg">'+c.msg+'</div>'
+      +'<div class="gh-meta">'+c.author+' · '+agoStr+'</div>'
+      +'</div>';
+  }).join('');
+}
+
 async function loadGH(){
   const chip=document.getElementById('c-gh');
-  for(const {owner,repo} of [{owner:'wldnjswldnjs00-ui',repo:'ayilon-virtual-office'},{owner:'wldnjswldnjs00-ui',repo:'oracletrading'}]){
-    try{
-      const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/commits?per_page=3`);
-      if(!r.ok)throw 0;
-      const cs=await r.json();
+  const setGh=document.getElementById('set-gh');
+  // Primary: server-side cached (authenticated, no rate limit)
+  try{
+    const d=await(await fetch('/api/github')).json();
+    if(d.connected){
       chip.className='ob-chip ok';
-      if(cs[0]){
-        const m=cs[0].commit.message.split('\n')[0];
-        const w=ago(new Date(cs[0].commit.author.date));
-        if(repo==='ayilon-virtual-office'){
-          setAction('FORGE','commit: '+m.slice(0,40),false,false);
-          setAction('ATLAS',repo+' '+w+' ago 배포',false,false);
-          // Push to cross-list
-          var cl=document.getElementById('cross-list');
-          if(cl){
-            var d2=document.createElement('div'); d2.className='cross-fi';
-            d2.innerHTML='<div><span class="cross-from">FORGE</span><span class="cross-arrow">→</span><span class="cross-to">ATLAS</span><span class="cross-ts">GitHub</span></div>'
-              +'<div class="cross-msg">✦ '+m.slice(0,50)+'</div>';
-            if(cl.firstChild&&cl.firstChild.className==='loading')cl.innerHTML='';
-            cl.insertBefore(d2,cl.firstChild);
-          }
-        }
+      if(setGh){setGh.textContent='연결됨';setGh.className='sr-v ok';}
+    } else {
+      chip.className='ob-chip warn';
+      if(setGh){setGh.textContent='PAT 미설정';setGh.className='sr-v';}
+    }
+    if(d.activity&&d.activity.length){
+      const latest=d.activity[0];
+      setAction('FORGE','commit: '+latest.msg.slice(0,40),false,false);
+      setAction('ATLAS','GitHub 배포 '+ago(new Date(latest.date))+' ago 확인',false,false);
+      renderGHActivity(d.activity);
+      var cl=document.getElementById('cross-list');
+      if(cl){
+        var d2=document.createElement('div');d2.className='cross-fi';
+        d2.innerHTML='<div><span class="cross-from">FORGE</span><span class="cross-arrow">→</span>'
+          +'<span class="cross-to">ATLAS</span><span class="cross-ts">GitHub</span></div>'
+          +'<div class="cross-msg">✦ '+latest.msg.slice(0,50)+'</div>';
+        if(cl.firstChild&&cl.firstChild.className==='loading')cl.innerHTML='';
+        cl.insertBefore(d2,cl.firstChild);
       }
-    }catch(_){chip.className='ob-chip warn';}
-  }
+    }
+    return;
+  }catch(_){}
+  // Fallback: public GitHub API (unauthenticated, 60 req/hr)
+  try{
+    const r=await fetch('https://api.github.com/repos/wldnjswldnjs00-ui/ayilon-virtual-office/commits?per_page=5');
+    if(!r.ok)throw 0;
+    const cs=await r.json();
+    chip.className='ob-chip ok';
+    if(setGh){setGh.textContent='공개 API';setGh.className='sr-v warn';}
+    if(cs[0]){
+      const m=cs[0].commit.message.split('\n')[0];
+      const w=ago(new Date(cs[0].commit.author.date));
+      setAction('FORGE','commit: '+m.slice(0,40),false,false);
+      setAction('ATLAS','배포 '+w+' ago',false,false);
+      renderGHActivity(cs.map(function(c){return{sha:c.sha.slice(0,7),msg:c.commit.message.split('\n')[0].slice(0,80),author:c.commit.author.name,date:c.commit.author.date};}));
+      var cl2=document.getElementById('cross-list');
+      if(cl2){
+        var d3=document.createElement('div');d3.className='cross-fi';
+        d3.innerHTML='<div><span class="cross-from">FORGE</span><span class="cross-arrow">→</span>'
+          +'<span class="cross-to">ATLAS</span><span class="cross-ts">GitHub</span></div>'
+          +'<div class="cross-msg">✦ '+m.slice(0,50)+'</div>';
+        if(cl2.firstChild&&cl2.firstChild.className==='loading')cl2.innerHTML='';
+        cl2.insertBefore(d3,cl2.firstChild);
+      }
+    }
+  }catch(_){chip.className='ob-chip warn';if(setGh){setGh.textContent='연결 실패';setGh.className='sr-v';}}
 }
 
 // ═══════════════════════════════════════
