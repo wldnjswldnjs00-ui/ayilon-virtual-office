@@ -83,97 +83,15 @@ body::before{content:'';position:fixed;inset:0;z-index:-2;background:radial-grad
 
 /* ── OFFICE ── */
 .office-room{
-  background:linear-gradient(180deg,#080d16 0%,#0a0f18 60%,#0d1420 100%);
+  background:#080d16;
   border-radius:13px;border:1px solid var(--line);
-  padding:20px;position:relative;overflow:hidden;
-  min-height:480px;margin-bottom:12px;
-}
-/* Floor tiles */
-.office-room::before{
-  content:'';position:absolute;inset:0;
-  background:
-    repeating-linear-gradient(0deg,transparent,transparent 49px,rgba(255,255,255,.022) 50px),
-    repeating-linear-gradient(90deg,transparent,transparent 49px,rgba(255,255,255,.022) 50px);
-  pointer-events:none;
-}
-/* Top wall strip */
-.office-room::after{
-  content:'';position:absolute;top:0;left:0;right:0;height:52px;
-  background:linear-gradient(180deg,rgba(8,14,24,.95) 0%,rgba(8,14,24,.4) 100%);
-  border-bottom:1px solid rgba(255,255,255,.06);
-  pointer-events:none;
+  padding:16px;position:relative;overflow:hidden;
+  margin-bottom:12px;
 }
 .office-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:relative;z-index:1}
 .office-title{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:7px}
 .office-decorations{display:flex;gap:14px;font-size:18px;opacity:.5;filter:saturate(.6)}
-.desk-grid{
-  display:grid;grid-template-columns:repeat(5,1fr);gap:10px;
-  position:relative;z-index:1;
-}
-.desk{
-  background:rgba(20,26,38,.7);border:1.5px solid var(--line);
-  border-radius:11px;padding:8px 6px 10px;
-  display:flex;flex-direction:column;align-items:center;gap:2px;
-  cursor:pointer;transition:all .25s;position:relative;
-  min-height:168px;justify-content:flex-end;
-}
-.desk:hover{border-color:rgba(251,191,36,.35);transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.5),0 0 16px rgba(251,191,36,.08)}
-.desk.sec-agent{border-color:rgba(255,77,152,.3);background:rgba(255,77,152,.05)}
-.desk.sec-agent:hover{border-color:rgba(255,77,152,.5);box-shadow:0 10px 24px rgba(0,0,0,.5),0 0 16px rgba(255,77,152,.1)}
-.desk.active{border-color:rgba(52,211,153,.5)!important;box-shadow:0 0 20px rgba(52,211,153,.12)!important}
-.desk-bubble{
-  position:absolute;top:-38px;left:50%;transform:translateX(-50%);
-  background:rgba(20,26,38,.95);border:1px solid var(--accent);
-  color:var(--text);padding:4px 9px;border-radius:7px;
-  font-size:9.5px;white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis;
-  opacity:0;pointer-events:none;z-index:10;
-  transition:opacity .3s;
-}
-.desk-bubble.show{opacity:1}
-.desk-bubble::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
-  border:4px solid transparent;border-top-color:var(--accent)}
-.desk-status{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 5px var(--ok)}
-.desk-name{font-size:10px;font-weight:700;color:var(--bright);text-transform:uppercase;letter-spacing:.4px;margin-top:3px}
-.desk-lv{font-size:8px;font-weight:700;padding:1px 5px;border-radius:999px;background:rgba(251,191,36,.1);color:var(--accent);border:1px solid rgba(251,191,36,.2)}
-
-/* ── CHARACTER SPRITES ── */
-.vc-wrap{display:flex;flex-direction:column;align-items:center;position:relative;animation:vc-idle 3s ease-in-out infinite;flex-shrink:0}
-.desk.active .vc-wrap{animation:vc-work .4s ease-in-out infinite alternate}
-@keyframes vc-idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-@keyframes vc-work{0%{transform:translateY(0) rotate(-.6deg)}100%{transform:translateY(-3px) rotate(.6deg)}}
-
-.vc-head{width:22px;height:22px;border-radius:50%;position:relative;border:1.5px solid rgba(0,0,0,.15);flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.3)}
-.vc-hair{position:absolute;top:-3px;left:1px;right:1px;height:10px;border-radius:50% 50% 0 0}
-.vc-eyes{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;gap:5px}
-.vc-eye{width:3px;height:3px;background:#1a1a2e;border-radius:50%;transition:height .1s}
-.vc-mouth{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:8px;height:3px;border-bottom:1.5px solid rgba(0,0,0,.2);border-radius:0 0 4px 4px}
-.desk.active .vc-eye{height:2px}
-
-.vc-body{width:26px;height:17px;border-radius:4px 4px 0 0;margin-top:1px;position:relative;box-shadow:inset 0 2px 4px rgba(255,255,255,.12),0 1px 0 rgba(0,0,0,.3);flex-shrink:0}
-.vc-collar{position:absolute;top:0;left:50%;transform:translateX(-50%);width:8px;height:5px;background:rgba(255,255,255,.15);border-radius:0 0 4px 4px}
-.vc-arm{position:absolute;top:3px;width:7px;height:13px;border-radius:4px;transform-origin:top center}
-.vc-arm:nth-child(2){left:-6px;animation:arm-il 3s ease-in-out infinite}
-.vc-arm:nth-child(3){right:-6px;animation:arm-ir 3s ease-in-out infinite}
-@keyframes arm-il{0%,100%{transform:rotate(10deg)}50%{transform:rotate(-5deg)}}
-@keyframes arm-ir{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(5deg)}}
-.desk.active .vc-arm:nth-child(2){animation:arm-tl .2s ease-in-out infinite alternate}
-.desk.active .vc-arm:nth-child(3){animation:arm-tr .2s ease-in-out .1s infinite alternate-reverse}
-@keyframes arm-tl{from{transform:rotate(-30deg) translateY(-2px)}to{transform:rotate(15deg)}}
-@keyframes arm-tr{from{transform:rotate(30deg) translateY(-2px)}to{transform:rotate(-15deg)}}
-
-.vc-monitor{width:34px;height:21px;background:#060a12;border:1.5px solid #28384e;border-radius:3px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;margin-top:2px}
-.vc-monitor::after{content:'';position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:10px;height:5px;background:#121c2c;border-radius:0 0 2px 2px}
-.vc-screen{width:26px;height:15px;border-radius:1px;background:linear-gradient(135deg,#0d2040,#1a3860);animation:scr-idle 3s ease-in-out infinite}
-.desk.active .vc-screen{animation:scr-on .4s ease-in-out infinite alternate}
-@keyframes scr-idle{0%,100%{box-shadow:0 0 4px rgba(96,165,250,.18)}50%{box-shadow:0 0 8px rgba(96,165,250,.35)}}
-@keyframes scr-on{from{background:linear-gradient(135deg,#1a4060,#2a5880);box-shadow:0 0 12px rgba(96,165,250,.65)}to{background:linear-gradient(135deg,#0d2848,#1e3870);box-shadow:0 0 5px rgba(96,165,250,.3)}}
-
-.vc-kbd{width:26px;height:5px;background:#111928;border-radius:2px;margin-top:4px;border:1px solid #1e2d40;flex-shrink:0}
-.vc-table{width:52px;height:7px;background:linear-gradient(180deg,#1c2838,#111822);border-radius:2px;margin-top:1px;border:1px solid #1e2d3e;box-shadow:0 4px 10px rgba(0,0,0,.6);flex-shrink:0}
-
-/* Chair back visible behind sprite */
-.vc-chair{width:20px;height:10px;background:#0e1624;border-radius:3px 3px 0 0;border:1px solid #1e2d3e;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:0}
-.vc-wrap{position:relative;z-index:1}
+#office-cv{display:block;border-radius:8px;cursor:pointer;width:100%;image-rendering:pixelated}
 
 .office-ticker{
   margin-top:10px;position:relative;z-index:1;
@@ -420,25 +338,11 @@ input.intel-inp::placeholder{color:var(--muted)}
     <!-- OFFICE -->
     <div class="sec on" id="sec-office">
       <div class="office-room">
-        <!-- Wall decorations -->
-        <div style="position:absolute;top:10px;left:20px;right:20px;display:flex;gap:18px;align-items:center;z-index:2;pointer-events:none">
-          <div style="display:flex;gap:10px">
-            <div style="width:44px;height:30px;background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.15);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px">🌆</div>
-            <div style="width:44px;height:30px;background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.15);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px">🌆</div>
-            <div style="width:44px;height:30px;background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.15);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px">🌆</div>
-          </div>
-          <div style="flex:1"></div>
-          <span style="font-size:16px;opacity:.4">🌿</span>
-          <span style="font-size:16px;opacity:.4">🪴</span>
-          <span style="font-size:16px;opacity:.4">☕</span>
-        </div>
-        <div class="office-header" style="padding-top:42px">
+        <div class="office-header">
           <div class="office-title"><span>🏢</span> AYILON 가상 오피스 · 14명 근무 중</div>
-          <div style="display:flex;gap:4px">
-            <span style="font-size:9px;padding:2px 7px;border-radius:999px;background:rgba(52,211,153,.1);color:var(--ok);border:1px solid rgba(52,211,153,.2)">● 전원 근무 중</span>
-          </div>
+          <span style="font-size:9px;padding:2px 8px;border-radius:999px;background:rgba(52,211,153,.1);color:var(--ok);border:1px solid rgba(52,211,153,.2)">● 전원 근무 중</span>
         </div>
-        <div class="desk-grid" id="desk-grid"></div>
+        <canvas id="office-cv"></canvas>
         <div class="office-ticker">
           <div class="ticker-inner" id="ticker"></div>
         </div>
@@ -628,7 +532,7 @@ let detailFileId = null;
 /* ── INIT ── */
 window.addEventListener('DOMContentLoaded', () => {
   initDays();
-  buildDeskGrid();
+  initOfficeCanvas();
   buildIntelGrid();
   loadAll();
   setInterval(loadFeed, 30000);
@@ -677,86 +581,280 @@ function loadAll() {
   loadPerf();
 }
 
-/* ── DESK GRID ── */
-const CHAR_STYLES = {
-  ARIA:  {hair:'#1a0812',shirt:'#ff4d98',skin:'#f4c38a'},
-  CEO:   {hair:'#180e02',shirt:'#d97706',skin:'#d4a573'},
-  IRON:  {hair:'#0c0c1e',shirt:'#34d399',skin:'#f4c38a'},
-  GRID:  {hair:'#2a1802',shirt:'#10b981',skin:'#c8956c'},
-  SCOUT: {hair:'#1a0802',shirt:'#059669',skin:'#f4c38a'},
-  WARD:  {hair:'#301e02',shirt:'#0d9488',skin:'#d4a573'},
-  FORGE: {hair:'#02101a',shirt:'#60a5fa',skin:'#f4c38a'},
-  ATLAS: {hair:'#10202a',shirt:'#3b82f6',skin:'#c8956c'},
-  LUNA:  {hair:'#280212',shirt:'#e879f9',skin:'#f4c38a'},
-  PIXEL: {hair:'#021402',shirt:'#a855f7',skin:'#d4a573'},
-  ECHO:  {hair:'#10022a',shirt:'#d946ef',skin:'#f4c38a'},
-  REX:   {hair:'#02022e',shirt:'#a78bfa',skin:'#c8956c'},
+/* ══════════════════════════════════════════════════════
+   PIXEL ART OFFICE CANVAS
+══════════════════════════════════════════════════════ */
+const ST = { // workstation world positions [x, y] (world width=360)
+  ARIA:[22,55],CEO:[74,55],
+  IRON:[12,122],GRID:[48,122],SCOUT:[12,158],WARD:[48,158],
+  FORGE:[258,50],ATLAS:[298,50],
+  LUNA:[122,138],PIXEL:[160,138],ECHO:[198,138],
+  REX:[244,148],LEDGER:[282,148],SHIELD:[322,148],
+};
+const CS={
+  ARIA:{hair:'#1a0812',shirt:'#ff4d98',skin:'#f4c38a'},
+  CEO:{hair:'#180e02',shirt:'#d97706',skin:'#d4a573'},
+  IRON:{hair:'#0c0c1e',shirt:'#34d399',skin:'#f4c38a'},
+  GRID:{hair:'#2a1802',shirt:'#10b981',skin:'#c8956c'},
+  SCOUT:{hair:'#1a0802',shirt:'#059669',skin:'#f4c38a'},
+  WARD:{hair:'#301e02',shirt:'#0d9488',skin:'#d4a573'},
+  FORGE:{hair:'#02101a',shirt:'#60a5fa',skin:'#f4c38a'},
+  ATLAS:{hair:'#10202a',shirt:'#3b82f6',skin:'#c8956c'},
+  LUNA:{hair:'#280212',shirt:'#e879f9',skin:'#f4c38a'},
+  PIXEL:{hair:'#021402',shirt:'#a855f7',skin:'#d4a573'},
+  ECHO:{hair:'#10022a',shirt:'#d946ef',skin:'#f4c38a'},
+  REX:{hair:'#02022e',shirt:'#a78bfa',skin:'#c8956c'},
   LEDGER:{hair:'#20102a',shirt:'#8b5cf6',skin:'#f4c38a'},
   SHIELD:{hair:'#021414',shirt:'#7c3aed',skin:'#d4a573'},
 };
-function buildDeskGrid() {
-  const el = document.getElementById('desk-grid');
-  el.innerHTML = AGENTS.map(a => {
-    const cs = CHAR_STYLES[a.id]||{hair:'#2a1a0a',shirt:'#4b6cb7',skin:'#f4c38a'};
-    return `<div class="desk${a.sec?' sec-agent':''}" id="dk-${a.id}" onclick="showDetail('${a.id}')">
-      <div class="desk-bubble" id="bbl-${a.id}"></div>
-      <div class="desk-status"></div>
-      <div style="position:relative;display:flex;flex-direction:column;align-items:center;flex-shrink:0">
-        <div class="vc-chair"></div>
-        <div class="vc-wrap">
-          <div class="vc-head" style="background:${cs.skin}">
-            <div class="vc-hair" style="background:${cs.hair}"></div>
-            <div class="vc-eyes"><span class="vc-eye"></span><span class="vc-eye"></span></div>
-            <div class="vc-mouth"></div>
-          </div>
-          <div class="vc-body" style="background:${cs.shirt}">
-            <div class="vc-collar"></div>
-            <div class="vc-arm" style="background:${cs.skin}"></div>
-            <div class="vc-arm" style="background:${cs.skin}"></div>
-          </div>
-        </div>
-      </div>
-      <div class="vc-monitor"><div class="vc-screen"></div></div>
-      <div class="vc-kbd"></div>
-      <div class="vc-table"></div>
-      <div class="desk-name">${a.name}</div>
-      <div class="desk-lv" id="dlv-${a.id}">LV 1</div>
-    </div>`;
-  }).join('');
-  updateTicker([]);
+let _oTick=0, _oActive=new Set(), _oBubbles={};
+
+function initOfficeCanvas(){
+  const cv=document.getElementById('office-cv');
+  if(!cv)return;
+  _resizeOC();
+  cv.addEventListener('click',e=>{
+    const r=cv.getBoundingClientRect();
+    const mx=(e.clientX-r.left)*(cv.width/r.width);
+    const my=(e.clientY-r.top)*(cv.height/r.height);
+    const sc=cv.width/360;
+    for(const[id,[wx,wy]]of Object.entries(ST)){
+      if(mx>=wx*sc-2*sc&&mx<=(wx+26)*sc&&my>=(wy-32)*sc&&my<=(wy+14)*sc){showDetail(id);return;}
+    }
+  });
+  window.addEventListener('resize',_resizeOC);
+  (function loop(){_drawOC();requestAnimationFrame(loop);})();
+}
+function _resizeOC(){
+  const cv=document.getElementById('office-cv');if(!cv)return;
+  const pw=cv.parentElement.clientWidth-2;
+  cv.width=Math.min(pw,880);cv.height=Math.round(cv.width*0.6);
+}
+function _drawOC(){
+  const cv=document.getElementById('office-cv');if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,sc=W/360;
+  _oTick+=0.018;const t=_oTick;
+  ctx.clearRect(0,0,W,H);
+
+  // ── FLOOR ──────────────────────────────────────────
+  ctx.fillStyle='#bf9460';ctx.fillRect(0,0,W,H);
+  const ps=Math.round(10*sc);
+  for(let y=0;y<H;y+=ps*2){ctx.fillStyle='rgba(0,0,0,0.04)';ctx.fillRect(0,y,W,ps);}
+  ctx.strokeStyle='rgba(0,0,0,0.07)';ctx.lineWidth=1;
+  for(let y=0;y<H;y+=ps){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  ctx.strokeStyle='rgba(0,0,0,0.03)';
+  for(let x=0;x<W;x+=ps*3){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+
+  // ── OUTER WALLS ────────────────────────────────────
+  const wt=Math.round(4*sc);
+  ctx.fillStyle='#0d1520';
+  ctx.fillRect(0,0,W,wt);ctx.fillRect(0,H-wt,W,wt);
+  ctx.fillRect(0,0,wt,H);ctx.fillRect(W-wt,0,wt,H);
+  // Top wall dark band
+  ctx.fillStyle='#0a1018';ctx.fillRect(0,0,W,Math.round(10*sc));
+
+  // ── WINDOWS ────────────────────────────────────────
+  const winColors=['rgba(96,165,250,0.22)','rgba(147,197,253,0.18)','rgba(96,165,250,0.2)'];
+  for(let i=0;i<5;i++){
+    const wx=(14+i*68)*sc,wy=wt,ww=44*sc,wh=6*sc;
+    ctx.fillStyle=winColors[i%3];ctx.fillRect(wx,wy,ww,wh);
+    ctx.strokeStyle='rgba(147,197,253,0.4)';ctx.lineWidth=1;ctx.strokeRect(wx,wy,ww,wh);
+    ctx.beginPath();ctx.moveTo(wx+ww/2,wy);ctx.lineTo(wx+ww/2,wy+wh);ctx.stroke();
+    ctx.fillStyle=`rgba(96,165,250,${0.05+Math.sin(t*0.5+i)*0.025})`;ctx.fillRect(wx,wy+wh,ww,4*sc);
+  }
+
+  // ── ZONE CARPETS ───────────────────────────────────
+  const zones=[
+    {x:6,y:10,w:104,h:82,c:'rgba(251,191,36,0.09)',n:'경영진'},
+    {x:6,y:96,w:82,h:80,c:'rgba(52,211,153,0.09)',n:'트레이딩'},
+    {x:236,y:10,w:118,h:96,c:'rgba(96,165,250,0.09)',n:'기술'},
+    {x:114,y:96,w:118,h:78,c:'rgba(244,114,182,0.09)',n:'비즈니스'},
+    {x:6,y:180,w:348,h:44,c:'rgba(167,139,250,0.09)',n:'법무·재무·보안'},
+  ];
+  for(const z of zones){
+    ctx.fillStyle=z.c;_rrf(ctx,z.x*sc,z.y*sc,z.w*sc,z.h*sc,4*sc);
+    ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineWidth=1;
+    _rrs(ctx,z.x*sc,z.y*sc,z.w*sc,z.h*sc,4*sc);
+    ctx.fillStyle='rgba(255,255,255,0.16)';
+    ctx.font=`bold ${Math.round(4.5*sc)}px monospace`;ctx.fillText(z.n,(z.x+3)*sc,(z.y+8)*sc);
+  }
+
+  // ── MEETING ROOM ───────────────────────────────────
+  const mrx=114*sc,mry=96*sc,mrw=118*sc,mrh=78*sc;
+  ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1.5;ctx.strokeRect(mrx,mry,mrw,mrh);
+  const tcx=mrx+mrw/2,tcy=mry+mrh*0.55;
+  ctx.fillStyle='#1e2e3e';ctx.beginPath();ctx.ellipse(tcx,tcy,44*sc,20*sc,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#2a4058';ctx.beginPath();ctx.ellipse(tcx,tcy,40*sc,16*sc,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.06)';ctx.beginPath();ctx.ellipse(tcx-8*sc,tcy-5*sc,18*sc,7*sc,-0.3,0,Math.PI*2);ctx.fill();
+  for(let i=0;i<10;i++){
+    const a=(i/10)*Math.PI*2-Math.PI/2;
+    ctx.fillStyle='#162030';ctx.beginPath();ctx.arc(tcx+Math.cos(a)*50*sc,tcy+Math.sin(a)*25*sc,3.5*sc,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#22303f';ctx.beginPath();ctx.arc(tcx+Math.cos(a)*50*sc,tcy+Math.sin(a)*25*sc,2.5*sc,0,Math.PI*2);ctx.fill();
+  }
+  ctx.fillStyle='rgba(255,255,255,0.14)';ctx.font=`bold ${Math.round(4*sc)}px monospace`;
+  ctx.textAlign='center';ctx.fillText('MEETING ROOM',tcx,mry+6*sc);ctx.textAlign='left';
+
+  // ── SERVER RACKS (기술 zone) ────────────────────────
+  for(let r=0;r<3;r++){
+    const rx=(240+r*30)*sc,ry=12*sc;
+    ctx.fillStyle='#101820';ctx.fillRect(rx,ry,22*sc,40*sc);
+    ctx.strokeStyle='#1e3048';ctx.lineWidth=1;ctx.strokeRect(rx,ry,22*sc,40*sc);
+    for(let l=0;l<9;l++){
+      const on=Math.sin(t*3+r*2.1+l*0.8)>0.2;
+      ctx.fillStyle=on?'#34d399':'#0a1820';ctx.fillRect(rx+2*sc,(ry+2*sc)+l*4.2*sc,3*sc,2.5*sc);
+      ctx.strokeStyle='#1a2840';ctx.lineWidth=0.5;
+      ctx.beginPath();ctx.moveTo(rx+6*sc,ry+(2+l*4.2)*sc);ctx.lineTo(rx+20*sc,ry+(2+l*4.2)*sc);ctx.stroke();
+    }
+  }
+
+  // ── BOOKSHELVES (top wall) ──────────────────────────
+  const bkC=['#ff4d98','#fbbf24','#34d399','#60a5fa','#a855f7','#f87171','#fb923c','#38bdf8'];
+  for(let i=0;i<5;i++){
+    const bx=(8+i*32)*sc,by=(wt+0.5)*sc;
+    ctx.fillStyle='#2e1f10';ctx.fillRect(bx,by,28*sc,9*sc);
+    for(let b=0;b<9;b++){ctx.fillStyle=bkC[(b+i*3)%bkC.length];ctx.fillRect(bx+(1+b*3)*sc,by+1*sc,2.5*sc,8*sc);}
+    ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=0.5;ctx.strokeRect(bx,by,28*sc,9*sc);
+  }
+
+  // ── PLANTS ─────────────────────────────────────────
+  const pl=[[5,12],[5,94],[5,178],[350,12],[350,94],[350,178],[110,10],[232,10],[112,178],[232,178],[110,94],[232,94]];
+  for(const[px,py]of pl)_plant(ctx,px*sc,py*sc,sc,t);
+
+  // ── SOFA lounge corner ─────────────────────────────
+  const sx=8*sc,sy=(H-18*sc);
+  ctx.fillStyle='#223040';ctx.fillRect(sx,sy,40*sc,10*sc);
+  ctx.fillStyle='#2e4058';ctx.fillRect(sx+1*sc,sy-4*sc,38*sc,5*sc);
+  ctx.fillStyle='#223040';ctx.fillRect(sx,sy-4*sc,3*sc,14*sc);ctx.fillRect(sx+37*sc,sy-4*sc,3*sc,14*sc);
+  // Coffee table
+  ctx.fillStyle='#1a2836';ctx.fillRect(sx+8*sc,sy+10*sc,20*sc,6*sc);
+  ctx.fillStyle='rgba(255,255,255,0.05)';ctx.fillRect(sx+9*sc,sy+10.5*sc,18*sc,4.5*sc);
+
+  // ── WORKSTATIONS ───────────────────────────────────
+  for(const id of Object.keys(ST)){
+    const[wx,wy]=ST[id];
+    const bbl=_oBubbles[id];
+    if(bbl&&Date.now()>bbl.until)delete _oBubbles[id];
+    _drawWS(ctx,wx*sc,wy*sc,id,CS[id],_oActive.has(id),_oBubbles[id]?.msg,sc,t);
+  }
 }
 
-/* ── OFFICE ANIMATION ── */
-let deskQueue = [];
-function randomActivateDesk() {
-  const idx = Math.floor(Math.random() * AGENTS.length);
-  const a = AGENTS[idx];
-  activateDesk(a.id, agentMsgs[a.id]);
+function _rrf(ctx,x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();ctx.fill();
 }
-function activateDesk(agentId, msg) {
-  const desk = document.getElementById('dk-' + agentId);
-  const bubble = document.getElementById('bbl-' + agentId);
-  if (!desk || !bubble) return;
-  desk.classList.add('active');
-  if (msg) {
-    bubble.textContent = msg.length > 22 ? msg.slice(0,22)+'…' : msg;
-    bubble.classList.add('show');
-  }
-  setTimeout(() => {
-    desk.classList.remove('active');
-    bubble.classList.remove('show');
-  }, 4000);
+function _rrs(ctx,x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();ctx.stroke();
 }
-function updateTicker(items) {
-  const el = document.getElementById('ticker');
-  if (!items || !items.length) {
-    el.innerHTML = '<span class="ticker-item"><span class="tc">AYILON</span>가상 오피스 가동 중 · AI Agents 실시간 업무 처리 중</span>'.repeat(4);
-    return;
+function _plant(ctx,x,y,sc,t){
+  ctx.fillStyle='#6b3f24';ctx.fillRect(x+2*sc,y+5.5*sc,6*sc,5*sc);
+  ctx.fillStyle='#7a4a2a';ctx.fillRect(x+1*sc,y+5*sc,8*sc,1.5*sc);
+  const sway=Math.sin(t*1.2+x*0.01)*0.5*sc;
+  ctx.fillStyle='#2d6a28';ctx.beginPath();ctx.arc(x+5*sc+sway,y+4*sc,4.5*sc,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#3d8a33';ctx.beginPath();ctx.arc(x+3.5*sc+sway*0.5,y+2*sc,3*sc,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(x+7*sc+sway*0.7,y+2.5*sc,2.5*sc,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#4aaa3e';ctx.beginPath();ctx.arc(x+5*sc+sway*0.3,y+0.5*sc,2*sc,0,Math.PI*2);ctx.fill();
+}
+function _drawWS(ctx,x,y,id,cs,isActive,bubbleMsg,sc,t){
+  // Desk shadow
+  ctx.fillStyle='rgba(0,0,0,0.25)';ctx.fillRect(x+1*sc,y+7*sc,26*sc,3*sc);
+  // Desk surface
+  ctx.fillStyle='#253444';ctx.fillRect(x,y,26*sc,6*sc);
+  ctx.fillStyle='#324a60';ctx.fillRect(x+0.5*sc,y+0.5*sc,25*sc,4.5*sc);
+  // Monitor
+  ctx.fillStyle='#060a12';ctx.fillRect(x+6*sc,y-15*sc,14*sc,11*sc);
+  const ga=isActive?(0.55+Math.sin(t*10)*0.45):(0.15+Math.sin(t*1.5)*0.07);
+  ctx.fillStyle=`rgba(13,32,64,${0.7+ga*0.3})`;ctx.fillRect(x+7*sc,y-14*sc,12*sc,9*sc);
+  if(isActive){
+    ctx.fillStyle=`rgba(96,165,250,${ga*0.55})`;ctx.fillRect(x+7*sc,y-14*sc,12*sc,9*sc);
+    ctx.fillStyle=`rgba(52,211,153,${ga*0.5})`;
+    for(let l=0;l<3;l++)ctx.fillRect(x+8*sc,(y-13+l*2.8)*sc,(3+Math.sin(t*4+l)*3)*sc,1.2*sc);
   }
-  const parts = items.slice(0, 12).map(f =>
-    `<span class="ticker-item"><span class="tc">${esc(f.agent_code||f.agent_id)}</span>${esc(f.msg.slice(0,28))}</span>`
-  );
-  el.innerHTML = [...parts, ...parts].join(' &nbsp;&nbsp;·&nbsp;&nbsp; ');
+  ctx.fillStyle='#162030';ctx.fillRect(x+11*sc,y-4*sc,4*sc,4*sc);ctx.fillRect(x+9*sc,y-1*sc,8*sc,2*sc);
+  ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineWidth=0.5;ctx.strokeRect(x+6*sc,y-15*sc,14*sc,11*sc);
+  // Keyboard
+  ctx.fillStyle='#111824';ctx.fillRect(x+2*sc,y+1*sc,11*sc,3.5*sc);
+  ctx.fillStyle='rgba(255,255,255,0.05)';
+  for(let k=0;k<4;k++)ctx.fillRect(x+(3+k*2.5)*sc,y+1.5*sc,2*sc,2*sc);
+  // Mouse
+  ctx.fillStyle='#1a2436';ctx.beginPath();ctx.ellipse(x+22*sc,y+3*sc,2*sc,2.5*sc,0,0,Math.PI*2);ctx.fill();
+
+  // CHARACTER
+  const bobY=isActive?Math.sin(t*14)*1.2*sc:Math.sin(t*1.8+x*0.004)*1.8*sc;
+  const cx2=x+6*sc,cy2=y-30*sc+bobY;
+  // Chair back
+  ctx.fillStyle='#1a2d40';ctx.fillRect(cx2+1*sc,cy2+19*sc,12*sc,9*sc);
+  ctx.fillStyle='#243c52';ctx.fillRect(cx2+2*sc,cy2+19*sc,10*sc,2.5*sc);
+  // Body
+  ctx.fillStyle=cs.shirt;ctx.fillRect(cx2+1*sc,cy2+11*sc,12*sc,11*sc);
+  ctx.fillStyle='rgba(255,255,255,0.14)';ctx.fillRect(cx2+5*sc,cy2+11*sc,4*sc,3*sc);
+  // Arms
+  const aL=isActive?Math.sin(t*16)*0.55:0.1,aR=isActive?-Math.sin(t*16+0.5)*0.55:-0.1;
+  ctx.fillStyle=cs.skin;
+  ctx.save();ctx.translate(cx2+1*sc,cy2+13*sc);ctx.rotate(aL);ctx.fillRect(-3*sc,0,4*sc,10*sc);ctx.restore();
+  ctx.save();ctx.translate(cx2+13*sc,cy2+13*sc);ctx.rotate(aR);ctx.fillRect(-1*sc,0,4*sc,10*sc);ctx.restore();
+  // Head
+  ctx.fillStyle=cs.skin;ctx.beginPath();ctx.ellipse(cx2+7*sc,cy2+6*sc,5.5*sc,6.5*sc,0,0,Math.PI*2);ctx.fill();
+  // Hair
+  ctx.fillStyle=cs.hair;ctx.beginPath();ctx.ellipse(cx2+7*sc,cy2+2.5*sc,5.5*sc,4.5*sc,0,Math.PI,Math.PI*2);ctx.fill();
+  ctx.fillRect(cx2+1.5*sc,cy2+2.5*sc,11*sc,3.5*sc);
+  // Eyes
+  const eyH=isActive?1.5*sc:2.5*sc;
+  ctx.fillStyle='#18182e';
+  ctx.fillRect(cx2+3*sc,cy2+5.5*sc,2.5*sc,eyH);ctx.fillRect(cx2+8.5*sc,cy2+5.5*sc,2.5*sc,eyH);
+  ctx.fillStyle='rgba(255,255,255,0.75)';
+  ctx.fillRect(cx2+4*sc,cy2+5.5*sc,1*sc,1*sc);ctx.fillRect(cx2+9.5*sc,cy2+5.5*sc,1*sc,1*sc);
+  // Mouth
+  ctx.fillStyle='rgba(0,0,0,0.18)';ctx.fillRect(cx2+5*sc,cy2+10*sc,4*sc,1*sc);
+
+  // Name tag
+  const fs=Math.round(5*sc);
+  ctx.font=`bold ${fs}px monospace`;
+  const tw=ctx.measureText(id).width;
+  const tx=cx2+7*sc-tw/2-2*sc,ty=y+8*sc;
+  ctx.fillStyle='rgba(5,8,13,0.88)';_rrf(ctx,tx,ty,tw+4*sc,fs+2*sc,1.5*sc);
+  ctx.fillStyle=isActive?'#34d399':'#fbbf24';ctx.fillText(id,tx+2*sc,ty+fs);
+
+  // Active glow
+  if(isActive){
+    ctx.shadowColor='rgba(52,211,153,0.5)';ctx.shadowBlur=10;
+    ctx.strokeStyle='rgba(52,211,153,0.5)';ctx.lineWidth=1.5;
+    ctx.strokeRect(x-1*sc,(y-32)*sc+bobY,28*sc,40*sc);
+    ctx.shadowBlur=0;
+  }
+
+  // Speech bubble
+  if(bubbleMsg){
+    const msg=bubbleMsg.slice(0,15);
+    const bfs=Math.round(4.5*sc);ctx.font=`${bfs}px sans-serif`;
+    const bw=ctx.measureText(msg).width+7*sc,bh=bfs+4*sc;
+    const bx=cx2+7*sc-bw/2,by2=cy2-12*sc-bh;
+    ctx.fillStyle='rgba(251,191,36,0.97)';_rrf(ctx,bx,by2,bw,bh,2*sc);
+    ctx.beginPath();ctx.moveTo(cx2+5*sc,by2+bh);ctx.lineTo(cx2+7*sc,by2+bh+4*sc);ctx.lineTo(cx2+9*sc,by2+bh);ctx.fill();
+    ctx.fillStyle='#05080d';ctx.fillText(msg,bx+3.5*sc,by2+bfs);
+  }
+}
+
+function activateDesk(agentId,msg){
+  _oActive.add(agentId);
+  if(msg)_oBubbles[agentId]={msg,until:Date.now()+4000};
+  setTimeout(()=>_oActive.delete(agentId),4000);
+}
+function randomActivateDesk(){
+  const ids=Object.keys(ST);
+  const id=ids[Math.floor(Math.random()*ids.length)];
+  activateDesk(id,agentMsgs[id]||'');
+}
+function updateTicker(items){
+  const el=document.getElementById('ticker');
+  if(!items||!items.length){el.innerHTML='<span class="ticker-item"><span class="tc">AYILON</span>가상 오피스 가동 중 · AI Agents 실시간 업무 처리 중</span>'.repeat(4);return;}
+  const parts=items.slice(0,12).map(f=>`<span class="ticker-item"><span class="tc">${esc(f.agent_code||f.agent_id)}</span>${esc(f.msg.slice(0,28))}</span>`);
+  el.innerHTML=[...parts,...parts].join(' &nbsp;&nbsp;·&nbsp;&nbsp; ');
 }
 
 /* ── AGENT DETAIL ── */
