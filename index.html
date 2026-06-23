@@ -124,10 +124,56 @@ body{display:flex;flex-direction:column}
   font-size:11px;
   animation:spr-idle 1.2s steps(2,end) infinite
 }
+.spr-sprite{animation:spr-idle 1.2s steps(2,end) infinite}
 .spr.is-ceo .spr-body{width:26px;height:26px;font-size:14px;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.07)}
 .spr.active .spr-body{border-color:rgba(255,255,255,.4);box-shadow:0 0 8px rgba(255,255,255,.12)}
 .spr.walking .spr-body{animation:spr-walk .5s steps(2,end) infinite}
 .spr-shad{width:14px;height:3px;background:rgba(0,0,0,.5);border-radius:50%;margin-top:1px}
+.spr-sprite{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+.spr.face-l .spr-sprite{transform:scaleX(-1)}
+.spr.walking .spr-sprite{animation:spr-walk .45s steps(2,end) infinite}
+@keyframes spr-walk{0%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.spr.face-l.walking .spr-sprite{animation:spr-walk-l .45s steps(2,end) infinite}
+@keyframes spr-walk-l{0%{transform:scaleX(-1) translateY(0)}50%{transform:scaleX(-1) translateY(-2px)}}
+.fi-tag.ai-tag{color:rgba(0,220,255,.7)}
+.fi-tag.cross-tag{color:rgba(255,180,60,.7)}
+/* ═══ AGENTS OVERLAY ═══ */
+.ag-card{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.ag-card:last-child{border-bottom:none}
+.ag-ico{font-size:18px;flex-shrink:0;width:26px;text-align:center;padding-top:2px}
+.ag-info{flex:1;min-width:0}
+.ag-name{font-size:9px;font-weight:700;color:#fff;letter-spacing:.05em}
+.ag-name span{font-size:7px;color:rgba(255,255,255,.2);font-weight:400}
+.ag-role{font-size:7px;color:rgba(255,255,255,.28);margin-bottom:3px}
+.ag-act{font-size:7px;color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px}
+.xp-wrap{display:flex;align-items:center;gap:5px;margin-bottom:4px}
+.xp-bar{flex:1;height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+.xp-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#4060ff,#00aaff);transition:width .8s}
+.xp-lv{font-size:6px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.05em;white-space:nowrap;font-family:monospace}
+.ag-tags{display:flex;flex-wrap:wrap;gap:3px}
+.ag-tag{font-size:6px;padding:1px 5px;border-radius:2px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.35);letter-spacing:.04em}
+.team-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px}
+.team-stat{border:1px solid rgba(255,255,255,.06);border-radius:5px;padding:10px 8px;text-align:center}
+.ts-lbl{font-size:6px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:4px}
+.ts-val{font-size:16px;font-weight:900;color:#fff;font-family:monospace}
+/* ═══ COMPANY OVERLAY ═══ */
+.co-mission{font-size:8px;color:rgba(255,255,255,.4);line-height:1.75;margin-bottom:14px;padding:12px;border:1px solid rgba(255,255,255,.06);border-radius:6px;border-left:3px solid rgba(64,96,255,.5)}
+.co-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.co-stat{border:1px solid rgba(255,255,255,.06);border-radius:5px;padding:10px 8px;text-align:center}
+.co-stat .csl{font-size:6px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:4px}
+.co-stat .csv{font-size:16px;font-weight:900;color:#fff;font-family:monospace}
+.dept-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+.dept-card{border:1px solid rgba(255,255,255,.06);border-radius:5px;padding:8px 10px}
+.dept-hd{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.dept-dot{width:5px;height:5px;border-radius:50%;background:#00cc66;flex-shrink:0}
+.dept-dot.warn{background:#ff8800}
+.dept-nm{font-size:7px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.08em}
+.dept-ag{font-size:7px;color:rgba(255,255,255,.3);font-family:monospace}
+.mile-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.mile-item:last-child{border-bottom:none}
+.mile-dot{width:6px;height:6px;border-radius:50%;background:#4060ff;flex-shrink:0;margin-top:3px}
+.mile-txt{font-size:8px;color:rgba(255,255,255,.5);flex:1;line-height:1.5}
+.mile-ts{font-size:7px;color:rgba(255,255,255,.18);font-family:monospace;white-space:nowrap}
 .spr.is-ceo .spr-shad{width:18px}
 .spr-lbl{font-size:6px;font-weight:700;letter-spacing:.04em;color:rgba(255,255,255,.6);white-space:nowrap}
 .spr.active .spr-lbl{color:#fff}
@@ -240,8 +286,10 @@ body{display:flex;flex-direction:column}
       <div id="ob-right">
         <span id="ai-badge" class="ai-dead">GEMINI OFFLINE</span>
         <button class="ob-tab" id="btn-trading">📊 TRADING</button>
+        <button class="ob-tab" id="btn-agents">🤖 AGENTS</button>
+        <button class="ob-tab" id="btn-company">🏢 COMPANY</button>
         <button class="ob-tab" id="btn-settings">⚙ SETTINGS</button>
-        <span id="ob-time-wrap" id="ob-time">--:--:--</span>
+        <span id="ob-time-wrap">--:--:--</span>
       </div>
     </div>
     <!-- Pixel art office -->
@@ -307,10 +355,71 @@ body{display:flex;flex-direction:column}
       </div>
     </div>
   </div>
+  <!-- Agents -->
+  <div id="ov-agents" style="display:none">
+    <div class="ov-hdr">
+      <div class="ov-ttl">AGENTS — AI 팀원</div>
+      <button class="ov-close" id="ov-close3">✕</button>
+    </div>
+    <div class="ov-body">
+      <div class="sec">
+        <div class="sec-t">TEAM INTELLIGENCE</div>
+        <div class="team-stat-grid">
+          <div class="team-stat"><div class="ts-lbl">팀 평균 레벨</div><div class="ts-val" id="ag-avglv">—</div></div>
+          <div class="team-stat"><div class="ts-lbl">총 XP</div><div class="ts-val" id="ag-xp">—</div></div>
+          <div class="team-stat"><div class="ts-lbl">AI 응답</div><div class="ts-val" id="ag-ai">ON</div></div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-t">13 AGENTS</div>
+        <div id="ag-cards"></div>
+      </div>
+    </div>
+  </div>
+  <!-- Company -->
+  <div id="ov-company" style="display:none">
+    <div class="ov-hdr">
+      <div class="ov-ttl">AYILON — 회사 현황</div>
+      <button class="ov-close" id="ov-close4">✕</button>
+    </div>
+    <div class="ov-body">
+      <div class="co-mission">
+        <b>AYILON</b>은 AI 기반 퀀트 트레이딩 플랫폼입니다.<br>
+        13명의 AI 에이전트가 24시간 시장을 분석하고 협업하며 자율 운영됩니다.<br>
+        Gemini AI 기반 자율 진화 시스템으로 에이전트의 지능이 매일 성장합니다.
+      </div>
+      <div class="sec">
+        <div class="sec-t">COMPANY METRICS</div>
+        <div class="co-stat-grid">
+          <div class="co-stat"><div class="csl">운영일</div><div class="csv" id="co-days">—</div></div>
+          <div class="co-stat"><div class="csl">총 신호</div><div class="csv" id="co-sigs2">—</div></div>
+          <div class="co-stat"><div class="csl">수익률</div><div class="csv" id="co-pnl2">—</div></div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-t">DEPARTMENTS</div>
+        <div class="dept-grid">
+          <div class="dept-card"><div class="dept-hd"><div class="dept-dot"></div><div class="dept-nm">TRADING</div></div><div class="dept-ag">IRON · GRID</div></div>
+          <div class="dept-card"><div class="dept-hd"><div class="dept-dot"></div><div class="dept-nm">RESEARCH</div></div><div class="dept-ag">SCOUT</div></div>
+          <div class="dept-card"><div class="dept-hd"><div class="dept-dot"></div><div class="dept-nm">DEV / INFRA</div></div><div class="dept-ag">FORGE · ATLAS</div></div>
+          <div class="dept-card"><div class="dept-hd"><div class="dept-dot"></div><div class="dept-nm">RISK</div></div><div class="dept-ag">WARD</div></div>
+          <div class="dept-card"><div class="dept-hd"><div class="dept-dot"></div><div class="dept-nm">MARKETING</div></div><div class="dept-ag">LUNA · PIXEL</div></div>
+          <div class="dept-card"><div class="dept-hd"><div class="dept-dot"></div><div class="dept-nm">FINANCE</div></div><div class="dept-ag">LEDGER</div></div>
+          <div class="dept-card"><div class="dept-hd"><div class="dept-dot"></div><div class="dept-nm">LEGAL / CS</div></div><div class="dept-ag">REX · ECHO</div></div>
+          <div class="dept-card"><div class="dept-hd"><div class="dept-dot"></div><div class="dept-nm">SECURITY</div></div><div class="dept-ag">SHIELD</div></div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-t">MILESTONES</div>
+        <div id="co-miles"><div class="loading">—</div></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
 'use strict';
+var _perfData = null;
 // ═══════════════════════════════════════
 // AGENTS
 // ═══════════════════════════════════════
@@ -343,77 +452,77 @@ const AGENTS = [
    lines:['API 키 보안 점검','침입 탐지 모니터링','취약점 스캔 완료']},
 ];
 
-// Canvas walking bounds per zone (internal 380x528 coords)
-// Layout: walls=4px, CEO row y4-105, rows 109-210/214-315/319-420/424-524
 const ROOMS = {
-  executive: {x1:8,  y1:8,   x2:372, y2:103},
-  trading:   {x1:8,  y1:113, x2:187, y2:207},
-  research:  {x1:196,y1:113, x2:372, y2:207},
-  dev:       {x1:8,  y1:218, x2:187, y2:312},
-  risk:      {x1:196,y1:218, x2:372, y2:312},
-  marketing: {x1:8,  y1:323, x2:187, y2:416},
-  finance:   {x1:196,y1:323, x2:372, y2:416},
-  support:   {x1:8,  y1:428, x2:187, y2:520},
-  security:  {x1:196,y1:428, x2:372, y2:520},
+  executive: {x1:14, y1:14,  x2:366, y2:110},
+  trading:   {x1:14, y1:118, x2:185, y2:216},
+  research:  {x1:196,y1:118, x2:366, y2:216},
+  dev:       {x1:14, y1:222, x2:185, y2:320},
+  risk:      {x1:196,y1:222, x2:366, y2:320},
+  marketing: {x1:14, y1:326, x2:185, y2:414},
+  finance:   {x1:196,y1:326, x2:366, y2:414},
+  support:   {x1:14, y1:420, x2:185, y2:520},
+  security:  {x1:196,y1:420, x2:366, y2:520},
 };
 const CW = 380, CH = 528;
 
 // ═══════════════════════════════════════
-// DRAW PIXEL ART OFFICE — RPG STYLE WITH WALLS (runs ONCE)
+// DRAW PIXEL ART OFFICE — OPEN FLOOR PLAN (runs ONCE)
 // ═══════════════════════════════════════
 function drawOffice() {
   const canvas = document.getElementById('office-canvas');
   canvas.width = CW; canvas.height = CH;
   const ctx = canvas.getContext('2d');
 
-  const WL=4,MX=190,LX=WL,LW=MX-WL,RX=MX+WL,RW=CW-MX-WL*2;
-  const R=[{y:WL,h:101},{y:109,h:101},{y:214,h:101},{y:319,h:101},{y:424,h:100}];
+  const MX=190, LW=186, RX=194, RW=182;
 
-  // 1. WALL BASE
-  ctx.fillStyle='#1c0e06';
-  ctx.fillRect(0,0,CW,CH);
-
-  // 2. WARM WOOD FLOOR per room
-  function drawFloor(x,y,w,h,tR,tG,tB){
-    for(let py=y;py<y+h;py+=8){
-      ctx.fillStyle=((py-y)/8|0)%2===0?'#c09560':'#caaa72';
-      ctx.fillRect(x,py,w,Math.min(8,y+h-py));
-    }
-    ctx.fillStyle='rgba(100,55,15,0.22)';
-    for(let px=x+12;px<x+w;px+=24) ctx.fillRect(px,y,1,h);
-    ctx.fillStyle='rgba(0,0,0,0.2)';
-    ctx.fillRect(x,y,w,2);ctx.fillRect(x,y,2,h);
-    ctx.fillStyle=`rgba(${tR},${tG},${tB},0.16)`;
-    ctx.fillRect(x+5,y+5,w-10,h-10);
-    ctx.strokeStyle=`rgba(${tR},${tG},${tB},0.3)`;
-    ctx.lineWidth=1.5;
-    ctx.strokeRect(x+7,y+7,w-14,h-14);
-    ctx.lineWidth=0.5;ctx.strokeStyle=`rgba(${tR},${tG},${tB},0.12)`;
-    ctx.strokeRect(x+11,y+11,w-22,h-22);
+  // 1. Full warm wood floor
+  for(var py=0;py<CH;py+=8){
+    ctx.fillStyle=(py/8|0)%2===0?'#c09560':'#caaa72';
+    ctx.fillRect(0,py,CW,8);
   }
-  drawFloor(LX,R[0].y,CW-WL*2,R[0].h, 160,100,255);
-  drawFloor(LX,R[1].y,LW,R[1].h,       255,70,50);
-  drawFloor(RX,R[1].y,RW,R[1].h,       50,110,240);
-  drawFloor(LX,R[2].y,LW,R[2].h,       30,170,70);
-  drawFloor(RX,R[2].y,RW,R[2].h,       240,140,30);
-  drawFloor(LX,R[3].y,LW,R[3].h,       210,50,150);
-  drawFloor(RX,R[3].y,RW,R[3].h,       190,170,30);
-  drawFloor(LX,R[4].y,LW,R[4].h,       30,170,170);
-  drawFloor(RX,R[4].y,RW,R[4].h,       190,40,40);
+  // Vertical plank joints
+  ctx.fillStyle='rgba(100,55,15,0.18)';
+  for(var px=0;px<CW;px+=24) ctx.fillRect(px,0,1,CH);
+  // Horizontal plank joints every 8px are already the row color changes
+  // Extra subtle horizontal lines
+  ctx.fillStyle='rgba(0,0,0,0.06)';
+  for(var py=0;py<CH;py+=8) ctx.fillRect(0,py,CW,1);
 
-  // Wall edge highlights
-  ctx.fillStyle='rgba(255,160,80,0.12)';
-  R.forEach((r,i)=>{if(i<4)ctx.fillRect(0,r.y+r.h,CW,1);});
-  ctx.fillRect(MX,R[1].y,1,R[4].y+R[4].h-R[1].y);
+  // 2. Outer border frame
+  ctx.fillStyle='#1c0e06';
+  ctx.fillRect(0,0,CW,6);ctx.fillRect(0,CH-6,CW,6);
+  ctx.fillRect(0,0,6,CH);ctx.fillRect(CW-6,0,6,CH);
+  ctx.strokeStyle='rgba(255,180,80,0.2)';ctx.lineWidth=1.5;
+  ctx.strokeRect(6,6,CW-12,CH-12);
 
-  // FURNITURE HELPERS
-  function shd(x,y,w,h,s){s=s||2;ctx.fillStyle='rgba(0,0,0,0.42)';ctx.fillRect(x+s,y+s,w,h);}
+  // 3. Zone area rugs (NO walls, just colored areas)
+  function zoneRug(x,y,w,h,r,g,b){
+    ctx.fillStyle='rgba('+r+','+g+','+b+',0.13)';
+    ctx.fillRect(x,y,w,h);
+    ctx.strokeStyle='rgba('+r+','+g+','+b+',0.28)';
+    ctx.lineWidth=1.5;
+    ctx.strokeRect(x+4,y+4,w-8,h-8);
+    ctx.strokeStyle='rgba('+r+','+g+','+b+',0.1)';
+    ctx.lineWidth=0.5;
+    ctx.strokeRect(x+8,y+8,w-16,h-16);
+  }
+  zoneRug(10,8, CW-20,104, 140,80,255);   // CEO: purple
+  zoneRug(10,116,LW-4, 100, 255,70,50);   // Trading: red
+  zoneRug(RX, 116,RW-4, 100, 50,110,240); // Research: blue
+  zoneRug(10,220,LW-4, 100, 30,170,70);   // Dev: green
+  zoneRug(RX, 220,RW-4, 100, 240,140,30); // Risk: orange
+  zoneRug(10,324,LW-4, 90,  210,50,150);  // Marketing: pink
+  zoneRug(RX, 324,RW-4, 90,  190,170,30); // Finance: gold
+  zoneRug(10,418,LW-4, 104, 30,170,170);  // CS: teal
+  zoneRug(RX, 418,RW-4, 104, 190,40,40);  // Security: red
+
+  // 4. Furniture helpers
+  function shd(x,y,w,h){ctx.fillStyle='rgba(0,0,0,0.4)';ctx.fillRect(x+2,y+2,w,h);}
   function desk(x,y,w,h,col){
     col=col||'#7a4e28';shd(x,y,w,h);
     ctx.fillStyle=col;ctx.fillRect(x,y,w,h);
     ctx.fillStyle='rgba(255,210,130,0.28)';ctx.fillRect(x+1,y+1,w-2,2);
-    ctx.fillStyle='rgba(255,210,130,0.1)';ctx.fillRect(x+1,y+5,w-2,1);
-    ctx.fillStyle='rgba(0,0,0,0.32)';ctx.fillRect(x+w-2,y,2,h);ctx.fillRect(x,y+h-2,w,2);
+    ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(x+w-2,y,2,h);ctx.fillRect(x,y+h-2,w,2);
   }
   function monitor(x,y){
     ctx.fillStyle='#181828';ctx.fillRect(x,y,15,12);
@@ -425,15 +534,15 @@ function drawOffice() {
     ctx.fillStyle='#252535';ctx.fillRect(x+6,y+12,3,3);ctx.fillRect(x+3,y+15,9,2);
   }
   function chair(x,y,r,g,b){
-    shd(x,y,12,12);ctx.fillStyle=`rgb(${r},${g},${b})`;ctx.fillRect(x,y,12,12);
-    ctx.fillStyle=`rgba(${Math.min(255,r+55)},${Math.min(255,g+55)},${Math.min(255,b+55)},0.35)`;
+    shd(x,y,12,12);ctx.fillStyle='rgb('+r+','+g+','+b+')';ctx.fillRect(x,y,12,12);
+    ctx.fillStyle='rgba('+Math.min(255,r+55)+','+Math.min(255,g+55)+','+Math.min(255,b+55)+',0.35)';
     ctx.fillRect(x+2,y+3,8,7);
     ctx.fillStyle='rgba(255,255,255,0.1)';ctx.fillRect(x+1,y+1,10,2);
     ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(x+1,y+10,10,2);
   }
   function plant(x,y,big){
     var s=big?1.3:1;
-    shd(x-(5*s|0),y+2,(10*s|0),(8*s|0));
+    ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(x-(5*s|0),y+2,(10*s|0),(8*s|0));
     ctx.fillStyle='#b85020';ctx.fillRect(x-(4*s|0),y,(8*s|0),(7*s|0));
     ctx.fillStyle='rgba(255,140,60,0.35)';ctx.fillRect(x-(4*s|0),y,(8*s|0),2);
     ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(x-(4*s|0),y+(5*s|0),(8*s|0),2);
@@ -442,7 +551,6 @@ function drawOffice() {
     ctx.beginPath();ctx.arc(x-(5*s|0),y-(3*s|0),5*s,0,Math.PI*2);ctx.fill();
     ctx.beginPath();ctx.arc(x+(5*s|0),y-(3*s|0),5*s,0,Math.PI*2);ctx.fill();
     ctx.fillStyle='#32cd32';ctx.beginPath();ctx.arc(x,y-(9*s|0),4*s,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='rgba(120,255,120,0.22)';ctx.beginPath();ctx.arc(x-1,y-(10*s|0),(2*s|0),0,Math.PI*2);ctx.fill();
   }
   function server(x,y){
     shd(x,y,14,32);ctx.fillStyle='#101018';ctx.fillRect(x,y,14,32);
@@ -452,7 +560,6 @@ function drawOffice() {
       ctx.fillStyle=i%2===0?'#00ff44':'#002d10';ctx.fillRect(x+2,y+5+i*5,2,1);
       if(i%2===0){ctx.fillStyle='rgba(0,255,60,0.22)';ctx.fillRect(x+1,y+4+i*5,5,3);}
     }
-    ctx.fillStyle='rgba(255,255,255,0.04)';ctx.fillRect(x+10,y+3,3,28);
   }
   function whiteboard(x,y,w,h){
     shd(x,y,w,h);ctx.fillStyle='#4a2810';ctx.fillRect(x,y,w,h);
@@ -465,15 +572,10 @@ function drawOffice() {
     ctx.fillStyle='#c0b080';ctx.fillRect(x+3,y+h-5,w-6,2);
   }
   function confTable(cx,cy,rx,ry){
-    ctx.fillStyle='rgba(0,0,0,0.45)';
-    ctx.beginPath();ctx.ellipse(cx+3,cy+4,rx,ry,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(0,0,0,0.45)';ctx.beginPath();ctx.ellipse(cx+3,cy+4,rx,ry,0,0,Math.PI*2);ctx.fill();
     ctx.fillStyle='#3d1e08';ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle='rgba(210,150,50,0.9)';ctx.lineWidth=2;
-    ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);ctx.stroke();
-    ctx.strokeStyle='rgba(210,150,50,0.25)';ctx.lineWidth=0.8;
-    ctx.beginPath();ctx.ellipse(cx,cy,rx-6,ry-5,0,0,Math.PI*2);ctx.stroke();
-    ctx.fillStyle='rgba(255,190,80,0.09)';
-    ctx.beginPath();ctx.ellipse(cx-rx*0.2,cy-ry*0.3,rx*0.38,ry*0.24,-0.3,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(210,150,50,0.9)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle='rgba(210,150,50,0.25)';ctx.lineWidth=0.8;ctx.beginPath();ctx.ellipse(cx,cy,rx-6,ry-5,0,0,Math.PI*2);ctx.stroke();
   }
   function shelf(x,y,w,h){
     shd(x,y,w,h);ctx.fillStyle='#5c3820';ctx.fillRect(x,y,w,h);
@@ -481,89 +583,123 @@ function drawOffice() {
     var bw=Math.max(3,Math.floor((w-4)/4));
     for(var row=0;row<3;row++){
       ctx.fillStyle='rgba(0,0,0,0.22)';ctx.fillRect(x+2,y+4+row*10,w-4,6);
-      for(var j=0;j<Math.floor((w-4)/bw);j++){
-        ctx.fillStyle=C[(row*3+j)%C.length];ctx.fillRect(x+2+j*bw,y+5+row*10,bw-2,5);
-      }
+      for(var j=0;j<Math.floor((w-4)/bw);j++){ctx.fillStyle=C[(row*3+j)%C.length];ctx.fillRect(x+2+j*bw,y+5+row*10,bw-2,5);}
     }
-    ctx.fillStyle='rgba(0,0,0,0.4)';
-    for(var row=1;row<3;row++) ctx.fillRect(x,y+row*10+3,w,2);
+    ctx.fillStyle='rgba(0,0,0,0.4)';for(var row=1;row<3;row++)ctx.fillRect(x,y+row*10+3,w,2);
   }
   function couch(x,y,w,h,r,g,b){
     shd(x,y,w,h);
-    ctx.fillStyle=`rgb(${r*.65|0},${g*.65|0},${b*.65|0})`;ctx.fillRect(x,y,w,(h*.35|0));
-    ctx.fillStyle=`rgb(${r},${g},${b})`;ctx.fillRect(x,y+(h*.35|0),w,h-(h*.35|0));
-    ctx.fillStyle='rgba(0,0,0,0.15)';
-    for(var i=1;i<3;i++) ctx.fillRect(x+(w/3*i)|0,y+(h*.35|0),1,h-(h*.35|0));
+    ctx.fillStyle='rgb('+(r*.65|0)+','+(g*.65|0)+','+(b*.65|0)+')';ctx.fillRect(x,y,w,(h*.35|0));
+    ctx.fillStyle='rgb('+r+','+g+','+b+')';ctx.fillRect(x,y+(h*.35|0),w,h-(h*.35|0));
     ctx.fillStyle='rgba(255,255,255,0.14)';ctx.fillRect(x+2,y+(h*.35|0)+2,w-4,3);
   }
 
-  // CEO / CONFERENCE ROOM
-  var y1=R[0].y;
-  ctx.strokeStyle='rgba(160,100,255,0.3)';ctx.lineWidth=1.5;ctx.strokeRect(MX-74,y1+14,148,78);
-  ctx.strokeStyle='rgba(160,100,255,0.12)';ctx.lineWidth=0.5;ctx.strokeRect(MX-70,y1+18,140,70);
-  confTable(MX,y1+52,56,27);
-  for(var i=0;i<8;i++){var a=(i/8)*Math.PI*2-Math.PI/2;chair(MX+Math.cos(a)*70-6,y1+52+Math.sin(a)*39-6,85,65,165);}
-  desk(LX+2,y1+4,64,16);monitor(LX+4,y1);monitor(LX+22,y1);chair(LX+26,y1+20,85,65,165);
-  whiteboard(CW-WL-56,y1+4,52,34);
-  plant(LX+8,y1+R[0].h-18,true);plant(CW-WL-12,y1+R[0].h-18,true);plant(CW-WL-12,y1+6,false);
+  // ── CEO ZONE ──
+  var z1=10;
+  ctx.strokeStyle='rgba(160,100,255,0.28)';ctx.lineWidth=1;ctx.strokeRect(MX-74,z1+14,148,78);
+  confTable(MX,z1+54,56,27);
+  for(var i=0;i<8;i++){var a=(i/8)*Math.PI*2-Math.PI/2;chair(MX+Math.cos(a)*70-6,z1+54+Math.sin(a)*39-6,85,65,165);}
+  desk(12,z1+6,64,16);monitor(14,z1+2);monitor(32,z1+2);chair(38,z1+22,85,65,165);
+  whiteboard(CW-68,z1+6,54,34);
+  plant(14,z1+94,true);plant(CW-14,z1+94,true);plant(CW-14,z1+8,false);
 
-  // TRADING
-  var y2=R[1].y;
-  desk(LX+2,y2+22,LW-4,16,'#5a2808');
-  for(var i=0;i<4;i++) monitor(LX+4+i*23,y2+18);
-  for(var i=0;i<4;i++) chair(LX+5+i*23,y2+38,180,50,40);
-  whiteboard(LX+2,y2+64,52,34);plant(LW-12,y2+66);
+  // ── TRADING ──
+  var z2=118;
+  desk(12,z2+20,LW-4,16,'#5a2808');
+  for(var i=0;i<4;i++)monitor(14+i*23,z2+16);
+  for(var i=0;i<4;i++)chair(15+i*23,z2+36,180,50,40);
+  whiteboard(12,z2+62,52,34);plant(LW-12,z2+64,false);
 
-  // RESEARCH
-  desk(RX+2,y2+22,RW-4,16);
-  for(var i=0;i<3;i++) monitor(RX+4+i*24,y2+18);
-  for(var i=0;i<3;i++) chair(RX+5+i*24,y2+38,50,90,200);
-  shelf(CW-WL-24,y2+64,20,36);plant(RX+4,y2+66);plant(RX+4,y2+86);
+  // ── RESEARCH ──
+  desk(RX+2,z2+20,RW-4,16);
+  for(var i=0;i<3;i++)monitor(RX+4+i*24,z2+16);
+  for(var i=0;i<3;i++)chair(RX+5+i*24,z2+36,50,90,200);
+  shelf(CW-26,z2+62,20,36);plant(RX+4,z2+64,false);plant(RX+4,z2+84,false);
 
-  // DEV/INFRA
-  var y3=R[2].y;
-  server(LX+2,y3+12);server(LX+18,y3+12);
-  desk(LX+36,y3+14,LW-40,14,'#3a2510');
-  for(var i=0;i<3;i++) monitor(LX+38+i*22,y3+10);
-  for(var i=0;i<3;i++) chair(LX+40+i*22,y3+28,30,140,70);
-  desk(LX+2,y3+60,LW-4,14,'#3a2510');
-  for(var i=0;i<2;i++) monitor(LX+4+i*24,y3+56);
-  for(var i=0;i<2;i++) chair(LX+5+i*24,y3+74,30,140,70);
+  // ── DEV/INFRA ──
+  var z3=222;
+  server(12,z3+10);server(28,z3+10);
+  desk(46,z3+12,LW-38,14,'#3a2510');
+  for(var i=0;i<3;i++)monitor(48+i*22,z3+8);
+  for(var i=0;i<3;i++)chair(50+i*22,z3+26,30,140,70);
+  desk(12,z3+58,LW-4,14,'#3a2510');
+  for(var i=0;i<2;i++)monitor(14+i*24,z3+54);
+  for(var i=0;i<2;i++)chair(15+i*24,z3+72,30,140,70);
 
-  // RISK
-  whiteboard(RX+2,y3+12,52,32);
-  desk(RX+2,y3+58,RW-4,14);
-  for(var i=0;i<3;i++) monitor(RX+4+i*24,y3+54);
-  for(var i=0;i<3;i++) chair(RX+5+i*24,y3+72,200,120,30);
+  // ── RISK ──
+  whiteboard(RX+2,z3+10,52,32);
+  desk(RX+2,z3+56,RW-4,14);
+  for(var i=0;i<3;i++)monitor(RX+4+i*24,z3+52);
+  for(var i=0;i<3;i++)chair(RX+5+i*24,z3+70,200,120,30);
 
-  // MARKETING
-  var y4=R[3].y;
-  desk(LX+2,y4+18,LW-4,14,'#5a1840');
-  for(var i=0;i<3;i++) monitor(LX+4+i*24,y4+14);
-  for(var i=0;i<3;i++) chair(LX+5+i*24,y4+32,180,50,130);
-  couch(LX+2,y4+58,58,16,160,70,120);
-  plant(LX+64,y4+58,false);plant(LW-12,y4+58,false);
+  // ── MARKETING ──
+  var z4=326;
+  desk(12,z4+16,LW-4,14,'#5a1840');
+  for(var i=0;i<3;i++)monitor(14+i*24,z4+12);
+  for(var i=0;i<3;i++)chair(15+i*24,z4+30,180,50,130);
+  couch(12,z4+56,58,16,160,70,120);
+  plant(74,z4+56,false);plant(LW-12,z4+56,false);
 
-  // FINANCE
-  desk(RX+2,y4+18,RW-4,14,'#1e3a18');
-  for(var i=0;i<2;i++) monitor(RX+4+i*24,y4+14);
-  for(var i=0;i<2;i++) chair(RX+5+i*24,y4+32,50,120,50);
-  shelf(CW-WL-24,y4+10,20,70);
+  // ── FINANCE ──
+  desk(RX+2,z4+16,RW-4,14,'#1e3a18');
+  for(var i=0;i<2;i++)monitor(RX+4+i*24,z4+12);
+  for(var i=0;i<2;i++)chair(RX+5+i*24,z4+30,50,120,50);
+  shelf(CW-26,z4+8,20,70);
 
-  // CS/LEGAL
-  var y5=R[4].y;
-  desk(LX+2,y5+16,(LW/2)-4,14);desk(LX+(LW/2)+2,y5+16,(LW/2)-4,14);
-  monitor(LX+4,y5+12);monitor(LX+(LW/2)+4,y5+12);
-  chair(LX+5,y5+30,30,160,160);chair(LX+(LW/2)+5,y5+30,30,160,160);
+  // ── CS/LEGAL ──
+  var z5=420;
+  desk(12,z5+14,(LW/2)-4,14);desk(12+(LW/2),z5+14,(LW/2)-8,14);
+  monitor(14,z5+10);monitor(14+(LW/2),z5+10);
+  chair(15,z5+28,30,160,160);chair(15+(LW/2),z5+28,30,160,160);
 
-  // SECURITY
-  server(RX+2,y5+10);server(RX+18,y5+10);server(RX+34,y5+10);
-  desk(RX+54,y5+16,RW-58,14,'#1a0606');
-  monitor(RX+56,y5+12);monitor(RX+78,y5+12);
-  chair(RX+57,y5+30,160,30,30);chair(RX+79,y5+30,160,30,30);
+  // ── SECURITY ──
+  server(RX+2,z5+8);server(RX+18,z5+8);server(RX+34,z5+8);
+  desk(RX+54,z5+14,RW-58,14,'#1a0606');
+  monitor(RX+56,z5+10);monitor(RX+78,z5+10);
+  chair(RX+57,z5+28,160,30,30);chair(RX+79,z5+28,160,30,30);
 
-  // CORNER PLANTS
-  plant(LX+6,CH-WL-18,true);plant(CW-WL-12,CH-WL-18,true);
+  // Corner plants
+  plant(14,CH-14,true);plant(CW-14,CH-14,true);
+}
+
+// ═══════════════════════════════════════
+// PIXEL ART CHARACTER SPRITES
+// ═══════════════════════════════════════
+const SPRITES = {
+  CEO:    {h:'#0a0a2e',s:'#f5c5a3',b:'#1a2a80',p:'#1a1a3a',sh:'#0a0a14'},
+  IRON:   {h:'#5a2a0a',s:'#f5c5a3',b:'#8b0000',p:'#1a1a1a',sh:'#2a1008'},
+  GRID:   {h:'#0a0a0a',s:'#f5d0b0',b:'#2a4a8a',p:'#0a0a3a',sh:'#0a0a0a'},
+  SCOUT:  {h:'#2a1a00',s:'#e8b896',b:'#0a5a0a',p:'#2a2a0a',sh:'#0a0a0a'},
+  WARD:   {h:'#2a2a2a',s:'#f0c0a0',b:'#4a0a0a',p:'#1a1a1a',sh:'#0a0a0a'},
+  FORGE:  {h:'#1a0800',s:'#f5c5a3',b:'#1a1a1a',p:'#2a1a0a',sh:'#0a0800'},
+  ATLAS:  {h:'#0a2a0a',s:'#e8b896',b:'#0a2a4a',p:'#0a1a2a',sh:'#0a0a0a'},
+  LUNA:   {h:'#4a0a2a',s:'#fde0c0',b:'#7a0a4a',p:'#2a0a2a',sh:'#1a0a1a'},
+  PIXEL:  {h:'#d04000',s:'#f5c5a3',b:'#5a0a7a',p:'#1a0a2a',sh:'#0a0a0a'},
+  ECHO:   {h:'#004a00',s:'#e8d0b0',b:'#0a4a2a',p:'#0a2a0a',sh:'#0a1a0a'},
+  REX:    {h:'#5a5a00',s:'#f0c8a0',b:'#2a2a00',p:'#1a1a00',sh:'#0a0a00'},
+  LEDGER: {h:'#000a3a',s:'#fde0c0',b:'#0a4a0a',p:'#0a1a0a',sh:'#0a0a0a'},
+  SHIELD: {h:'#2a0000',s:'#f0b8a0',b:'#4a0000',p:'#1a0000',sh:'#0a0000'},
+};
+
+function agentSVG(id) {
+  var c=SPRITES[id]||{h:'#333',s:'#fdc',b:'#446',p:'#223',sh:'#111'};
+  var H=c.h,S=c.s,B=c.b,P=c.p,SH=c.sh;
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 32" width="20" height="32">'
+    +'<ellipse cx="10" cy="31" rx="7" ry="1.5" fill="rgba(0,0,0,.28)"/>'
+    +'<rect x="6" y="27" width="3" height="3" rx="1" fill="'+SH+'"/>'
+    +'<rect x="11" y="27" width="3" height="3" rx="1" fill="'+SH+'"/>'
+    +'<rect x="6" y="21" width="4" height="7" rx="1" fill="'+P+'"/>'
+    +'<rect x="10" y="21" width="4" height="7" rx="1" fill="'+P+'"/>'
+    +'<rect x="2" y="13" width="4" height="9" rx="1" fill="'+B+'"/>'
+    +'<rect x="14" y="13" width="4" height="9" rx="1" fill="'+B+'"/>'
+    +'<rect x="4" y="12" width="12" height="10" rx="1" fill="'+B+'"/>'
+    +'<rect x="7" y="10" width="6" height="3" fill="'+S+'"/>'
+    +'<rect x="4" y="3" width="12" height="9" rx="5" fill="'+S+'"/>'
+    +'<rect x="4" y="2" width="12" height="7" rx="5" fill="'+H+'"/>'
+    +'<rect x="6" y="7" width="2" height="2" rx=".5" fill="#111"/>'
+    +'<rect x="12" y="7" width="2" height="2" rx=".5" fill="#111"/>'
+    +'<rect x="9" y="11" width="3" height="1" rx=".5" fill="rgba(0,0,0,.2)"/>'
+    +'</svg>';
 }
 
 // ═══════════════════════════════════════
@@ -571,16 +707,16 @@ function drawOffice() {
 // ═══════════════════════════════════════
 function buildChars() {
   const layer = document.getElementById('char-layer');
-  AGENTS.forEach(a => {
-    const el = document.createElement('div');
+  AGENTS.forEach(function(a) {
+    var el = document.createElement('div');
     el.className = 'spr' + (a.id==='CEO'?' is-ceo':'');
     el.id = 'spr-' + a.id;
     el.dataset.cx = '20'; el.dataset.cy = '30';
-    el.innerHTML = `
-      <div class="spr-bub" id="bub-${a.id}">${a.lines[0]}</div>
-      <div class="spr-body">${a.ic}</div>
-      <div class="spr-shad"></div>
-      <div class="spr-lbl">${a.id}</div>`;
+    el.innerHTML =
+      '<div class="spr-bub" id="bub-'+a.id+'">'+a.lines[0]+'</div>'
+      +agentSVG(a.id)
+      +'<div class="spr-shad"></div>'
+      +'<div class="spr-lbl">'+a.id+'</div>';
     layer.appendChild(el);
   });
   // Spread initial positions after layout
@@ -655,6 +791,7 @@ window.addEventListener('resize', ()=>{
 // ACTION / BUBBLE
 // ═══════════════════════════════════════
 function setAction(id, text, flash, isAI) {
+  _agentActions[id] = text;
   const b = document.getElementById('bub-'+id);
   if (b) {
     b.textContent = text.slice(0,65);
@@ -669,6 +806,158 @@ function setAction(id, text, flash, isAI) {
 function randomChatter() {
   const a = AGENTS[Math.floor(Math.random()*AGENTS.length)];
   setAction(a.id, a.lines[Math.floor(Math.random()*a.lines.length)], true, false);
+}
+
+// ═══════════════════════════════════════
+// AGENT CROSS-TALK (inter-agent conversations)
+// ═══════════════════════════════════════
+const CROSS_MSGS = [
+  {from:'CEO',   to:'IRON',  msg:'트레이딩 현황 보고해'},
+  {from:'CEO',   to:'FORGE', msg:'배포 상태는?'},
+  {from:'CEO',   to:'WARD',  msg:'리스크 레벨 어때?'},
+  {from:'CEO',   to:'SCOUT', msg:'시장 인사이트 공유해봐'},
+  {from:'IRON',  to:'GRID',  msg:'백테스트 결과 나왔어?'},
+  {from:'IRON',  to:'SCOUT', msg:'온체인 신호 있어?'},
+  {from:'IRON',  to:'WARD',  msg:'포지션 사이즈 조정할까?'},
+  {from:'FORGE', to:'ATLAS', msg:'서버 상태 정상이야?'},
+  {from:'WARD',  to:'IRON',  msg:'드로다운 경고 발생'},
+  {from:'SCOUT', to:'IRON',  msg:'고래 대량 이동 포착'},
+  {from:'ATLAS', to:'FORGE', msg:'크론잡 정상 실행 확인'},
+  {from:'LUNA',  to:'PIXEL', msg:'새 캠페인 디자인 어때?'},
+  {from:'LEDGER',to:'CEO',   msg:'이번달 수익 정리됐어'},
+  {from:'SHIELD',to:'FORGE', msg:'보안 패치 필요해'},
+  {from:'ECHO',  to:'CEO',   msg:'사용자 피드백 전달할게'},
+];
+const CROSS_REPLIES = {
+  'IRON←CEO':  'BTC 롱 +2.3% 유지중, 진입가 접근 중',
+  'FORGE←CEO': '최신 커밋 배포 완료, 정상 동작 중',
+  'WARD←CEO':  '리스크 레벨 낮음, 포지션 안정적',
+  'SCOUT←CEO': 'BTC 고래 축적 신호, 강세 전망',
+  'GRID←IRON': '6개월 백테스트 승률 68.5% 확인',
+  'SCOUT←IRON':'고래 지갑 BTC 2,340개 이동 감지',
+  'WARD←IRON': '현재 포지션 적정, 조정 불필요',
+  'ATLAS←FORGE':'서버 정상, 매분 크론잡 실행 중',
+  'IRON←WARD': '알겠어, 손절 라인 재설정할게',
+  'IRON←SCOUT':'신호 수신, 분석 즉시 시작',
+  'FORGE←ATLAS':'배포 완료 확인, 다음 업데이트 준비',
+  'PIXEL←LUNA': '디자인 시안 완성, 검토 요청드려요',
+  'CEO←LEDGER': '수고했어, 다음달 목표 회의 잡자',
+  'FORGE←SHIELD':'패치 적용 시작, 30분 내 완료 예정',
+  'CEO←ECHO':  '피드백 잘 받았어, 개선사항 반영할게',
+};
+
+function doCrossTalk() {
+  var msg = CROSS_MSGS[Math.floor(Math.random()*CROSS_MSGS.length)];
+  var fromAgent = AGENTS.find(function(a){return a.id===msg.from;});
+  var toAgent = AGENTS.find(function(a){return a.id===msg.to;});
+  if (!fromAgent || !toAgent) return;
+  var sendText = '→ '+msg.to+': '+msg.msg;
+  setAction(msg.from, sendText, true, false);
+  prependFeedMsg(msg.from, fromAgent.ic, fromAgent.team, sendText, 'cross');
+  setTimeout(function() {
+    var key = msg.to+'←'+msg.from;
+    var reply = CROSS_REPLIES[key] || '알겠습니다, '+msg.from;
+    var replyText = '← '+msg.from+': '+reply;
+    setAction(msg.to, replyText, true, false);
+    prependFeedMsg(msg.to, toAgent.ic, toAgent.team, replyText, 'cross');
+  }, 3500);
+}
+
+function prependFeedMsg(agentId, ic, team, msg, tag) {
+  var fl = document.getElementById('feed-list');
+  if (!fl) return;
+  var ts = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+  var div = document.createElement('div');
+  div.className = 'fi';
+  div.innerHTML = '<div class="fi-av">'+ic+'</div>'
+    +'<div class="fi-body">'
+    +'<div class="fi-top"><div class="fi-who">'+agentId+'</div>'
+    +'<div class="fi-team">'+team+'</div>'
+    +'<div class="fi-ts">'+ts+'</div></div>'
+    +'<div class="fi-msg">'+msg+'</div>'
+    +(tag?'<span class="fi-tag '+(tag==='cross'?'cross-tag':'ai-tag')+'">'+(tag==='cross'?'↔ CROSS-TALK':'✦ GEMINI')+'</span>':'')
+    +'</div>';
+  fl.insertBefore(div, fl.firstChild);
+  // Trim feed to 60 items
+  while (fl.children.length > 60) fl.removeChild(fl.lastChild);
+}
+
+// ═══════════════════════════════════════
+// RENDER AGENTS PANEL
+// ═══════════════════════════════════════
+var _agentActions = {};
+var _totalXp = 0;
+
+function renderAgents(agentXp) {
+  var container = document.getElementById('ag-cards');
+  if (!container) return;
+  var DOMAIN_TAGS = {
+    CEO:    ['전략','리더십','의사결정','비전'],
+    IRON:   ['BTC','ETH','기술분석','MACD'],
+    GRID:   ['백테스트','샤프','드로다운','최적화'],
+    SCOUT:  ['온체인','고래','시장심리','펀딩비'],
+    WARD:   ['리스크','포지션','헤지','손절'],
+    FORGE:  ['API','자동매매','최적화','배포'],
+    ATLAS:  ['인프라','Workers','D1','업타임'],
+    LUNA:   ['마케팅','SNS','캠페인','브랜딩'],
+    PIXEL:  ['UX','디자인','프로토타입','UI'],
+    ECHO:   ['CS','FAQ','만족도','온보딩'],
+    REX:    ['법률','컴플라이언스','MiCA','규제'],
+    LEDGER: ['재무','세금','손익','예산'],
+    SHIELD: ['보안','취약점','암호화','2FA'],
+  };
+  var totalXp = 0;
+  if (agentXp) Object.values(agentXp).forEach(function(v){totalXp+=v;});
+  _totalXp = totalXp;
+  container.innerHTML = AGENTS.map(function(a) {
+    var xp = agentXp ? (agentXp[a.id]||0) : 0;
+    var lv = Math.floor(xp/10)+1;
+    var pct = (xp%10)*10;
+    var tags = (DOMAIN_TAGS[a.id]||[]).map(function(t){return '<span class="ag-tag">'+t+'</span>';}).join('');
+    var curAct = _agentActions[a.id] || a.lines[0];
+    return '<div class="ag-card">'
+      +'<div class="ag-ico">'+a.ic+'</div>'
+      +'<div class="ag-info">'
+      +'<div class="ag-name">'+a.id+' <span>'+a.team+'</span></div>'
+      +'<div class="ag-role">'+a.role+'</div>'
+      +'<div class="ag-act">'+curAct+'</div>'
+      +'<div class="xp-wrap"><div class="xp-bar"><div class="xp-fill" style="width:'+pct+'%"></div></div>'
+      +'<div class="xp-lv">LV '+lv+' · '+xp+'XP</div></div>'
+      +'<div class="ag-tags">'+tags+'</div>'
+      +'</div></div>';
+  }).join('');
+  var avgLv = Math.floor(totalXp/130)+1;
+  var e1=document.getElementById('ag-avglv'); if(e1) e1.textContent='LV '+avgLv;
+  var e2=document.getElementById('ag-xp'); if(e2) e2.textContent=totalXp;
+  // Also update settings panel levels
+  document.querySelectorAll('[id^="alv-"]').forEach(function(e){
+    var id=e.id.replace('alv-','');
+    var xp=agentXp?(agentXp[id]||0):0;
+    e.textContent='LV '+(Math.floor(xp/10)+1);
+  });
+}
+
+function renderCompany(sigs, perf) {
+  var days = Math.floor((Date.now()-new Date('2025-01-01'))/(1000*60*60*24))+1;
+  var e=document.getElementById('co-days'); if(e) e.textContent=days;
+  if(sigs!=null){var e2=document.getElementById('co-sigs2');if(e2)e2.textContent=sigs;}
+  if(perf){
+    var pnlEl=document.getElementById('co-pnl2');
+    if(pnlEl&&perf.totalPnl!=null) pnlEl.textContent=(perf.totalPnl>=0?'+':'')+perf.totalPnl.toFixed(1)+'%';
+  }
+  var milestones = [
+    {txt:'Gemini AI 자율 운영 시스템 구축 완료', ts:'2025-01'},
+    {txt:'D1 데이터베이스 연동 및 에이전트 메모리 저장', ts:'2025-02'},
+    {txt:'13 AI 에이전트 팀 구성 완료 (CEO·IRON·GRID 외 10명)', ts:'2025-03'},
+    {txt:'OKX 거래소 자동매매 실시간 연동', ts:'2025-04'},
+    {txt:'크로스-에이전트 협업 대화 시스템 구현', ts:'2025-06'},
+    {txt:'24/7 Cloudflare Cron 자율 운영 달성', ts:'2025-06'},
+    {txt:'픽셀아트 오피스 맵 & SVG 캐릭터 스프라이트 제작', ts:'2025-06'},
+  ];
+  var cm = document.getElementById('co-miles');
+  if(cm) cm.innerHTML = milestones.slice().reverse().map(function(m){
+    return '<div class="mile-item"><div class="mile-dot"></div><div class="mile-txt">'+m.txt+'</div><div class="mile-ts">'+m.ts+'</div></div>';
+  }).join('');
 }
 
 // ═══════════════════════════════════════
@@ -782,6 +1071,7 @@ async function loadAll(){
     const sigs=d.signals||d||[];
     renderSigs(sigs);
     if(sigs[0]){setAction('IRON',(sigs[0].symbol||'BTC')+' '+(sigs[0].direction||'HOLD')+' 신호',true,false);}
+    renderCompany(sigs.length, _perfData);
   }catch(_){renderSigs([]);}
   try{
     const d=await(await fetch('/api/performance')).json();
@@ -789,6 +1079,7 @@ async function loadAll(){
     const p=d.performance||d;
     if(p.totalPnl!=null){const el=document.getElementById('s-pnl');if(el)el.textContent=(p.totalPnl>=0?'+':'')+p.totalPnl.toFixed(2)+'%';}
     if(p.winRate!=null){const el=document.getElementById('s-wr');if(el)el.textContent=(p.winRate*100).toFixed(1)+'%';}
+    _perfData=p;
   }catch(_){}
   try{
     const d=await(await fetch('/api/trades')).json();
@@ -814,9 +1105,11 @@ async function loadAll(){
     }
     if(d.level){
       document.getElementById('lvl-txt').textContent='LV '+d.level;
-      document.querySelectorAll('[id^="alv-"]').forEach(e=>e.textContent='LV '+(d.agentXp?Math.floor((d.agentXp[e.id.replace('alv-','')]||0)/10)+1:1));
     }
     if(d.aiEnabled)setAction('CEO','Gemini AI 연결 완료 · 자율 운영 중',false,true);
+    renderAgents(d.agentXp||{});
+    var e3ai=document.getElementById('ag-ai'); if(e3ai) e3ai.textContent=d.aiEnabled?'ON':'OFF';
+    if(d.xp){var e4xp=document.getElementById('ag-xp');if(e4xp)e4xp.textContent=d.xp;}
   }catch(_){cbot.className='ob-chip warn';}
   ['set-api'].forEach(id=>{const e=document.getElementById(id);if(e){e.textContent='ok';e.className='sr-v ok';}});
 }
@@ -879,33 +1172,30 @@ document.getElementById('nb-feed').addEventListener('click',()=>{
 });
 document.getElementById('nb-trading').addEventListener('click',()=>{
   document.getElementById('left').classList.remove('mob-on');
-  document.getElementById('ov-trading').style.display='block';
-  document.getElementById('ov-settings').style.display='none';
-  document.getElementById('overlay').classList.add('on');
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   document.getElementById('nb-trading').classList.add('on');
+  showOverlay('trading');
 });
 document.getElementById('nb-settings').addEventListener('click',()=>{
   document.getElementById('left').classList.remove('mob-on');
-  document.getElementById('ov-trading').style.display='none';
-  document.getElementById('ov-settings').style.display='block';
-  document.getElementById('overlay').classList.add('on');
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   document.getElementById('nb-settings').classList.add('on');
+  showOverlay('settings');
 });
 // (desktop ov-close handlers wired in showOverlay/hideOverlay section above)
 document.getElementById('agents-toggle').addEventListener('click',()=>{
-  if(isMobile()){document.getElementById('nb-settings').click();}
-  else document.getElementById('btn-settings').click();
+  document.getElementById('left').classList.remove('mob-on');
+  showOverlay('agents');
 });
 
 // ── DESKTOP TAB BUTTONS ──
 function showOverlay(which){
-  document.getElementById('ov-trading').style.display=which==='trading'?'block':'none';
-  document.getElementById('ov-settings').style.display=which==='settings'?'block':'none';
+  ['trading','agents','company','settings'].forEach(function(p){
+    document.getElementById('ov-'+p).style.display=p===which?'block':'none';
+  });
   document.getElementById('overlay').classList.add('on');
   document.querySelectorAll('.ob-tab').forEach(b=>b.classList.remove('on'));
-  const btn=document.getElementById('btn-'+which);
+  var btn=document.getElementById('btn-'+which);
   if(btn) btn.classList.add('on');
 }
 function hideOverlay(){
@@ -917,6 +1207,16 @@ document.getElementById('btn-trading').addEventListener('click',()=>{
      document.getElementById('ov-trading').style.display==='block'){hideOverlay();}
   else showOverlay('trading');
 });
+document.getElementById('btn-agents').addEventListener('click',()=>{
+  if(document.getElementById('overlay').classList.contains('on')&&
+     document.getElementById('ov-agents').style.display==='block'){hideOverlay();}
+  else showOverlay('agents');
+});
+document.getElementById('btn-company').addEventListener('click',()=>{
+  if(document.getElementById('overlay').classList.contains('on')&&
+     document.getElementById('ov-company').style.display==='block'){hideOverlay();}
+  else showOverlay('company');
+});
 document.getElementById('btn-settings').addEventListener('click',()=>{
   if(document.getElementById('overlay').classList.contains('on')&&
      document.getElementById('ov-settings').style.display==='block'){hideOverlay();}
@@ -924,6 +1224,8 @@ document.getElementById('btn-settings').addEventListener('click',()=>{
 });
 document.getElementById('ov-close').addEventListener('click',hideOverlay);
 document.getElementById('ov-close2').addEventListener('click',hideOverlay);
+document.getElementById('ov-close3').addEventListener('click',hideOverlay);
+document.getElementById('ov-close4').addEventListener('click',hideOverlay);
 
 // ═══════════════════════════════════════
 // CLOCK + DAY COUNTER
@@ -948,10 +1250,13 @@ loadAll();
 loadGH();
 
 setInterval(walkOne, 3500);
-setInterval(randomChatter, 10000);
+setInterval(randomChatter, 8000);
+setInterval(doCrossTalk, 15000);
 setInterval(loadAll, 45000);
 setInterval(loadGH, 120000);
 setInterval(tick, 1000);
+// Initial cross-talk after 5 seconds
+setTimeout(doCrossTalk, 5000);
 </script>
 </body>
 </html>

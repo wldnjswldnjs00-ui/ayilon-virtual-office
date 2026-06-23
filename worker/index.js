@@ -196,8 +196,11 @@ async function handleCron(env) {
         await insertFeed(env, agent, aiMsg, true);
         mem.agentXp[agent.id] = (mem.agentXp[agent.id]||0)+3;
         mem.xp += 3;
-        // Agent learns from what they generated — extract keywords
         extractKws(aiMsg, mem.keywords);
+        // Cross-agent knowledge sharing: teammates gain +1 XP when one thinks
+        const teammates = AGENTS.filter(a => a.id !== agent.id && a.team === agent.team);
+        teammates.forEach(t => { mem.agentXp[t.id] = (mem.agentXp[t.id]||0)+1; });
+        mem.xp += teammates.length;
       }
     } catch(_) {}
   }
@@ -248,7 +251,13 @@ async function handleRequest(request, env) {
     const level = Math.floor(mem.xp/50)+1;
     const agentLevels = {};
     Object.entries(mem.agentXp).forEach(([id,xp])=>{ agentLevels[id]=Math.floor(xp/10)+1; });
-    return json({ xp: mem.xp, level, agentXp: mem.agentXp, agentLevels, keywords: mem.keywords, aiEnabled: !!env.GEMINI_KEY, running: true });
+    let feedCount = 0;
+    try { feedCount = ((await env.DB.prepare('SELECT COUNT(*) as n FROM feed').first())?.n)||0; } catch(_){}
+    let aiCount = 0;
+    try { aiCount = ((await env.DB.prepare('SELECT COUNT(*) as n FROM feed WHERE is_ai=1').first())?.n)||0; } catch(_){}
+    return json({ xp: mem.xp, level, agentXp: mem.agentXp, agentLevels, keywords: mem.keywords,
+      aiEnabled: !!env.GEMINI_KEY, running: true, feedCount, aiCount,
+      topKeywords: Object.keys(mem.keywords).sort((a,b)=>mem.keywords[b]-mem.keywords[a]).slice(0,8) });
   }
 
   if (url.pathname === '/api/trades') {
