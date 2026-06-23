@@ -16,7 +16,7 @@ body{display:flex;flex-direction:column}
   background:#000;flex-shrink:0;z-index:20
 }
 .hdr-l{display:flex;align-items:center;gap:10px}
-.logo{font-size:12px;font-weight:900;letter-spacing:.35em;color:#fff}
+.logo{font-size:12px;font-weight:900;letter-spacing:.35em;color:#fff;cursor:pointer;user-select:none}
 .day-time{display:flex;align-items:center;gap:6px}
 .day-badge{font-size:8px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:2px 6px;font-family:monospace}
 .hdr-r{display:flex;align-items:center;gap:8px}
@@ -28,16 +28,21 @@ body{display:flex;flex-direction:column}
 /* ═══ MAIN SPLIT ═══ */
 #main{flex:1;display:flex;overflow:hidden;min-height:0}
 
-/* ── LEFT PANEL (chat) ── */
+/* ── LEFT PANEL → moved to right side ── */
 #left{
-  width:260px;flex-shrink:0;display:flex;flex-direction:column;
-  border-right:1px solid rgba(255,255,255,.06);background:#000;
+  width:230px;flex-shrink:0;display:flex;flex-direction:column;
+  border-left:1px solid rgba(255,255,255,.06);background:#000;order:2;
 }
-/* On narrow mobile, left hides unless feed tab active */
+/* Cross-talk panel */
+#right-cross{
+  width:210px;flex-shrink:0;display:flex;flex-direction:column;
+  border-left:1px solid rgba(255,255,255,.06);background:#000;order:3;
+}
 @media(max-width:640px){
   #left{display:none;position:fixed;inset:42px 0 52px;width:100%;z-index:15;background:#000}
   #left.mob-on{display:flex}
   #right{flex:1}
+  #right-cross{display:none}
 }
 
 .panel-hdr{
@@ -76,7 +81,7 @@ body{display:flex;flex-direction:column}
 .fi-tag{font-size:7px;letter-spacing:.04em;color:rgba(255,255,255,.25);margin-top:2px;display:block}
 
 /* ── RIGHT PANEL (office) ── */
-#right{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#000}
+#right{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#000;order:1}
 
 /* Office top bar */
 #office-bar{
@@ -128,7 +133,7 @@ body{display:flex;flex-direction:column}
 .spr.is-ceo .spr-body{width:26px;height:26px;font-size:14px;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.07)}
 .spr.active .spr-body{border-color:rgba(255,255,255,.4);box-shadow:0 0 8px rgba(255,255,255,.12)}
 .spr.walking .spr-body{animation:spr-walk .5s steps(2,end) infinite}
-.spr-shad{width:14px;height:3px;background:rgba(0,0,0,.5);border-radius:50%;margin-top:1px}
+.spr-shad{width:28px;height:5px;background:rgba(0,0,0,.45);border-radius:50%;margin-top:1px}
 .spr-sprite{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
 .spr.face-l .spr-sprite{transform:scaleX(-1)}
 .spr.walking .spr-sprite{animation:spr-walk .45s steps(2,end) infinite}
@@ -174,8 +179,8 @@ body{display:flex;flex-direction:column}
 .mile-dot{width:6px;height:6px;border-radius:50%;background:#4060ff;flex-shrink:0;margin-top:3px}
 .mile-txt{font-size:8px;color:rgba(255,255,255,.5);flex:1;line-height:1.5}
 .mile-ts{font-size:7px;color:rgba(255,255,255,.18);font-family:monospace;white-space:nowrap}
-.spr.is-ceo .spr-shad{width:18px}
-.spr-lbl{font-size:6px;font-weight:700;letter-spacing:.04em;color:rgba(255,255,255,.6);white-space:nowrap}
+.spr.is-ceo .spr-shad{width:36px}
+.spr-lbl{font-size:7px;font-weight:700;letter-spacing:.04em;color:rgba(255,255,255,.7);white-space:nowrap}
 .spr.active .spr-lbl{color:#fff}
 @keyframes spr-idle{0%{transform:translateY(0)}50%{transform:translateY(-2px)}}
 @keyframes spr-walk{0%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-3px) rotate(6deg)}}
@@ -231,6 +236,16 @@ body{display:flex;flex-direction:column}
 .ar-lv{font-size:8px;color:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.08);border-radius:2px;padding:1px 5px;font-family:monospace}
 
 .loading{padding:20px;text-align:center;color:rgba(255,255,255,.15);font-size:9px;letter-spacing:.1em}
+.cross-legend{padding:5px 12px;border-bottom:1px solid rgba(255,255,255,.04)}
+.cl-item{font-size:7px;color:rgba(255,180,60,.4);letter-spacing:.04em}
+.cross-fi{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.03);cursor:default}
+.cross-fi:hover{background:rgba(255,255,255,.02)}
+.cross-from{font-size:7px;font-weight:700;color:rgba(255,255,255,.7)}
+.cross-arrow{font-size:7px;color:rgba(255,180,60,.7);margin:0 3px}
+.cross-to{font-size:7px;font-weight:700;color:rgba(255,255,255,.5)}
+.cross-msg{font-size:8px;color:rgba(255,255,255,.5);margin-top:3px;line-height:1.4}
+.cross-ts{font-size:6px;color:rgba(255,255,255,.15);font-family:monospace;float:right}
+.cross-reply{background:rgba(255,180,60,.04);border-left:2px solid rgba(255,180,60,.3);padding-left:8px;margin-top:3px}
 </style>
 </head>
 <body>
@@ -299,6 +314,18 @@ body{display:flex;flex-direction:column}
         <div id="char-layer"></div>
       </div>
     </div>
+  </div>
+
+  <!-- RIGHT 2: CROSS-TALK -->
+  <div id="right-cross">
+    <div class="panel-hdr">
+      <div class="panel-ttl">CROSS-TALK</div>
+      <div class="feed-cnt" id="cross-cnt">0</div>
+    </div>
+    <div class="cross-legend">
+      <span class="cl-item">↔ 에이전트 간 대화</span>
+    </div>
+    <div class="feed-list" id="cross-list"><div class="loading">대기 중…</div></div>
   </div>
 
 </div><!-- /main -->
@@ -473,193 +500,152 @@ function drawOffice() {
   canvas.width = CW; canvas.height = CH;
   const ctx = canvas.getContext('2d');
 
-  const MX=190, LW=186, RX=194, RW=182;
-
-  // 1. Full warm wood floor
+  // ── ONE UNIFIED WARM WOOD FLOOR ──
   for(var py=0;py<CH;py+=8){
-    ctx.fillStyle=(py/8|0)%2===0?'#c09560':'#caaa72';
+    var row=py/8|0;
+    ctx.fillStyle=row%3===0?'#c8a468':row%3===1?'#be9858':'#c8a060';
     ctx.fillRect(0,py,CW,8);
   }
-  // Vertical plank joints
-  ctx.fillStyle='rgba(100,55,15,0.18)';
-  for(var px=0;px<CW;px+=24) ctx.fillRect(px,0,1,CH);
-  // Horizontal plank joints every 8px are already the row color changes
-  // Extra subtle horizontal lines
-  ctx.fillStyle='rgba(0,0,0,0.06)';
+  // plank grain lines
+  ctx.fillStyle='rgba(70,35,8,.09)';
+  for(var px=0;px<CW;px+=22) ctx.fillRect(px,0,1,CH);
+  ctx.fillStyle='rgba(0,0,0,.04)';
   for(var py=0;py<CH;py+=8) ctx.fillRect(0,py,CW,1);
+  // subtle ambient warmth in center
+  var grd=ctx.createRadialGradient(CW/2,CH/2,40,CW/2,CH/2,220);
+  grd.addColorStop(0,'rgba(255,200,100,.06)');grd.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=grd;ctx.fillRect(0,0,CW,CH);
 
-  // 2. Outer border frame
-  ctx.fillStyle='#1c0e06';
-  ctx.fillRect(0,0,CW,6);ctx.fillRect(0,CH-6,CW,6);
-  ctx.fillRect(0,0,6,CH);ctx.fillRect(CW-6,0,6,CH);
-  ctx.strokeStyle='rgba(255,180,80,0.2)';ctx.lineWidth=1.5;
-  ctx.strokeRect(6,6,CW-12,CH-12);
+  // outer frame
+  ctx.fillStyle='#180e04';
+  ctx.fillRect(0,0,CW,4);ctx.fillRect(0,CH-4,CW,4);
+  ctx.fillRect(0,0,4,CH);ctx.fillRect(CW-4,0,4,CH);
 
-  // 3. Zone area rugs (NO walls, just colored areas)
-  function zoneRug(x,y,w,h,r,g,b){
-    ctx.fillStyle='rgba('+r+','+g+','+b+',0.13)';
-    ctx.fillRect(x,y,w,h);
-    ctx.strokeStyle='rgba('+r+','+g+','+b+',0.28)';
-    ctx.lineWidth=1.5;
-    ctx.strokeRect(x+4,y+4,w-8,h-8);
-    ctx.strokeStyle='rgba('+r+','+g+','+b+',0.1)';
-    ctx.lineWidth=0.5;
-    ctx.strokeRect(x+8,y+8,w-16,h-16);
-  }
-  zoneRug(10,8, CW-20,104, 140,80,255);   // CEO: purple
-  zoneRug(10,116,LW-4, 100, 255,70,50);   // Trading: red
-  zoneRug(RX, 116,RW-4, 100, 50,110,240); // Research: blue
-  zoneRug(10,220,LW-4, 100, 30,170,70);   // Dev: green
-  zoneRug(RX, 220,RW-4, 100, 240,140,30); // Risk: orange
-  zoneRug(10,324,LW-4, 90,  210,50,150);  // Marketing: pink
-  zoneRug(RX, 324,RW-4, 90,  190,170,30); // Finance: gold
-  zoneRug(10,418,LW-4, 104, 30,170,170);  // CS: teal
-  zoneRug(RX, 418,RW-4, 104, 190,40,40);  // Security: red
-
-  // 4. Furniture helpers
-  function shd(x,y,w,h){ctx.fillStyle='rgba(0,0,0,0.4)';ctx.fillRect(x+2,y+2,w,h);}
+  // ── FURNITURE HELPERS ──
+  function shd(x,y,w,h){ctx.fillStyle='rgba(0,0,0,.32)';ctx.fillRect(x+2,y+2,w,h);}
   function desk(x,y,w,h,col){
-    col=col||'#7a4e28';shd(x,y,w,h);
+    col=col||'#8a5c30';shd(x,y,w,h);
     ctx.fillStyle=col;ctx.fillRect(x,y,w,h);
-    ctx.fillStyle='rgba(255,210,130,0.28)';ctx.fillRect(x+1,y+1,w-2,2);
-    ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(x+w-2,y,2,h);ctx.fillRect(x,y+h-2,w,2);
+    ctx.fillStyle='rgba(255,200,100,.18)';ctx.fillRect(x+1,y+1,w-2,2);
+    ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(x+w-2,y,2,h);ctx.fillRect(x,y+h-2,w,2);
   }
   function monitor(x,y){
-    ctx.fillStyle='#181828';ctx.fillRect(x,y,15,12);
-    ctx.fillStyle='#030a1c';ctx.fillRect(x+1,y+1,13,9);
-    ctx.fillStyle='rgba(20,80,230,0.45)';ctx.fillRect(x+1,y+1,13,9);
-    ctx.fillStyle='rgba(0,220,255,1)';ctx.fillRect(x+2,y+2,8,1);
-    ctx.fillStyle='rgba(0,180,255,0.55)';ctx.fillRect(x+2,y+4,5,1);ctx.fillRect(x+2,y+6,9,1);
-    ctx.fillStyle='#00ff88';ctx.fillRect(x+13,y+2,1,1);
-    ctx.fillStyle='#252535';ctx.fillRect(x+6,y+12,3,3);ctx.fillRect(x+3,y+15,9,2);
+    ctx.fillStyle='#0f0f1c';ctx.fillRect(x,y,16,11);
+    ctx.fillStyle='#050a1a';ctx.fillRect(x+1,y+1,14,8);
+    ctx.fillStyle='rgba(20,70,220,.5)';ctx.fillRect(x+1,y+1,14,8);
+    ctx.fillStyle='rgba(0,220,255,1)';ctx.fillRect(x+2,y+2,9,1);
+    ctx.fillStyle='rgba(0,180,255,.5)';ctx.fillRect(x+2,y+4,5,1);ctx.fillRect(x+2,y+6,9,1);
+    ctx.fillStyle='#00ff88';ctx.fillRect(x+14,y+2,1,1);
+    ctx.fillStyle='#1a1a28';ctx.fillRect(x+6,y+11,4,2);ctx.fillRect(x+3,y+13,10,2);
   }
   function chair(x,y,r,g,b){
-    shd(x,y,12,12);ctx.fillStyle='rgb('+r+','+g+','+b+')';ctx.fillRect(x,y,12,12);
-    ctx.fillStyle='rgba('+Math.min(255,r+55)+','+Math.min(255,g+55)+','+Math.min(255,b+55)+',0.35)';
-    ctx.fillRect(x+2,y+3,8,7);
-    ctx.fillStyle='rgba(255,255,255,0.1)';ctx.fillRect(x+1,y+1,10,2);
-    ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(x+1,y+10,10,2);
+    shd(x,y,13,13);ctx.fillStyle='rgb('+r+','+g+','+b+')';ctx.fillRect(x,y,13,13);
+    ctx.fillStyle='rgba('+Math.min(255,r+55)+','+Math.min(255,g+55)+','+Math.min(255,b+55)+',.3)';
+    ctx.fillRect(x+2,y+3,9,7);
   }
   function plant(x,y,big){
-    var s=big?1.3:1;
-    ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(x-(5*s|0),y+2,(10*s|0),(8*s|0));
-    ctx.fillStyle='#b85020';ctx.fillRect(x-(4*s|0),y,(8*s|0),(7*s|0));
-    ctx.fillStyle='rgba(255,140,60,0.35)';ctx.fillRect(x-(4*s|0),y,(8*s|0),2);
-    ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(x-(4*s|0),y+(5*s|0),(8*s|0),2);
-    ctx.fillStyle='#1a6820';ctx.beginPath();ctx.arc(x,y-(6*s|0),8*s,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#228b22';
-    ctx.beginPath();ctx.arc(x-(5*s|0),y-(3*s|0),5*s,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(x+(5*s|0),y-(3*s|0),5*s,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#32cd32';ctx.beginPath();ctx.arc(x,y-(9*s|0),4*s,0,Math.PI*2);ctx.fill();
+    var s=big?1.5:1;
+    ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(x-Math.round(6*s),y-2,Math.round(12*s),4);
+    ctx.fillStyle='#5a3a18';ctx.fillRect(x-Math.round(3*s),y-Math.round(5*s),Math.round(6*s),Math.round(5*s));
+    ctx.fillStyle='rgba(25,80,18,.95)';ctx.fillRect(x-Math.round(10*s),y-Math.round(20*s),Math.round(20*s),Math.round(17*s));
+    ctx.fillStyle='rgba(18,140,18,.7)';ctx.fillRect(x-Math.round(7*s),y-Math.round(26*s),Math.round(14*s),Math.round(12*s));
+    ctx.fillStyle='rgba(40,200,30,.5)';ctx.fillRect(x-Math.round(4*s),y-Math.round(30*s),Math.round(9*s),Math.round(8*s));
   }
   function server(x,y){
-    shd(x,y,14,32);ctx.fillStyle='#101018';ctx.fillRect(x,y,14,32);
-    ctx.fillStyle='rgba(60,60,180,0.65)';ctx.fillRect(x,y,14,3);
-    for(var i=0;i<5;i++){
-      ctx.fillStyle='#080810';ctx.fillRect(x+1,y+4+i*5,12,3);
-      ctx.fillStyle=i%2===0?'#00ff44':'#002d10';ctx.fillRect(x+2,y+5+i*5,2,1);
-      if(i%2===0){ctx.fillStyle='rgba(0,255,60,0.22)';ctx.fillRect(x+1,y+4+i*5,5,3);}
-    }
+    shd(x,y,22,34);ctx.fillStyle='#151525';ctx.fillRect(x,y,22,34);
+    ctx.fillStyle='#21213a';
+    ctx.fillRect(x+2,y+2,18,5);ctx.fillRect(x+2,y+9,18,5);ctx.fillRect(x+2,y+16,18,5);ctx.fillRect(x+2,y+23,18,5);
+    ctx.fillStyle='#00ff44';[4,11,18,25].forEach(function(dy){ctx.fillRect(x+17,y+dy+1,2,2);});
+    ctx.fillStyle='#0055ff';ctx.fillRect(x+3,y+3,7,2);ctx.fillRect(x+3,y+10,7,2);
   }
   function whiteboard(x,y,w,h){
-    shd(x,y,w,h);ctx.fillStyle='#4a2810';ctx.fillRect(x,y,w,h);
-    ctx.fillStyle='#eeeae0';ctx.fillRect(x+3,y+3,w-6,h-6);
-    ctx.fillStyle='rgba(20,50,170,0.6)';ctx.fillRect(x+5,y+7,w-16,2);
-    ctx.fillStyle='rgba(20,50,170,0.38)';ctx.fillRect(x+5,y+11,w-20,2);ctx.fillRect(x+5,y+15,w-13,2);
-    ctx.fillStyle='rgba(200,30,30,0.65)';ctx.fillRect(x+w-14,y+h-11,3,7);
-    ctx.fillStyle='rgba(30,100,200,0.65)';ctx.fillRect(x+w-10,y+h-8,3,4);
-    ctx.fillStyle='rgba(30,170,30,0.65)';ctx.fillRect(x+w-18,y+h-14,3,10);
-    ctx.fillStyle='#c0b080';ctx.fillRect(x+3,y+h-5,w-6,2);
+    shd(x,y,w,h);ctx.fillStyle='#1e1e2e';ctx.fillRect(x,y,w,h);
+    ctx.fillStyle='#f0f0ff';ctx.fillRect(x+2,y+2,w-4,h-4);
+    ctx.fillStyle='rgba(60,90,220,.5)';ctx.fillRect(x+4,y+5,w-12,2);ctx.fillRect(x+4,y+9,w-18,2);ctx.fillRect(x+4,y+13,w-10,2);
+    ctx.fillStyle='rgba(220,50,50,.5)';ctx.fillRect(x+8,y+17,12,8);ctx.fillRect(x+22,y+17,6,8);
   }
-  function confTable(cx,cy,rx,ry){
-    ctx.fillStyle='rgba(0,0,0,0.45)';ctx.beginPath();ctx.ellipse(cx+3,cy+4,rx,ry,0,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#3d1e08';ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle='rgba(210,150,50,0.9)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);ctx.stroke();
-    ctx.strokeStyle='rgba(210,150,50,0.25)';ctx.lineWidth=0.8;ctx.beginPath();ctx.ellipse(cx,cy,rx-6,ry-5,0,0,Math.PI*2);ctx.stroke();
-  }
-  function shelf(x,y,w,h){
-    shd(x,y,w,h);ctx.fillStyle='#5c3820';ctx.fillRect(x,y,w,h);
-    var C=['#e84040','#4080e8','#e8d040','#40b840','#c040c8','#e88040'];
-    var bw=Math.max(3,Math.floor((w-4)/4));
-    for(var row=0;row<3;row++){
-      ctx.fillStyle='rgba(0,0,0,0.22)';ctx.fillRect(x+2,y+4+row*10,w-4,6);
-      for(var j=0;j<Math.floor((w-4)/bw);j++){ctx.fillStyle=C[(row*3+j)%C.length];ctx.fillRect(x+2+j*bw,y+5+row*10,bw-2,5);}
-    }
-    ctx.fillStyle='rgba(0,0,0,0.4)';for(var row=1;row<3;row++)ctx.fillRect(x,y+row*10+3,w,2);
+  function confTable(x,y,w,h){
+    shd(x,y,w,h);ctx.fillStyle='#6b3c1c';ctx.fillRect(x,y,w,h);
+    ctx.fillStyle='rgba(255,200,100,.14)';ctx.fillRect(x+2,y+2,w-4,2);
+    ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(x+w-3,y,3,h);ctx.fillRect(x,y+h-3,w,3);
   }
   function couch(x,y,w,h,r,g,b){
-    shd(x,y,w,h);
-    ctx.fillStyle='rgb('+(r*.65|0)+','+(g*.65|0)+','+(b*.65|0)+')';ctx.fillRect(x,y,w,(h*.35|0));
-    ctx.fillStyle='rgb('+r+','+g+','+b+')';ctx.fillRect(x,y+(h*.35|0),w,h-(h*.35|0));
-    ctx.fillStyle='rgba(255,255,255,0.14)';ctx.fillRect(x+2,y+(h*.35|0)+2,w-4,3);
+    shd(x,y,w,h+3);ctx.fillStyle='rgb('+r+','+g+','+b+')';ctx.fillRect(x,y,w,h);
+    ctx.fillStyle='rgba('+Math.min(255,r+40)+','+Math.min(255,g+40)+','+Math.min(255,b+40)+',.35)';
+    ctx.fillRect(x+3,y+3,w-6,Math.floor(h/2));
   }
 
-  // ── CEO ZONE ──
-  var z1=10;
-  ctx.strokeStyle='rgba(160,100,255,0.28)';ctx.lineWidth=1;ctx.strokeRect(MX-74,z1+14,148,78);
-  confTable(MX,z1+54,56,27);
-  for(var i=0;i<8;i++){var a=(i/8)*Math.PI*2-Math.PI/2;chair(MX+Math.cos(a)*70-6,z1+54+Math.sin(a)*39-6,85,65,165);}
-  desk(12,z1+6,64,16);monitor(14,z1+2);monitor(32,z1+2);chair(38,z1+22,85,65,165);
-  whiteboard(CW-68,z1+6,54,34);
-  plant(14,z1+94,true);plant(CW-14,z1+94,true);plant(CW-14,z1+8,false);
+  // ── ONE OPEN OFFICE — FURNITURE LAYOUT ──
+  var MX=192; // midpoint X (no wall, just reference)
 
-  // ── TRADING ──
-  var z2=118;
-  desk(12,z2+20,LW-4,16,'#5a2808');
-  for(var i=0;i<4;i++)monitor(14+i*23,z2+16);
-  for(var i=0;i<4;i++)chair(15+i*23,z2+36,180,50,40);
-  whiteboard(12,z2+62,52,34);plant(LW-12,z2+64,false);
+  // EXECUTIVE: wide conference table, top center
+  var z0=16;
+  confTable(CW/2-60,z0+4,120,38);
+  for(var i=0;i<6;i++) chair(CW/2-54+i*19,z0+1,48,48,65);
+  for(var i=0;i<6;i++) chair(CW/2-54+i*19,z0+43,48,48,65);
+  whiteboard(8,z0+4,54,38); whiteboard(CW-62,z0+4,54,38);
+  plant(6,z0+58); plant(CW-6,z0+58);
 
-  // ── RESEARCH ──
-  desk(RX+2,z2+20,RW-4,16);
-  for(var i=0;i<3;i++)monitor(RX+4+i*24,z2+16);
-  for(var i=0;i<3;i++)chair(RX+5+i*24,z2+36,50,90,200);
-  shelf(CW-26,z2+62,20,36);plant(RX+4,z2+64,false);plant(RX+4,z2+84,false);
+  // TRADING: desk cluster, left mid
+  var z1=118;
+  desk(10,z1,48,14,'#5a3010');desk(62,z1,48,14,'#5a3010');desk(114,z1,48,14,'#5a3010');
+  monitor(12,z1-13);monitor(64,z1-13);monitor(116,z1-13);
+  chair(12,z1+14,75,28,28);chair(64,z1+14,75,28,28);chair(116,z1+14,75,28,28);
+  desk(10,z1+46,48,14,'#5a3010');desk(62,z1+46,48,14,'#5a3010');
+  monitor(12,z1+33);monitor(64,z1+33);
+  chair(12,z1+60,75,28,28);chair(64,z1+60,75,28,28);
 
-  // ── DEV/INFRA ──
-  var z3=222;
-  server(12,z3+10);server(28,z3+10);
-  desk(46,z3+12,LW-38,14,'#3a2510');
-  for(var i=0;i<3;i++)monitor(48+i*22,z3+8);
-  for(var i=0;i<3;i++)chair(50+i*22,z3+26,30,140,70);
-  desk(12,z3+58,LW-4,14,'#3a2510');
-  for(var i=0;i<2;i++)monitor(14+i*24,z3+54);
-  for(var i=0;i<2;i++)chair(15+i*24,z3+72,30,140,70);
+  // RESEARCH: desk cluster, right mid
+  desk(MX+4,z1,48,14,'#1a3e5a');desk(MX+56,z1,48,14,'#1a3e5a');desk(MX+108,z1,48,14,'#1a3e5a');
+  monitor(MX+6,z1-13);monitor(MX+58,z1-13);monitor(MX+110,z1-13);
+  chair(MX+6,z1+14,28,28,80);chair(MX+58,z1+14,28,28,80);chair(MX+110,z1+14,28,28,80);
+  whiteboard(MX+4,z1+42,80,28);
 
-  // ── RISK ──
-  whiteboard(RX+2,z3+10,52,32);
-  desk(RX+2,z3+56,RW-4,14);
-  for(var i=0;i<3;i++)monitor(RX+4+i*24,z3+52);
-  for(var i=0;i<3;i++)chair(RX+5+i*24,z3+70,200,120,30);
+  // DEV: servers + desks, left lower-mid
+  var z2=228;
+  server(10,z2);server(35,z2);server(60,z2);
+  desk(90,z2,52,14,'#222230');desk(90,z2+28,52,14,'#222230');
+  monitor(92,z2-13);monitor(92,z2+15);
+  chair(92,z2+14,28,28,30);chair(92,z2+42,28,28,30);
 
-  // ── MARKETING ──
-  var z4=326;
-  desk(12,z4+16,LW-4,14,'#5a1840');
-  for(var i=0;i<3;i++)monitor(14+i*24,z4+12);
-  for(var i=0;i<3;i++)chair(15+i*24,z4+30,180,50,130);
-  couch(12,z4+56,58,16,160,70,120);
-  plant(74,z4+56,false);plant(LW-12,z4+56,false);
+  // RISK: monitor wall, right lower-mid
+  desk(MX+4,z2,68,14,'#481818');desk(MX+4,z2+28,68,14,'#481818');
+  monitor(MX+6,z2-13);monitor(MX+36,z2-13);monitor(MX+6,z2+15);monitor(MX+36,z2+15);
+  chair(MX+6,z2+14,100,28,28);chair(MX+38,z2+14,100,28,28);
+  chair(MX+6,z2+42,100,28,28);chair(MX+38,z2+42,100,28,28);
+  whiteboard(MX+86,z2,58,52);
 
-  // ── FINANCE ──
-  desk(RX+2,z4+16,RW-4,14,'#1e3a18');
-  for(var i=0;i<2;i++)monitor(RX+4+i*24,z4+12);
-  for(var i=0;i<2;i++)chair(RX+5+i*24,z4+30,50,120,50);
-  shelf(CW-26,z4+8,20,70);
+  // MARKETING: couch cluster, left lower
+  var z3=334;
+  couch(10,z3,60,18,100,28,60);couch(10,z3+26,60,18,120,38,80);
+  desk(76,z3,42,14,'#6a1c60');desk(76,z3+26,42,14,'#6a1c60');
+  monitor(78,z3-13);monitor(78,z3+13);
+  chair(78,z3+14,115,38,90);chair(78,z3+40,115,38,90);
+  plant(158,z3+30);
 
-  // ── CS/LEGAL ──
-  var z5=420;
-  desk(12,z5+14,(LW/2)-4,14);desk(12+(LW/2),z5+14,(LW/2)-8,14);
-  monitor(14,z5+10);monitor(14+(LW/2),z5+10);
-  chair(15,z5+28,30,160,160);chair(15+(LW/2),z5+28,30,160,160);
+  // FINANCE: desk rows, right lower
+  desk(MX+4,z3,48,14,'#2c481a');desk(MX+56,z3,48,14,'#2c481a');
+  desk(MX+4,z3+28,48,14,'#2c481a');desk(MX+56,z3+28,48,14,'#2c481a');
+  monitor(MX+6,z3-13);monitor(MX+58,z3-13);monitor(MX+6,z3+15);monitor(MX+58,z3+15);
+  chair(MX+6,z3+14,38,65,18);chair(MX+58,z3+14,38,65,18);
+  chair(MX+6,z3+42,38,65,18);chair(MX+58,z3+42,38,65,18);
 
-  // ── SECURITY ──
-  server(RX+2,z5+8);server(RX+18,z5+8);server(RX+34,z5+8);
-  desk(RX+54,z5+14,RW-58,14,'#1a0606');
-  monitor(RX+56,z5+10);monitor(RX+78,z5+10);
-  chair(RX+57,z5+28,160,30,30);chair(RX+79,z5+28,160,30,30);
+  // CS: couch + desk, left bottom
+  var z4=430;
+  couch(10,z4+8,70,20,18,56,80);
+  desk(86,z4,50,14,'#0e3e3e');desk(86,z4+30,50,14,'#0e3e3e');
+  monitor(88,z4-13);monitor(88,z4+17);
+  chair(88,z4+14,18,78,78);chair(88,z4+44,18,78,78);
 
-  // Corner plants
-  plant(14,CH-14,true);plant(CW-14,CH-14,true);
+  // SECURITY: server rack + desk, right bottom
+  server(MX+4,z4);server(MX+28,z4);server(MX+52,z4);
+  desk(MX+82,z4,60,14,'#380808');desk(MX+82,z4+30,60,14,'#380808');
+  monitor(MX+84,z4-13);monitor(MX+84,z4+17);
+  chair(MX+84,z4+14,100,18,18);chair(MX+84,z4+44,100,18,18);
+
+  // corner plants
+  plant(10,CH-12,true);plant(CW-10,CH-12,true);
+  plant(10,78,false);plant(CW-10,78,false);
 }
 
 // ═══════════════════════════════════════
@@ -684,7 +670,7 @@ const SPRITES = {
 function agentSVG(id) {
   var c=SPRITES[id]||{h:'#333',s:'#fdc',b:'#446',p:'#223',sh:'#111'};
   var H=c.h,S=c.s,B=c.b,P=c.p,SH=c.sh;
-  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 32" width="20" height="32">'
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 32" width="40" height="64">'
     +'<ellipse cx="10" cy="31" rx="7" ry="1.5" fill="rgba(0,0,0,.28)"/>'
     +'<rect x="6" y="27" width="3" height="3" rx="1" fill="'+SH+'"/>'
     +'<rect x="11" y="27" width="3" height="3" rx="1" fill="'+SH+'"/>'
@@ -878,8 +864,24 @@ function prependFeedMsg(agentId, ic, team, msg, tag) {
     +(tag?'<span class="fi-tag '+(tag==='cross'?'cross-tag':'ai-tag')+'">'+(tag==='cross'?'↔ CROSS-TALK':'✦ GEMINI')+'</span>':'')
     +'</div>';
   fl.insertBefore(div, fl.firstChild);
-  // Trim feed to 60 items
   while (fl.children.length > 60) fl.removeChild(fl.lastChild);
+  // Also push cross-talk to dedicated panel
+  if (tag === 'cross') {
+    var cl = document.getElementById('cross-list');
+    if (cl) {
+      var cdiv = document.createElement('div');
+      cdiv.className = 'cross-fi';
+      cdiv.innerHTML = '<div><span class="cross-from">'+agentId+'</span>'
+        +'<span class="cross-arrow">→</span>'
+        +'<span class="cross-ts">'+ts+'</span></div>'
+        +'<div class="cross-msg">'+msg+'</div>';
+      cl.insertBefore(cdiv, cl.firstChild);
+      if (cl.children[0] && cl.children[0].className === 'loading') cl.removeChild(cl.children[0]);
+      while (cl.children.length > 30) cl.removeChild(cl.lastChild);
+      var cnt = document.getElementById('cross-cnt');
+      if (cnt) cnt.textContent = cl.children.length;
+    }
+  }
 }
 
 // ═══════════════════════════════════════
@@ -926,7 +928,9 @@ function renderAgents(agentXp) {
       +'<div class="ag-tags">'+tags+'</div>'
       +'</div></div>';
   }).join('');
-  var avgLv = Math.floor(totalXp/130)+1;
+  var xpVals = agentXp ? Object.values(agentXp) : [];
+  var avgXp = xpVals.length ? Math.floor(xpVals.reduce(function(s,v){return s+v;},0)/xpVals.length) : 0;
+  var avgLv = Math.floor(avgXp/10)+1;
   var e1=document.getElementById('ag-avglv'); if(e1) e1.textContent='LV '+avgLv;
   var e2=document.getElementById('ag-xp'); if(e2) e2.textContent=totalXp;
   // Also update settings panel levels
@@ -1048,6 +1052,15 @@ async function loadGH(){
         if(repo==='ayilon-virtual-office'){
           setAction('FORGE','commit: '+m.slice(0,40),false,false);
           setAction('ATLAS',repo+' '+w+' ago 배포',false,false);
+          // Push to cross-list
+          var cl=document.getElementById('cross-list');
+          if(cl){
+            var d2=document.createElement('div'); d2.className='cross-fi';
+            d2.innerHTML='<div><span class="cross-from">FORGE</span><span class="cross-arrow">→</span><span class="cross-to">ATLAS</span><span class="cross-ts">GitHub</span></div>'
+              +'<div class="cross-msg">✦ '+m.slice(0,50)+'</div>';
+            if(cl.firstChild&&cl.firstChild.className==='loading')cl.innerHTML='';
+            cl.insertBefore(d2,cl.firstChild);
+          }
         }
       }
     }catch(_){chip.className='ob-chip warn';}
@@ -1247,6 +1260,14 @@ drawOffice();
 buildChars();
 tick();
 loadAll();
+// Logo click → home
+document.querySelector('.logo').addEventListener('click', function(){
+  hideOverlay();
+  document.getElementById('left').classList.remove('mob-on');
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});
+  var nbo = document.getElementById('nb-office');
+  if(nbo) nbo.classList.add('on');
+});
 loadGH();
 
 setInterval(walkOne, 3500);
