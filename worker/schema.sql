@@ -37,6 +37,16 @@ CREATE TABLE IF NOT EXISTS trades (
   closed_at   INTEGER
 );
 
+CREATE TABLE IF NOT EXISTS files (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  agent_id   TEXT    NOT NULL,
+  agent_name TEXT    NOT NULL,
+  filename   TEXT    NOT NULL,
+  filetype   TEXT    NOT NULL DEFAULT 'report',
+  content    TEXT    NOT NULL,
+  created_at INTEGER NOT NULL DEFAULT (unixepoch())
+);
+
 CREATE TABLE IF NOT EXISTS signals (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   strategy    TEXT    NOT NULL,

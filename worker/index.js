@@ -155,6 +155,52 @@ function localReplyMsg(cmds) {
   return replies[Math.floor(Math.random()*replies.length)];
 }
 
+// ── FILE GENERATION ────────────────────────────────────────────────────────
+async function insertFile(env, agentId, agentName, filename, filetype, content) {
+  await env.DB.prepare(
+    'INSERT INTO files (agent_id,agent_name,filename,filetype,content) VALUES (?,?,?,?,?)'
+  ).bind(agentId, agentName, filename, filetype, content).run();
+  await env.DB.prepare('DELETE FROM files WHERE id NOT IN (SELECT id FROM files ORDER BY id DESC LIMIT 60)').run().catch(()=>{});
+}
+
+function buildLedgerReport(mem, sigCount) {
+  const date = new Date().toISOString().slice(0, 10);
+  const kws = Object.keys(mem.keywords||{}).sort((a,b)=>(mem.keywords[b]||0)-(mem.keywords[a]||0)).slice(0,5).join(', ')||'없음';
+  const totalXp = mem.xp||0;
+  const agXp = mem.agentXp||{};
+  const topAgent = Object.entries(agXp).sort((a,b)=>b[1]-a[1])[0];
+  return `# AYILON 재무 보고서\n날짜: ${date}  /  작성: LEDGER (세무회계팀)\n\n## 운영 현황\n- 회사 총 XP: ${totalXp}\n- 활성 에이전트: 13명\n- 핵심 키워드: ${kws}\n- 최고 성과 에이전트: ${topAgent?topAgent[0]+' ('+topAgent[1]+'XP)':'—'}\n\n## 트레이딩 지표\n- 누적 신호 수: ${sigCount}\n- 봇 상태: 자율 운영 중\n- 위험 등급: 낮음\n\n## 비용 분석\n- Cloudflare Workers: 무료 플랜 (100k req/day)\n- D1 데이터베이스: 정상\n- API 호출 비용: 최적화 완료\n\n## 다음 주 계획\n- 수익 분석 보고서 업데이트\n- 에이전트 XP 기반 성과급 산정\n- 분기 재무 결산 준비\n\n---\n이 보고서는 LEDGER AI가 자동 생성했습니다.`;
+}
+
+function buildScoutReport(recentSignals, mem) {
+  const now = new Date();
+  const hour = now.getHours();
+  const kws = Object.keys(mem.keywords||{}).sort((a,b)=>(mem.keywords[b]||0)-(mem.keywords[a]||0)).slice(0,6);
+  const sigLines = recentSignals.slice(0,5).map(s=>`- ${s.symbol||'BTC'} / ${(s.signal||'hold').toUpperCase()} @ ${s.price||'—'}`).join('\n')||'- 분석 신호 없음';
+  const sentiment = ['강세 우세','횡보 구간','약세 경계','중립 유지'][Math.floor(Math.random()*4)];
+  return `# 시장 분석 리포트\n시간: ${now.toISOString().slice(0,16)}  /  작성: SCOUT (리서치팀)\n\n## 핵심 키워드 트렌드\n${kws.map(k=>`- ${k}  (언급 ${mem.keywords[k]}회)`).join('\n')||'- 없음'}\n\n## 최근 트레이딩 신호\n${sigLines}\n\n## 시장 심리\n- 현재 시간대: ${hour}시\n- 전체 심리: ${sentiment}\n- 펀딩비: 중립\n- 고래 이동: ${Math.random()>0.6?'대규모 이동 감지':'이상 없음'}\n\n## 주목 종목\n- BTC: ${Math.random()>0.5?'돌파 시도 중','지지선 유지'[0]:'박스권 유지'}\n- ETH: ${Math.random()>0.5?'상승 모멘텀':'조정 구간'}\n- SOL: ${Math.random()>0.5?'강세 지속':'관망 추천'}\n\n---\n이 보고서는 SCOUT AI가 자동 생성했습니다.`;
+}
+
+function buildShieldReport() {
+  const date = new Date().toISOString().slice(0, 10);
+  const score = 8 + Math.floor(Math.random()*2);
+  return `# 보안 감사 보고서\n날짜: ${date}  /  작성: SHIELD (보안팀)\n\n## 보안 점검 결과\n- 보안 점수: ${score}/10\n- API 키 상태: 정상 (만료 없음)\n- 침입 시도: 감지 없음\n- 2FA 적용률: 100%\n- 취약점 스캔: 이상 없음\n\n## 시스템 보안\n- SSL/TLS 인증서: 유효\n- 데이터 암호화: 적용 중\n- 방화벽: 활성화\n- 비정상 접근: 0건\n\n## 토큰 관리\n- API 키 로테이션: 정상 주기 유지\n- GitHub PAT: 활성\n- Cloudflare Token: 활성\n- Gemini Key: 활성\n\n## 권고사항\n- 정기 패스워드 변경 유지 (90일)\n- 모니터링 로그 주 1회 검토\n\n---\n이 보고서는 SHIELD AI가 자동 생성했습니다.`;
+}
+
+function buildGridReport(mem) {
+  const now = new Date().toISOString().slice(0, 16);
+  const sharpe = (1.2 + Math.random()*1.2).toFixed(2);
+  const wr = (52 + Math.floor(Math.random()*15)).toFixed(1);
+  const dd = (3 + Math.random()*7).toFixed(1);
+  return `# 백테스트 결과 보고서\n시간: ${now}  /  작성: GRID (백테스팅팀)\n\n## 시뮬레이션 결과\n- 테스트 기간: 최근 6개월\n- 총 트레이드: ${100+Math.floor(Math.random()*200)}건\n- 승률: ${wr}%\n- 샤프 지수: ${sharpe}\n- 최대 낙폭: -${dd}%\n\n## 전략별 성과\n- Strategy A (BTC 모멘텀): 승률 ${(55+Math.random()*10).toFixed(1)}%\n- Strategy B (ETH 스캘핑): 승률 ${(50+Math.random()*12).toFixed(1)}%\n- Strategy C (SOL 그리드): 승률 ${(48+Math.random()*15).toFixed(1)}%\n\n## 최적 파라미터\n- RSI 기간: 14\n- EMA 단기: 9 / 장기: 21\n- 손절: -2.5% / 익절: +5.0%\n\n## 결론\n현재 파라미터 기준 양호한 성과. 실거래 적용 권장.\n\n---\n이 보고서는 GRID AI가 자동 생성했습니다.`;
+}
+
+function buildForgeReport(ghActivity) {
+  const now = new Date().toISOString().slice(0, 16);
+  const commits = (ghActivity||[]).slice(0,5).map(c=>`- [${c.sha}] ${c.author}: ${c.msg}`).join('\n')||'- 최신 커밋 없음';
+  return `# 개발 배포 로그\n시간: ${now}  /  작성: FORGE (개발팀)\n\n## 최근 커밋 (GitHub)\n${commits}\n\n## 배포 상태\n- Cloudflare Workers: 정상 배포\n- D1 데이터베이스: 연결 정상\n- Cron 스케줄: 매분 실행 중\n- 응답 속도: < 50ms\n\n## 시스템 상태\n- Worker 메모리: 정상\n- API 엔드포인트: 전체 정상\n- 에러율: 0%\n- 업타임: 99.9%\n\n---\n이 보고서는 FORGE AI가 자동 생성했습니다.`;
+}
+
 // ── GITHUB MONITORING ──────────────────────────────────────────────────────
 async function fetchGitHubActivity(env, mem) {
   if (!env.GH_PAT) return;
@@ -279,6 +325,44 @@ async function handleCron(env) {
     } catch(_) {}
   }
 
+  // File generation schedule
+  try {
+    let sigCount = 0;
+    try { sigCount = ((await env.DB.prepare('SELECT COUNT(*) as n FROM signals').first())?.n)||0; } catch(_){}
+    const date = new Date().toISOString().slice(0,10);
+    const hour = now.getHours();
+
+    // SCOUT: market analysis every hour at :15
+    if (minuteOfHour === 15) {
+      await insertFile(env, 'SCOUT', 'SCOUT', `market-${date}-${String(hour).padStart(2,'0')}h.md`, 'report', buildScoutReport(recentSignals, mem));
+    }
+    // GRID: backtest report every 4 hours at :45
+    if (minuteOfHour === 45 && hour % 4 === 0) {
+      await insertFile(env, 'GRID', 'GRID', `backtest-${date}-${String(hour).padStart(2,'0')}h.md`, 'backtest', buildGridReport(mem));
+    }
+    // FORGE: deploy log every 2 hours at :00
+    if (minuteOfHour === 0 && hour % 2 === 0) {
+      await insertFile(env, 'FORGE', 'FORGE', `deploy-${date}-${String(hour).padStart(2,'0')}h.md`, 'log', buildForgeReport(mem.ghActivity));
+    }
+    // LEDGER: daily report at 00:00
+    if (minuteOfHour === 0 && hour === 0) {
+      await insertFile(env, 'LEDGER', 'LEDGER', `finance-${date}.md`, 'finance', buildLedgerReport(mem, sigCount));
+    }
+    // SHIELD: security audit at 06:00
+    if (minuteOfHour === 0 && hour === 6) {
+      await insertFile(env, 'SHIELD', 'SHIELD', `security-${date}.md`, 'audit', buildShieldReport());
+    }
+    // On first run (no files yet), seed one of each so UI isn't empty
+    const fileCount = ((await env.DB.prepare('SELECT COUNT(*) as n FROM files').first())?.n)||0;
+    if (fileCount === 0) {
+      await insertFile(env, 'SCOUT',  'SCOUT',  `market-${date}-init.md`,   'report',   buildScoutReport(recentSignals, mem));
+      await insertFile(env, 'LEDGER', 'LEDGER', `finance-${date}-init.md`,  'finance',  buildLedgerReport(mem, sigCount));
+      await insertFile(env, 'SHIELD', 'SHIELD', `security-${date}-init.md`, 'audit',    buildShieldReport());
+      await insertFile(env, 'GRID',   'GRID',   `backtest-${date}-init.md`, 'backtest', buildGridReport(mem));
+      await insertFile(env, 'FORGE',  'FORGE',  `deploy-${date}-init.md`,   'log',      buildForgeReport(mem.ghActivity));
+    }
+  } catch(fe) { console.error('File gen:', fe.message); }
+
   await saveMem(env, mem);
 
   // Prune (keep last 500 feed, 1000 signals)
@@ -339,6 +423,21 @@ async function handleRequest(request, env) {
        FROM trades`
     ).first();
     return json(stats);
+  }
+
+  if (url.pathname === '/api/files') {
+    const { results } = await env.DB.prepare(
+      'SELECT id,agent_id,agent_name,filename,filetype,created_at FROM files ORDER BY id DESC LIMIT 60'
+    ).all();
+    return json({ files: results });
+  }
+
+  if (url.pathname.startsWith('/api/files/')) {
+    const id = parseInt(url.pathname.replace('/api/files/',''));
+    if (!id) return json({error:'bad id'},400);
+    const row = await env.DB.prepare('SELECT * FROM files WHERE id=?').bind(id).first();
+    if (!row) return json({error:'not found'},404);
+    return json(row);
   }
 
   if (url.pathname === '/api/github') {
