@@ -83,15 +83,24 @@ body::before{content:'';position:fixed;inset:0;z-index:-2;background:radial-grad
 
 /* ── OFFICE ── */
 .office-room{
-  background:linear-gradient(180deg,rgba(5,8,13,0) 0%,rgba(10,14,21,.3) 100%);
+  background:linear-gradient(180deg,#080d16 0%,#0a0f18 60%,#0d1420 100%);
   border-radius:13px;border:1px solid var(--line);
   padding:20px;position:relative;overflow:hidden;
-  min-height:460px;margin-bottom:12px;
+  min-height:480px;margin-bottom:12px;
 }
+/* Floor tiles */
 .office-room::before{
   content:'';position:absolute;inset:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,.025) 40px),
-             repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,.025) 40px);
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 49px,rgba(255,255,255,.022) 50px),
+    repeating-linear-gradient(90deg,transparent,transparent 49px,rgba(255,255,255,.022) 50px);
+  pointer-events:none;
+}
+/* Top wall strip */
+.office-room::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:52px;
+  background:linear-gradient(180deg,rgba(8,14,24,.95) 0%,rgba(8,14,24,.4) 100%);
+  border-bottom:1px solid rgba(255,255,255,.06);
   pointer-events:none;
 }
 .office-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:relative;z-index:1}
@@ -103,10 +112,10 @@ body::before{content:'';position:fixed;inset:0;z-index:-2;background:radial-grad
 }
 .desk{
   background:rgba(20,26,38,.7);border:1.5px solid var(--line);
-  border-radius:11px;padding:10px 8px;
-  display:flex;flex-direction:column;align-items:center;gap:4px;
+  border-radius:11px;padding:8px 6px 10px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
   cursor:pointer;transition:all .25s;position:relative;
-  min-height:110px;justify-content:center;
+  min-height:168px;justify-content:flex-end;
 }
 .desk:hover{border-color:rgba(251,191,36,.35);transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.5),0 0 16px rgba(251,191,36,.08)}
 .desk.sec-agent{border-color:rgba(255,77,152,.3);background:rgba(255,77,152,.05)}
@@ -124,19 +133,47 @@ body::before{content:'';position:fixed;inset:0;z-index:-2;background:radial-grad
 .desk-bubble::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
   border:4px solid transparent;border-top-color:var(--accent)}
 .desk-status{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 5px var(--ok)}
-.desk-emoji{font-size:28px;line-height:1;animation:float 3.5s ease-in-out infinite}
-.desk.active .desk-emoji{animation:float-active 0.5s ease-in-out infinite alternate}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-@keyframes float-active{0%{transform:translateY(-2px) scale(1.05)}100%{transform:translateY(2px) scale(1.02)}}
-.desk-name{font-size:10px;font-weight:700;color:var(--bright);text-transform:uppercase;letter-spacing:.4px}
-.desk-team-lbl{font-size:8.5px;color:var(--dim);text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.desk-lv{font-size:8.5px;font-weight:700;padding:1px 5px;border-radius:999px;background:rgba(251,191,36,.1);color:var(--accent);border:1px solid rgba(251,191,36,.2)}
-.desk-typing{display:flex;gap:2px;height:8px;align-items:center;opacity:0;transition:opacity .3s}
-.desk.active .desk-typing{opacity:1}
-.desk-typing span{width:3px;height:3px;border-radius:50%;background:var(--ok);animation:dot-bounce .8s ease-in-out infinite}
-.desk-typing span:nth-child(2){animation-delay:.15s}
-.desk-typing span:nth-child(3){animation-delay:.3s}
-@keyframes dot-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.desk-name{font-size:10px;font-weight:700;color:var(--bright);text-transform:uppercase;letter-spacing:.4px;margin-top:3px}
+.desk-lv{font-size:8px;font-weight:700;padding:1px 5px;border-radius:999px;background:rgba(251,191,36,.1);color:var(--accent);border:1px solid rgba(251,191,36,.2)}
+
+/* ── CHARACTER SPRITES ── */
+.vc-wrap{display:flex;flex-direction:column;align-items:center;position:relative;animation:vc-idle 3s ease-in-out infinite;flex-shrink:0}
+.desk.active .vc-wrap{animation:vc-work .4s ease-in-out infinite alternate}
+@keyframes vc-idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes vc-work{0%{transform:translateY(0) rotate(-.6deg)}100%{transform:translateY(-3px) rotate(.6deg)}}
+
+.vc-head{width:22px;height:22px;border-radius:50%;position:relative;border:1.5px solid rgba(0,0,0,.15);flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.vc-hair{position:absolute;top:-3px;left:1px;right:1px;height:10px;border-radius:50% 50% 0 0}
+.vc-eyes{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;gap:5px}
+.vc-eye{width:3px;height:3px;background:#1a1a2e;border-radius:50%;transition:height .1s}
+.vc-mouth{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:8px;height:3px;border-bottom:1.5px solid rgba(0,0,0,.2);border-radius:0 0 4px 4px}
+.desk.active .vc-eye{height:2px}
+
+.vc-body{width:26px;height:17px;border-radius:4px 4px 0 0;margin-top:1px;position:relative;box-shadow:inset 0 2px 4px rgba(255,255,255,.12),0 1px 0 rgba(0,0,0,.3);flex-shrink:0}
+.vc-collar{position:absolute;top:0;left:50%;transform:translateX(-50%);width:8px;height:5px;background:rgba(255,255,255,.15);border-radius:0 0 4px 4px}
+.vc-arm{position:absolute;top:3px;width:7px;height:13px;border-radius:4px;transform-origin:top center}
+.vc-arm:nth-child(2){left:-6px;animation:arm-il 3s ease-in-out infinite}
+.vc-arm:nth-child(3){right:-6px;animation:arm-ir 3s ease-in-out infinite}
+@keyframes arm-il{0%,100%{transform:rotate(10deg)}50%{transform:rotate(-5deg)}}
+@keyframes arm-ir{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(5deg)}}
+.desk.active .vc-arm:nth-child(2){animation:arm-tl .2s ease-in-out infinite alternate}
+.desk.active .vc-arm:nth-child(3){animation:arm-tr .2s ease-in-out .1s infinite alternate-reverse}
+@keyframes arm-tl{from{transform:rotate(-30deg) translateY(-2px)}to{transform:rotate(15deg)}}
+@keyframes arm-tr{from{transform:rotate(30deg) translateY(-2px)}to{transform:rotate(-15deg)}}
+
+.vc-monitor{width:34px;height:21px;background:#060a12;border:1.5px solid #28384e;border-radius:3px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;margin-top:2px}
+.vc-monitor::after{content:'';position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:10px;height:5px;background:#121c2c;border-radius:0 0 2px 2px}
+.vc-screen{width:26px;height:15px;border-radius:1px;background:linear-gradient(135deg,#0d2040,#1a3860);animation:scr-idle 3s ease-in-out infinite}
+.desk.active .vc-screen{animation:scr-on .4s ease-in-out infinite alternate}
+@keyframes scr-idle{0%,100%{box-shadow:0 0 4px rgba(96,165,250,.18)}50%{box-shadow:0 0 8px rgba(96,165,250,.35)}}
+@keyframes scr-on{from{background:linear-gradient(135deg,#1a4060,#2a5880);box-shadow:0 0 12px rgba(96,165,250,.65)}to{background:linear-gradient(135deg,#0d2848,#1e3870);box-shadow:0 0 5px rgba(96,165,250,.3)}}
+
+.vc-kbd{width:26px;height:5px;background:#111928;border-radius:2px;margin-top:4px;border:1px solid #1e2d40;flex-shrink:0}
+.vc-table{width:52px;height:7px;background:linear-gradient(180deg,#1c2838,#111822);border-radius:2px;margin-top:1px;border:1px solid #1e2d3e;box-shadow:0 4px 10px rgba(0,0,0,.6);flex-shrink:0}
+
+/* Chair back visible behind sprite */
+.vc-chair{width:20px;height:10px;background:#0e1624;border-radius:3px 3px 0 0;border:1px solid #1e2d3e;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:0}
+.vc-wrap{position:relative;z-index:1}
 
 .office-ticker{
   margin-top:10px;position:relative;z-index:1;
@@ -178,7 +215,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-2;background:radial-grad
 .team-members{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .tm{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;transition:all .15s;flex:1;min-width:100px}
 .tm:hover{background:rgba(255,255,255,.06);border-color:var(--line-2)}
-.tm-emoji{font-size:20px}
+.tm-emoji{font-size:20px;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid var(--line);flex-shrink:0}
 .tm-info{min-width:0}
 .tm-name{font-size:11px;font-weight:700;color:var(--bright)}
 .tm-lv{font-size:9.5px;color:var(--accent)}
@@ -383,9 +420,23 @@ input.intel-inp::placeholder{color:var(--muted)}
     <!-- OFFICE -->
     <div class="sec on" id="sec-office">
       <div class="office-room">
-        <div class="office-header">
+        <!-- Wall decorations -->
+        <div style="position:absolute;top:10px;left:20px;right:20px;display:flex;gap:18px;align-items:center;z-index:2;pointer-events:none">
+          <div style="display:flex;gap:10px">
+            <div style="width:44px;height:30px;background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.15);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px">🌆</div>
+            <div style="width:44px;height:30px;background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.15);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px">🌆</div>
+            <div style="width:44px;height:30px;background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.15);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px">🌆</div>
+          </div>
+          <div style="flex:1"></div>
+          <span style="font-size:16px;opacity:.4">🌿</span>
+          <span style="font-size:16px;opacity:.4">🪴</span>
+          <span style="font-size:16px;opacity:.4">☕</span>
+        </div>
+        <div class="office-header" style="padding-top:42px">
           <div class="office-title"><span>🏢</span> AYILON 가상 오피스 · 14명 근무 중</div>
-          <div class="office-decorations">☕ 🌿 📋 🖥️ 🪴</div>
+          <div style="display:flex;gap:4px">
+            <span style="font-size:9px;padding:2px 7px;border-radius:999px;background:rgba(52,211,153,.1);color:var(--ok);border:1px solid rgba(52,211,153,.2)">● 전원 근무 중</span>
+          </div>
         </div>
         <div class="desk-grid" id="desk-grid"></div>
         <div class="office-ticker">
@@ -627,19 +678,51 @@ function loadAll() {
 }
 
 /* ── DESK GRID ── */
+const CHAR_STYLES = {
+  ARIA:  {hair:'#1a0812',shirt:'#ff4d98',skin:'#f4c38a'},
+  CEO:   {hair:'#180e02',shirt:'#d97706',skin:'#d4a573'},
+  IRON:  {hair:'#0c0c1e',shirt:'#34d399',skin:'#f4c38a'},
+  GRID:  {hair:'#2a1802',shirt:'#10b981',skin:'#c8956c'},
+  SCOUT: {hair:'#1a0802',shirt:'#059669',skin:'#f4c38a'},
+  WARD:  {hair:'#301e02',shirt:'#0d9488',skin:'#d4a573'},
+  FORGE: {hair:'#02101a',shirt:'#60a5fa',skin:'#f4c38a'},
+  ATLAS: {hair:'#10202a',shirt:'#3b82f6',skin:'#c8956c'},
+  LUNA:  {hair:'#280212',shirt:'#e879f9',skin:'#f4c38a'},
+  PIXEL: {hair:'#021402',shirt:'#a855f7',skin:'#d4a573'},
+  ECHO:  {hair:'#10022a',shirt:'#d946ef',skin:'#f4c38a'},
+  REX:   {hair:'#02022e',shirt:'#a78bfa',skin:'#c8956c'},
+  LEDGER:{hair:'#20102a',shirt:'#8b5cf6',skin:'#f4c38a'},
+  SHIELD:{hair:'#021414',shirt:'#7c3aed',skin:'#d4a573'},
+};
 function buildDeskGrid() {
   const el = document.getElementById('desk-grid');
-  el.innerHTML = AGENTS.map(a =>
-    `<div class="desk${a.sec?' sec-agent':''}" id="dk-${a.id}" onclick="showDetail('${a.id}')">
+  el.innerHTML = AGENTS.map(a => {
+    const cs = CHAR_STYLES[a.id]||{hair:'#2a1a0a',shirt:'#4b6cb7',skin:'#f4c38a'};
+    return `<div class="desk${a.sec?' sec-agent':''}" id="dk-${a.id}" onclick="showDetail('${a.id}')">
       <div class="desk-bubble" id="bbl-${a.id}"></div>
       <div class="desk-status"></div>
-      <div class="desk-emoji">${a.emoji}</div>
+      <div style="position:relative;display:flex;flex-direction:column;align-items:center;flex-shrink:0">
+        <div class="vc-chair"></div>
+        <div class="vc-wrap">
+          <div class="vc-head" style="background:${cs.skin}">
+            <div class="vc-hair" style="background:${cs.hair}"></div>
+            <div class="vc-eyes"><span class="vc-eye"></span><span class="vc-eye"></span></div>
+            <div class="vc-mouth"></div>
+          </div>
+          <div class="vc-body" style="background:${cs.shirt}">
+            <div class="vc-collar"></div>
+            <div class="vc-arm" style="background:${cs.skin}"></div>
+            <div class="vc-arm" style="background:${cs.skin}"></div>
+          </div>
+        </div>
+      </div>
+      <div class="vc-monitor"><div class="vc-screen"></div></div>
+      <div class="vc-kbd"></div>
+      <div class="vc-table"></div>
       <div class="desk-name">${a.name}</div>
-      <div class="desk-team-lbl">${a.team}</div>
       <div class="desk-lv" id="dlv-${a.id}">LV 1</div>
-      <div class="desk-typing"><span></span><span></span><span></span></div>
-    </div>`
-  ).join('');
+    </div>`;
+  }).join('');
   updateTicker([]);
 }
 
