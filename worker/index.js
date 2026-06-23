@@ -66,9 +66,12 @@ async function getMem(env) {
       keywords: m.keywords || {},
       xp: Number(m.xp) || 0,
       agentXp: m.agent_xp || {},
-      cmds: Array.isArray(m.cmds) ? m.cmds : []
+      cmds: Array.isArray(m.cmds) ? m.cmds : [],
+      lastCommitSha: m.last_commit_sha || '',
+      lastGHCheck: Number(m.last_gh_check) || 0,
+      ghActivity: Array.isArray(m.gh_activity) ? m.gh_activity : []
     };
-  } catch(e) { return { keywords:{}, xp:0, agentXp:{}, cmds:[] }; }
+  } catch(e) { return { keywords:{}, xp:0, agentXp:{}, cmds:[], lastCommitSha:'', lastGHCheck:0, ghActivity:[] }; }
 }
 
 async function saveMem(env, mem) {
@@ -76,7 +79,10 @@ async function saveMem(env, mem) {
     env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('keywords', JSON.stringify(mem.keywords)),
     env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('xp', JSON.stringify(mem.xp)),
     env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('agent_xp', JSON.stringify(mem.agentXp)),
-    env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('cmds', JSON.stringify(mem.cmds.slice(-100)))
+    env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('cmds', JSON.stringify(mem.cmds.slice(-100))),
+    env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('last_commit_sha', JSON.stringify(mem.lastCommitSha||'')),
+    env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('last_gh_check', JSON.stringify(mem.lastGHCheck||0)),
+    env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('gh_activity', JSON.stringify((mem.ghActivity||[]).slice(0,20)))
   ]);
 }
 
@@ -149,6 +155,53 @@ function localReplyMsg(cmds) {
   return replies[Math.floor(Math.random()*replies.length)];
 }
 
+// ── GITHUB MONITORING ──────────────────────────────────────────────────────
+async function fetchGitHubActivity(env, mem) {
+  if (!env.GH_PAT) return;
+  const repo = 'wldnjswldnjs00-ui/ayilon-virtual-office';
+  try {
+    const r = await fetch(`https://api.github.com/repos/${repo}/commits?per_page=5`, {
+      headers: {
+        'Authorization': `token ${env.GH_PAT}`,
+        'User-Agent': 'ayilon-office-worker',
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+    if (!r.ok) return;
+    const commits = await r.json();
+    if (!Array.isArray(commits) || !commits.length) return;
+
+    const latest = commits[0];
+    const isNew = latest.sha !== mem.lastCommitSha;
+
+    if (isNew && mem.lastCommitSha) {
+      const newCommits = commits.filter(c => c.sha !== mem.lastCommitSha).slice(0, 3);
+      const forge = AGENTS.find(a => a.id === 'FORGE');
+      const atlas = AGENTS.find(a => a.id === 'ATLAS');
+      for (const commit of newCommits.reverse()) {
+        const msg = commit.commit.message.split('\n')[0].slice(0, 80);
+        const author = commit.commit.author.name || 'unknown';
+        await insertFeed(env, forge, `[GitHub] ${author}: ${msg}`, false);
+        mem.agentXp['FORGE'] = (mem.agentXp['FORGE']||0)+2;
+        mem.xp++;
+      }
+      if (atlas) {
+        await insertFeed(env, atlas, `[GitHub] 새 커밋 감지 → 배포 파이프라인 확인 중`, false);
+        mem.agentXp['ATLAS'] = (mem.agentXp['ATLAS']||0)+1;
+      }
+    }
+
+    mem.ghActivity = commits.slice(0, 10).map(c => ({
+      sha: c.sha.slice(0, 7),
+      msg: c.commit.message.split('\n')[0].slice(0, 80),
+      author: c.commit.author.name || 'unknown',
+      date: c.commit.author.date
+    }));
+    mem.lastCommitSha = latest.sha;
+    mem.lastGHCheck = Math.floor(Date.now()/1000);
+  } catch(e) { console.error('GitHub fetch:', e.message); }
+}
+
 const CORS_H = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
@@ -185,6 +238,11 @@ async function handleCron(env) {
     await insertFeed(env, agent, msg, false);
     mem.agentXp[agent.id] = (mem.agentXp[agent.id]||0)+1;
     mem.xp++;
+  }
+
+  // Every 5 minutes: check GitHub for new commits
+  if (minuteOfHour % 5 === 0) {
+    await fetchGitHubActivity(env, mem);
   }
 
   // Every 5 minutes: 1 random agent uses Gemini to actually THINK
@@ -281,6 +339,16 @@ async function handleRequest(request, env) {
        FROM trades`
     ).first();
     return json(stats);
+  }
+
+  if (url.pathname === '/api/github') {
+    const mem = await getMem(env);
+    return json({
+      connected: !!env.GH_PAT,
+      lastCheck: mem.lastGHCheck,
+      lastCommitSha: mem.lastCommitSha,
+      activity: mem.ghActivity || []
+    });
   }
 
   if (url.pathname === '/api/signals') {
