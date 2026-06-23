@@ -1402,12 +1402,43 @@ function tick(){
 }
 
 // ═══════════════════════════════════════
+// CROSS-TALK — load from server (persists across refresh)
+// ═══════════════════════════════════════
+const AGENT_IC_MAP = {};
+AGENTS.forEach(function(a){AGENT_IC_MAP[a.id]=a.ic;});
+
+async function loadCrossTalk() {
+  try {
+    const d = await (await fetch('/api/crosstalk')).json();
+    const items = d.items || [];
+    if (!items.length) return;
+    const cl = document.getElementById('cross-list');
+    if (!cl) return;
+    cl.innerHTML = '';
+    items.slice(0, 40).forEach(function(it) {
+      var ts = it.ts ? new Date(it.ts*1000).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) : '';
+      var div = document.createElement('div');
+      div.className = 'cross-fi';
+      div.innerHTML = '<div><span class="cross-from">'+(AGENT_IC_MAP[it.from]||'')+'&nbsp;'+it.from+'</span>'
+        +'<span class="cross-arrow">→</span>'
+        +'<span class="cross-to">'+it.to+'</span>'
+        +'<span class="cross-ts">'+ts+'</span></div>'
+        +'<div class="cross-msg">'+it.msg+'</div>';
+      cl.appendChild(div);
+    });
+    var cnt = document.getElementById('cross-cnt');
+    if (cnt) cnt.textContent = items.length;
+  } catch(_) {}
+}
+
+// ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
 drawOffice();
 buildChars();
 tick();
 loadAll();
+loadCrossTalk();
 // Logo click → home
 document.querySelector('.logo').addEventListener('click', function(){
   hideOverlay();
@@ -1420,7 +1451,8 @@ loadGH();
 
 setInterval(walkOne, 3500);
 setInterval(randomChatter, 8000);
-setInterval(doCrossTalk, 15000);
+setInterval(doCrossTalk, 15000);     // browser-side real-time (visual only)
+setInterval(loadCrossTalk, 60000);   // sync from server every 60s
 setInterval(loadAll, 45000);
 setInterval(loadGH, 120000);
 setInterval(tick, 1000);

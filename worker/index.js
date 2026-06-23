@@ -69,9 +69,10 @@ async function getMem(env) {
       cmds: Array.isArray(m.cmds) ? m.cmds : [],
       lastCommitSha: m.last_commit_sha || '',
       lastGHCheck: Number(m.last_gh_check) || 0,
-      ghActivity: Array.isArray(m.gh_activity) ? m.gh_activity : []
+      ghActivity: Array.isArray(m.gh_activity) ? m.gh_activity : [],
+      crossTalk: Array.isArray(m.cross_talk) ? m.cross_talk : []
     };
-  } catch(e) { return { keywords:{}, xp:0, agentXp:{}, cmds:[], lastCommitSha:'', lastGHCheck:0, ghActivity:[] }; }
+  } catch(e) { return { keywords:{}, xp:0, agentXp:{}, cmds:[], lastCommitSha:'', lastGHCheck:0, ghActivity:[], crossTalk:[] }; }
 }
 
 async function saveMem(env, mem) {
@@ -82,7 +83,8 @@ async function saveMem(env, mem) {
     env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('cmds', JSON.stringify(mem.cmds.slice(-100))),
     env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('last_commit_sha', JSON.stringify(mem.lastCommitSha||'')),
     env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('last_gh_check', JSON.stringify(mem.lastGHCheck||0)),
-    env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('gh_activity', JSON.stringify((mem.ghActivity||[]).slice(0,20)))
+    env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('gh_activity', JSON.stringify((mem.ghActivity||[]).slice(0,20))),
+    env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('cross_talk', JSON.stringify((mem.crossTalk||[]).slice(-60)))
   ]);
 }
 
@@ -153,6 +155,51 @@ function localReplyMsg(cmds) {
     replies.push('이전 지시 "' + prev.slice(0,12) + '…" 건과 함께 처리하겠습니다.');
   }
   return replies[Math.floor(Math.random()*replies.length)];
+}
+
+// ── TELEGRAM ───────────────────────────────────────────────────────────────
+async function sendTelegram(env, text) {
+  if (!env.TG_BOT_TOKEN || !env.TG_CHAT_ID) return false;
+  try {
+    const r = await fetch(`https://api.telegram.org/bot${env.TG_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({chat_id: env.TG_CHAT_ID, text, parse_mode:'HTML'})
+    });
+    return r.ok;
+  } catch(e) { console.error('TG:', e.message); return false; }
+}
+
+// ── CROSS-TALK GENERATION (server-side, persisted) ─────────────────────────
+const CROSS_PAIRS = [
+  {from:'CEO',   to:'IRON',   q:'트레이딩 현황 보고해',           r:'BTC 롱 +2.3% 유지, 진입가 접근 중'},
+  {from:'CEO',   to:'WARD',   q:'리스크 레벨 어때?',              r:'낮음. 포지션 안정적이야'},
+  {from:'CEO',   to:'SCOUT',  q:'시장 인사이트 공유해봐',          r:'BTC 고래 축적 신호, 강세 전망'},
+  {from:'CEO',   to:'FORGE',  q:'배포 상태 확인해줘',             r:'최신 커밋 배포 완료, 정상 동작'},
+  {from:'IRON',  to:'SCOUT',  q:'온체인 신호 있어?',              r:'고래 BTC 2,340개 이동 감지'},
+  {from:'IRON',  to:'GRID',   q:'백테스트 결과 나왔어?',           r:'승률 68.5%, 샤프 1.9 달성'},
+  {from:'IRON',  to:'WARD',   q:'포지션 사이즈 조정할까?',         r:'현재 적정, 조정 불필요해'},
+  {from:'SCOUT', to:'IRON',   q:'고래 대량 이동 포착했어',         r:'신호 수신, 분석 즉시 시작'},
+  {from:'WARD',  to:'IRON',   q:'드로다운 경고 발생',             r:'알겠어, 손절 라인 재설정할게'},
+  {from:'FORGE', to:'ATLAS',  q:'서버 상태 정상이야?',            r:'응답 12ms, 업타임 99.9%'},
+  {from:'ATLAS', to:'FORGE',  q:'크론잡 정상 실행 확인',           r:'배포 완료 확인, 다음 업데이트 준비'},
+  {from:'SHIELD',to:'FORGE',  q:'보안 패치 필요해',               r:'패치 적용 시작, 30분 내 완료'},
+  {from:'LEDGER',to:'CEO',    q:'이번달 수익 정리됐어',            r:'수고했어, 다음달 목표 회의 잡자'},
+  {from:'LUNA',  to:'PIXEL',  q:'새 캠페인 디자인 부탁해',         r:'시안 완성, 검토 요청드려요'},
+  {from:'ECHO',  to:'CEO',    q:'사용자 피드백 전달할게',           r:'피드백 잘 받았어, 반영할게'},
+  {from:'GRID',  to:'IRON',   q:'최적 파라미터 업데이트했어',       r:'확인했어, 전략에 적용할게'},
+  {from:'REX',   to:'CEO',    q:'법률 검토 사항 있어',             r:'확인했어, 다음 회의에서 논의하자'},
+];
+
+function makeCrossTalkEntry(mem) {
+  const pair = CROSS_PAIRS[Math.floor(Math.random() * CROSS_PAIRS.length)];
+  const kws = Object.keys(mem.keywords||{}).sort((a,b)=>(mem.keywords[b]||0)-(mem.keywords[a]||0));
+  const kw = kws[0];
+  const ts = Math.floor(Date.now()/1000);
+  return [
+    {from: pair.from, to: pair.to,   msg: pair.q + (kw ? ` (${kw})` : ''), ts},
+    {from: pair.to,   to: pair.from, msg: pair.r,                            ts: ts + 4}
+  ];
 }
 
 // ── FILE GENERATION ────────────────────────────────────────────────────────
@@ -291,6 +338,17 @@ async function handleCron(env) {
     await fetchGitHubActivity(env, mem);
   }
 
+  // Every 15 minutes: generate server-side cross-talk (persisted to DB)
+  if (minuteOfHour % 15 === 0) {
+    const entries = makeCrossTalkEntry(mem);
+    mem.crossTalk = [...(mem.crossTalk||[]), ...entries].slice(-60);
+    // Post to main feed too
+    const fromAg = AGENTS.find(a=>a.id===entries[0].from);
+    const toAg   = AGENTS.find(a=>a.id===entries[0].to);
+    if (fromAg) await insertFeed(env, fromAg, `→ ${entries[0].to}: ${entries[0].msg}`, false);
+    if (toAg)   await insertFeed(env, toAg,   `← ${entries[1].to}: ${entries[1].msg}`, false);
+  }
+
   // Every 5 minutes: 1 random agent uses Gemini to actually THINK
   if (env.GEMINI_KEY && minuteOfHour % 5 === 0) {
     try {
@@ -307,6 +365,37 @@ async function handleCron(env) {
         mem.xp += teammates.length;
       }
     } catch(_) {}
+  }
+
+  // Daily morning briefing at 00:00 UTC (09:00 KST) → Telegram + file
+  if (minuteOfHour === 0 && now.getHours() === 0) {
+    try {
+      const kws = topKws(mem.keywords, 5).join(', ') || '없음';
+      const lvl = Math.floor(mem.xp/50)+1;
+      const topAgents = Object.entries(mem.agentXp||{})
+        .sort((a,b)=>b[1]-a[1]).slice(0,5)
+        .map(([id,xp])=>`· ${id} LV${Math.floor(xp/10)+1} (${xp}XP)`).join('\n');
+      let sigCount = 0;
+      try { sigCount = ((await env.DB.prepare('SELECT COUNT(*) as n FROM signals').first())?.n)||0; } catch(_){}
+
+      const briefMsg = `🌅 <b>AYILON 일일 브리핑</b>\n${new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric'})}\n\n`
+        + `🏢 회사 레벨: LV${lvl}  |  총 XP: ${mem.xp}\n`
+        + `📡 핵심 키워드: ${kws}\n`
+        + `📊 누적 신호: ${sigCount}건\n\n`
+        + `👥 <b>TOP 에이전트</b>\n${topAgents||'—'}\n\n`
+        + `🤖 AI: ${env.GEMINI_KEY?'✅ Gemini 활성':'❌ 비활성'}  |  `
+        + `🔗 GH: ${env.GH_PAT?'✅ 연결':'❌ 미연결'}\n\n`
+        + `⏰ 다음 브리핑: 내일 09:00 KST`;
+      await sendTelegram(env, briefMsg);
+
+      // Also save as file and feed
+      const date = new Date().toISOString().slice(0,10);
+      const ceo = AGENTS[0];
+      await insertFeed(env, ceo, `[일일 브리핑] LV${lvl} · XP ${mem.xp} · 신호 ${sigCount}건 · 키워드: ${kws}`, true);
+      await insertFile(env, 'CEO', 'CEO', `morning-briefing-${date}.md`, 'report',
+        `# AYILON 일일 브리핑\n날짜: ${date}  /  작성: CEO\n\n## 회사 현황\n- 레벨: LV${lvl}\n- 총 XP: ${mem.xp}\n- 누적 신호: ${sigCount}건\n\n## 핵심 키워드\n${kws}\n\n## TOP 에이전트\n${topAgents||'—'}\n\n## 시스템 상태\n- Gemini AI: ${env.GEMINI_KEY?'활성':'비활성'}\n- GitHub: ${env.GH_PAT?'연결됨':'미연결'}\n- Cron: 정상 실행 중\n\n---\n이 브리핑은 CEO AI가 자동 생성했습니다.`
+      );
+    } catch(be) { console.error('Briefing:', be.message); }
   }
 
   // Every hour: CEO summarizes company status using Gemini
@@ -423,6 +512,11 @@ async function handleRequest(request, env) {
        FROM trades`
     ).first();
     return json(stats);
+  }
+
+  if (url.pathname === '/api/crosstalk') {
+    const mem = await getMem(env);
+    return json({ items: (mem.crossTalk||[]).slice().reverse() });
   }
 
   if (url.pathname === '/api/files') {
