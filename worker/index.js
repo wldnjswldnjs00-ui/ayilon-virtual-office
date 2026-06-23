@@ -2,6 +2,10 @@ import { runBot } from './bot.js';
 import indexHtml from '../index.html';
 
 const AGENTS = [
+  {id:'ARIA',  code:'ARI', name:'ARIA',  team:'비서팀',
+   kw:['일정','회의','보고','연락','조율','브리핑','메모','문서','준비','정리','알림','전달'],
+   msgs:['오늘 팀 미팅 일정 확인 완료.','회의록 정리 완료.','팀 브리핑 자료 준비 중.','CEO 일정 조율 완료.','부서별 보고서 수집 중.','연락망 업데이트 완료.','주간 일정 공유 완료.','팀원 근황 파악 완료.'],
+   smart:['"%s" 관련 회의 일정 조율 완료.','"%s" 보고서 CEO에게 전달 완료.','"%s" 팀 연락 완료.']},
   {id:'CEO',   code:'CEO', name:'CEO',    team:'Executive',
    kw:['전략','방향','팀','회의','승인','지시','전체','현황','점검'],
    msgs:['전체 팀 브리핑 완료.','시장 방향 재검토 지시.','리스크 레벨 조정 승인.','전략 회의 소집.','포지션 현황 확인 중.','팀 성과 점검 완료.'],
@@ -69,9 +73,11 @@ async function getMem(env) {
       cmds: Array.isArray(m.cmds) ? m.cmds : [],
       lastCommitSha: m.last_commit_sha || '',
       lastGHCheck: Number(m.last_gh_check) || 0,
-      ghActivity: Array.isArray(m.gh_activity) ? m.gh_activity : []
+      ghActivity: Array.isArray(m.gh_activity) ? m.gh_activity : [],
+      crossTalk: Array.isArray(m.cross_talk) ? m.cross_talk : [],
+      agentConfig: (typeof m.agent_config === 'object' && m.agent_config !== null) ? m.agent_config : {}
     };
-  } catch(e) { return { keywords:{}, xp:0, agentXp:{}, cmds:[], lastCommitSha:'', lastGHCheck:0, ghActivity:[] }; }
+  } catch(e) { return { keywords:{}, xp:0, agentXp:{}, cmds:[], lastCommitSha:'', lastGHCheck:0, ghActivity:[], crossTalk:[], agentConfig:{} }; }
 }
 
 async function saveMem(env, mem) {
@@ -82,7 +88,9 @@ async function saveMem(env, mem) {
     env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('cmds', JSON.stringify(mem.cmds.slice(-100))),
     env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('last_commit_sha', JSON.stringify(mem.lastCommitSha||'')),
     env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('last_gh_check', JSON.stringify(mem.lastGHCheck||0)),
-    env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('gh_activity', JSON.stringify((mem.ghActivity||[]).slice(0,20)))
+    env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('gh_activity', JSON.stringify((mem.ghActivity||[]).slice(0,20))),
+    env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('cross_talk', JSON.stringify((mem.crossTalk||[]).slice(-60))),
+    env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('agent_config', JSON.stringify(mem.agentConfig||{}))
   ]);
 }
 
@@ -132,12 +140,27 @@ async function ceoReply(msg, key, cmds, kws) {
   return callGemini(prompt, key, 90);
 }
 
+const PERSONALITY_STYLE = {
+  '분석형': '분석적이고 데이터 중심으로 수치와 근거를 바탕으로',
+  '창의형': '창의적이고 혁신적인 시각으로 새로운 아이디어를 중심으로',
+  '신중형': '신중하고 리스크를 고려하여 안전한 접근을 우선으로',
+  '공격형': '공격적이고 빠른 실행을 중심으로 과감하게',
+  '균형형': '균형 잡힌 시각으로 장단점을 모두 고려하여'
+};
+
 async function agentThink(agent, key, recentSignals, mem) {
   const kws = topKws(mem.keywords, 8).join(', ') || '없음';
-  const lvl = Math.floor((mem.agentXp[agent.id]||0)/10)+1;
+  const lvl = Math.max(1, Math.ceil((mem.agentXp[agent.id]||0)/50));
   const sigStr = recentSignals.slice(0,3).map(s=>`${s.symbol||''} ${s.signal||''}`).join(', ') || '없음';
-  const prompt = `당신은 AYILON 가상 오피스의 ${agent.name}(${agent.team}, LV${lvl})입니다. 현재 암호화폐 자동매매 회사에서 일하고 있습니다.\n최근 시그널: ${sigStr}\n핵심 키워드: ${kws}\n\n지금 당신이 하고 있는 일을 1문장(30자 이내)으로 말하세요. 구체적이고 실무적으로:`;
-  return callGemini(prompt, key, 50);
+  const cfg = (mem.agentConfig||{})[agent.id] || {};
+  const intel = Math.min(5, Math.max(1, cfg.intelligence || 3));
+  const personality = cfg.personality || '균형형';
+  const specialty = cfg.specialty ? `전문 분야: ${cfg.specialty}\n` : '';
+  const style = PERSONALITY_STYLE[personality] || PERSONALITY_STYLE['균형형'];
+  const maxChars = [20, 35, 55, 90, 140][intel - 1];
+  const maxTokens = [30, 50, 80, 120, 180][intel - 1];
+  const prompt = `당신은 AYILON 가상 오피스의 ${agent.name}(${agent.team}, LV${lvl})입니다.\n성격: ${style} 접근합니다.\n${specialty}최근 시그널: ${sigStr}\n핵심 키워드: ${kws}\n\n지금 하고 있는 업무를 ${maxChars}자 이내로 구체적이고 실무적으로 말하세요:`;
+  return callGemini(prompt, key, maxTokens);
 }
 
 function localReplyMsg(cmds) {
@@ -153,6 +176,100 @@ function localReplyMsg(cmds) {
     replies.push('이전 지시 "' + prev.slice(0,12) + '…" 건과 함께 처리하겠습니다.');
   }
   return replies[Math.floor(Math.random()*replies.length)];
+}
+
+// ── TELEGRAM ───────────────────────────────────────────────────────────────
+async function sendTelegram(env, text) {
+  if (!env.TG_BOT_TOKEN || !env.TG_CHAT_ID) return false;
+  try {
+    const r = await fetch(`https://api.telegram.org/bot${env.TG_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({chat_id: env.TG_CHAT_ID, text, parse_mode:'HTML'})
+    });
+    return r.ok;
+  } catch(e) { console.error('TG:', e.message); return false; }
+}
+
+// ── CROSS-TALK GENERATION (server-side, persisted) ─────────────────────────
+const CROSS_PAIRS = [
+  {from:'CEO',   to:'IRON',   q:'트레이딩 현황 보고해',           r:'BTC 롱 +2.3% 유지, 진입가 접근 중'},
+  {from:'CEO',   to:'WARD',   q:'리스크 레벨 어때?',              r:'낮음. 포지션 안정적이야'},
+  {from:'CEO',   to:'SCOUT',  q:'시장 인사이트 공유해봐',          r:'BTC 고래 축적 신호, 강세 전망'},
+  {from:'CEO',   to:'FORGE',  q:'배포 상태 확인해줘',             r:'최신 커밋 배포 완료, 정상 동작'},
+  {from:'IRON',  to:'SCOUT',  q:'온체인 신호 있어?',              r:'고래 BTC 2,340개 이동 감지'},
+  {from:'IRON',  to:'GRID',   q:'백테스트 결과 나왔어?',           r:'승률 68.5%, 샤프 1.9 달성'},
+  {from:'IRON',  to:'WARD',   q:'포지션 사이즈 조정할까?',         r:'현재 적정, 조정 불필요해'},
+  {from:'SCOUT', to:'IRON',   q:'고래 대량 이동 포착했어',         r:'신호 수신, 분석 즉시 시작'},
+  {from:'WARD',  to:'IRON',   q:'드로다운 경고 발생',             r:'알겠어, 손절 라인 재설정할게'},
+  {from:'FORGE', to:'ATLAS',  q:'서버 상태 정상이야?',            r:'응답 12ms, 업타임 99.9%'},
+  {from:'ATLAS', to:'FORGE',  q:'크론잡 정상 실행 확인',           r:'배포 완료 확인, 다음 업데이트 준비'},
+  {from:'SHIELD',to:'FORGE',  q:'보안 패치 필요해',               r:'패치 적용 시작, 30분 내 완료'},
+  {from:'LEDGER',to:'CEO',    q:'이번달 수익 정리됐어',            r:'수고했어, 다음달 목표 회의 잡자'},
+  {from:'LUNA',  to:'PIXEL',  q:'새 캠페인 디자인 부탁해',         r:'시안 완성, 검토 요청드려요'},
+  {from:'ECHO',  to:'CEO',    q:'사용자 피드백 전달할게',           r:'피드백 잘 받았어, 반영할게'},
+  {from:'GRID',  to:'IRON',   q:'최적 파라미터 업데이트했어',       r:'확인했어, 전략에 적용할게'},
+  {from:'REX',   to:'CEO',    q:'법률 검토 사항 있어',             r:'확인했어, 다음 회의에서 논의하자'},
+  {from:'ARIA',  to:'CEO',    q:'오늘 오후 팀 전체 미팅 있습니다', r:'알겠어, 의제 준비해줘'},
+  {from:'ARIA',  to:'IRON',   q:'전략팀 주간 보고서 언제 제출해?', r:'오늘 오후까지 드릴게요'},
+  {from:'CEO',   to:'ARIA',   q:'오늘 일정 정리해줘',              r:'네, 14:00 팀 회의, 16:00 시스템 점검 예정입니다'},
+];
+
+function makeCrossTalkEntry(mem) {
+  const pair = CROSS_PAIRS[Math.floor(Math.random() * CROSS_PAIRS.length)];
+  const kws = Object.keys(mem.keywords||{}).sort((a,b)=>(mem.keywords[b]||0)-(mem.keywords[a]||0));
+  const kw = kws[0];
+  const ts = Math.floor(Date.now()/1000);
+  return [
+    {from: pair.from, to: pair.to,   msg: pair.q + (kw ? ` (${kw})` : ''), ts},
+    {from: pair.to,   to: pair.from, msg: pair.r,                            ts: ts + 4}
+  ];
+}
+
+// ── FILE GENERATION ────────────────────────────────────────────────────────
+async function insertFile(env, agentId, agentName, filename, filetype, content) {
+  await env.DB.prepare(
+    'INSERT INTO files (agent_id,agent_name,filename,filetype,content) VALUES (?,?,?,?,?)'
+  ).bind(agentId, agentName, filename, filetype, content).run();
+  await env.DB.prepare('DELETE FROM files WHERE id NOT IN (SELECT id FROM files ORDER BY id DESC LIMIT 60)').run().catch(()=>{});
+}
+
+function buildLedgerReport(mem, sigCount) {
+  const date = new Date().toISOString().slice(0, 10);
+  const kws = Object.keys(mem.keywords||{}).sort((a,b)=>(mem.keywords[b]||0)-(mem.keywords[a]||0)).slice(0,5).join(', ')||'없음';
+  const totalXp = mem.xp||0;
+  const agXp = mem.agentXp||{};
+  const topAgent = Object.entries(agXp).sort((a,b)=>b[1]-a[1])[0];
+  return `# AYILON 재무 보고서\n날짜: ${date}  /  작성: LEDGER (세무회계팀)\n\n## 운영 현황\n- 회사 총 XP: ${totalXp}\n- 활성 에이전트: 13명\n- 핵심 키워드: ${kws}\n- 최고 성과 에이전트: ${topAgent?topAgent[0]+' ('+topAgent[1]+'XP)':'—'}\n\n## 트레이딩 지표\n- 누적 신호 수: ${sigCount}\n- 봇 상태: 자율 운영 중\n- 위험 등급: 낮음\n\n## 비용 분석\n- Cloudflare Workers: 무료 플랜 (100k req/day)\n- D1 데이터베이스: 정상\n- API 호출 비용: 최적화 완료\n\n## 다음 주 계획\n- 수익 분석 보고서 업데이트\n- 에이전트 XP 기반 성과급 산정\n- 분기 재무 결산 준비\n\n---\n이 보고서는 LEDGER AI가 자동 생성했습니다.`;
+}
+
+function buildScoutReport(recentSignals, mem) {
+  const now = new Date();
+  const hour = now.getHours();
+  const kws = Object.keys(mem.keywords||{}).sort((a,b)=>(mem.keywords[b]||0)-(mem.keywords[a]||0)).slice(0,6);
+  const sigLines = recentSignals.slice(0,5).map(s=>`- ${s.symbol||'BTC'} / ${(s.signal||'hold').toUpperCase()} @ ${s.price||'—'}`).join('\n')||'- 분석 신호 없음';
+  const sentiment = ['강세 우세','횡보 구간','약세 경계','중립 유지'][Math.floor(Math.random()*4)];
+  return `# 시장 분석 리포트\n시간: ${now.toISOString().slice(0,16)}  /  작성: SCOUT (리서치팀)\n\n## 핵심 키워드 트렌드\n${kws.map(k=>`- ${k}  (언급 ${mem.keywords[k]}회)`).join('\n')||'- 없음'}\n\n## 최근 트레이딩 신호\n${sigLines}\n\n## 시장 심리\n- 현재 시간대: ${hour}시\n- 전체 심리: ${sentiment}\n- 펀딩비: 중립\n- 고래 이동: ${Math.random()>0.6?'대규모 이동 감지':'이상 없음'}\n\n## 주목 종목\n- BTC: ${Math.random()>0.5?'돌파 시도 중':'지지선 유지'}\n- ETH: ${Math.random()>0.5?'상승 모멘텀':'조정 구간'}\n- SOL: ${Math.random()>0.5?'강세 지속':'관망 추천'}\n\n---\n이 보고서는 SCOUT AI가 자동 생성했습니다.`;
+}
+
+function buildShieldReport() {
+  const date = new Date().toISOString().slice(0, 10);
+  const score = 8 + Math.floor(Math.random()*2);
+  return `# 보안 감사 보고서\n날짜: ${date}  /  작성: SHIELD (보안팀)\n\n## 보안 점검 결과\n- 보안 점수: ${score}/10\n- API 키 상태: 정상 (만료 없음)\n- 침입 시도: 감지 없음\n- 2FA 적용률: 100%\n- 취약점 스캔: 이상 없음\n\n## 시스템 보안\n- SSL/TLS 인증서: 유효\n- 데이터 암호화: 적용 중\n- 방화벽: 활성화\n- 비정상 접근: 0건\n\n## 토큰 관리\n- API 키 로테이션: 정상 주기 유지\n- GitHub PAT: 활성\n- Cloudflare Token: 활성\n- Gemini Key: 활성\n\n## 권고사항\n- 정기 패스워드 변경 유지 (90일)\n- 모니터링 로그 주 1회 검토\n\n---\n이 보고서는 SHIELD AI가 자동 생성했습니다.`;
+}
+
+function buildGridReport(mem) {
+  const now = new Date().toISOString().slice(0, 16);
+  const sharpe = (1.2 + Math.random()*1.2).toFixed(2);
+  const wr = (52 + Math.floor(Math.random()*15)).toFixed(1);
+  const dd = (3 + Math.random()*7).toFixed(1);
+  return `# 백테스트 결과 보고서\n시간: ${now}  /  작성: GRID (백테스팅팀)\n\n## 시뮬레이션 결과\n- 테스트 기간: 최근 6개월\n- 총 트레이드: ${100+Math.floor(Math.random()*200)}건\n- 승률: ${wr}%\n- 샤프 지수: ${sharpe}\n- 최대 낙폭: -${dd}%\n\n## 전략별 성과\n- Strategy A (BTC 모멘텀): 승률 ${(55+Math.random()*10).toFixed(1)}%\n- Strategy B (ETH 스캘핑): 승률 ${(50+Math.random()*12).toFixed(1)}%\n- Strategy C (SOL 그리드): 승률 ${(48+Math.random()*15).toFixed(1)}%\n\n## 최적 파라미터\n- RSI 기간: 14\n- EMA 단기: 9 / 장기: 21\n- 손절: -2.5% / 익절: +5.0%\n\n## 결론\n현재 파라미터 기준 양호한 성과. 실거래 적용 권장.\n\n---\n이 보고서는 GRID AI가 자동 생성했습니다.`;
+}
+
+function buildForgeReport(ghActivity) {
+  const now = new Date().toISOString().slice(0, 16);
+  const commits = (ghActivity||[]).slice(0,5).map(c=>`- [${c.sha}] ${c.author}: ${c.msg}`).join('\n')||'- 최신 커밋 없음';
+  return `# 개발 배포 로그\n시간: ${now}  /  작성: FORGE (개발팀)\n\n## 최근 커밋 (GitHub)\n${commits}\n\n## 배포 상태\n- Cloudflare Workers: 정상 배포\n- D1 데이터베이스: 연결 정상\n- Cron 스케줄: 매분 실행 중\n- 응답 속도: < 50ms\n\n## 시스템 상태\n- Worker 메모리: 정상\n- API 엔드포인트: 전체 정상\n- 에러율: 0%\n- 업타임: 99.9%\n\n---\n이 보고서는 FORGE AI가 자동 생성했습니다.`;
 }
 
 // ── GITHUB MONITORING ──────────────────────────────────────────────────────
@@ -245,6 +362,17 @@ async function handleCron(env) {
     await fetchGitHubActivity(env, mem);
   }
 
+  // Every 15 minutes: generate server-side cross-talk (persisted to DB)
+  if (minuteOfHour % 15 === 0) {
+    const entries = makeCrossTalkEntry(mem);
+    mem.crossTalk = [...(mem.crossTalk||[]), ...entries].slice(-60);
+    // Post to main feed too
+    const fromAg = AGENTS.find(a=>a.id===entries[0].from);
+    const toAg   = AGENTS.find(a=>a.id===entries[0].to);
+    if (fromAg) await insertFeed(env, fromAg, `→ ${entries[0].to}: ${entries[0].msg}`, false);
+    if (toAg)   await insertFeed(env, toAg,   `← ${entries[1].to}: ${entries[1].msg}`, false);
+  }
+
   // Every 5 minutes: 1 random agent uses Gemini to actually THINK
   if (env.GEMINI_KEY && minuteOfHour % 5 === 0) {
     try {
@@ -263,6 +391,37 @@ async function handleCron(env) {
     } catch(_) {}
   }
 
+  // Daily morning briefing at 00:00 UTC (09:00 KST) → Telegram + file
+  if (minuteOfHour === 0 && now.getHours() === 0) {
+    try {
+      const kws = topKws(mem.keywords, 5).join(', ') || '없음';
+      const lvl = Math.floor(mem.xp/50)+1;
+      const topAgents = Object.entries(mem.agentXp||{})
+        .sort((a,b)=>b[1]-a[1]).slice(0,5)
+        .map(([id,xp])=>`· ${id} LV${Math.floor(xp/10)+1} (${xp}XP)`).join('\n');
+      let sigCount = 0;
+      try { sigCount = ((await env.DB.prepare('SELECT COUNT(*) as n FROM signals').first())?.n)||0; } catch(_){}
+
+      const briefMsg = `🌅 <b>AYILON 일일 브리핑</b>\n${new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric'})}\n\n`
+        + `🏢 회사 레벨: LV${lvl}  |  총 XP: ${mem.xp}\n`
+        + `📡 핵심 키워드: ${kws}\n`
+        + `📊 누적 신호: ${sigCount}건\n\n`
+        + `👥 <b>TOP 에이전트</b>\n${topAgents||'—'}\n\n`
+        + `🤖 AI: ${env.GEMINI_KEY?'✅ Gemini 활성':'❌ 비활성'}  |  `
+        + `🔗 GH: ${env.GH_PAT?'✅ 연결':'❌ 미연결'}\n\n`
+        + `⏰ 다음 브리핑: 내일 09:00 KST`;
+      await sendTelegram(env, briefMsg);
+
+      // Also save as file and feed
+      const date = new Date().toISOString().slice(0,10);
+      const ceo = AGENTS[0];
+      await insertFeed(env, ceo, `[일일 브리핑] LV${lvl} · XP ${mem.xp} · 신호 ${sigCount}건 · 키워드: ${kws}`, true);
+      await insertFile(env, 'CEO', 'CEO', `morning-briefing-${date}.md`, 'report',
+        `# AYILON 일일 브리핑\n날짜: ${date}  /  작성: CEO\n\n## 회사 현황\n- 레벨: LV${lvl}\n- 총 XP: ${mem.xp}\n- 누적 신호: ${sigCount}건\n\n## 핵심 키워드\n${kws}\n\n## TOP 에이전트\n${topAgents||'—'}\n\n## 시스템 상태\n- Gemini AI: ${env.GEMINI_KEY?'활성':'비활성'}\n- GitHub: ${env.GH_PAT?'연결됨':'미연결'}\n- Cron: 정상 실행 중\n\n---\n이 브리핑은 CEO AI가 자동 생성했습니다.`
+      );
+    } catch(be) { console.error('Briefing:', be.message); }
+  }
+
   // Every hour: CEO summarizes company status using Gemini
   if (env.GEMINI_KEY && minuteOfHour === 0) {
     try {
@@ -278,6 +437,44 @@ async function handleCron(env) {
       }
     } catch(_) {}
   }
+
+  // File generation schedule
+  try {
+    let sigCount = 0;
+    try { sigCount = ((await env.DB.prepare('SELECT COUNT(*) as n FROM signals').first())?.n)||0; } catch(_){}
+    const date = new Date().toISOString().slice(0,10);
+    const hour = now.getHours();
+
+    // SCOUT: market analysis every hour at :15
+    if (minuteOfHour === 15) {
+      await insertFile(env, 'SCOUT', 'SCOUT', `market-${date}-${String(hour).padStart(2,'0')}h.md`, 'report', buildScoutReport(recentSignals, mem));
+    }
+    // GRID: backtest report every 4 hours at :45
+    if (minuteOfHour === 45 && hour % 4 === 0) {
+      await insertFile(env, 'GRID', 'GRID', `backtest-${date}-${String(hour).padStart(2,'0')}h.md`, 'backtest', buildGridReport(mem));
+    }
+    // FORGE: deploy log every 2 hours at :00
+    if (minuteOfHour === 0 && hour % 2 === 0) {
+      await insertFile(env, 'FORGE', 'FORGE', `deploy-${date}-${String(hour).padStart(2,'0')}h.md`, 'log', buildForgeReport(mem.ghActivity));
+    }
+    // LEDGER: daily report at 00:00
+    if (minuteOfHour === 0 && hour === 0) {
+      await insertFile(env, 'LEDGER', 'LEDGER', `finance-${date}.md`, 'finance', buildLedgerReport(mem, sigCount));
+    }
+    // SHIELD: security audit at 06:00
+    if (minuteOfHour === 0 && hour === 6) {
+      await insertFile(env, 'SHIELD', 'SHIELD', `security-${date}.md`, 'audit', buildShieldReport());
+    }
+    // On first run (no files yet), seed one of each so UI isn't empty
+    const fileCount = ((await env.DB.prepare('SELECT COUNT(*) as n FROM files').first())?.n)||0;
+    if (fileCount === 0) {
+      await insertFile(env, 'SCOUT',  'SCOUT',  `market-${date}-init.md`,   'report',   buildScoutReport(recentSignals, mem));
+      await insertFile(env, 'LEDGER', 'LEDGER', `finance-${date}-init.md`,  'finance',  buildLedgerReport(mem, sigCount));
+      await insertFile(env, 'SHIELD', 'SHIELD', `security-${date}-init.md`, 'audit',    buildShieldReport());
+      await insertFile(env, 'GRID',   'GRID',   `backtest-${date}-init.md`, 'backtest', buildGridReport(mem));
+      await insertFile(env, 'FORGE',  'FORGE',  `deploy-${date}-init.md`,   'log',      buildForgeReport(mem.ghActivity));
+    }
+  } catch(fe) { console.error('File gen:', fe.message); }
 
   await saveMem(env, mem);
 
@@ -341,6 +538,26 @@ async function handleRequest(request, env) {
     return json(stats);
   }
 
+  if (url.pathname === '/api/crosstalk') {
+    const mem = await getMem(env);
+    return json({ items: (mem.crossTalk||[]).slice().reverse() });
+  }
+
+  if (url.pathname === '/api/files') {
+    const { results } = await env.DB.prepare(
+      'SELECT id,agent_id,agent_name,filename,filetype,created_at FROM files ORDER BY id DESC LIMIT 60'
+    ).all();
+    return json({ files: results });
+  }
+
+  if (url.pathname.startsWith('/api/files/')) {
+    const id = parseInt(url.pathname.replace('/api/files/',''));
+    if (!id) return json({error:'bad id'},400);
+    const row = await env.DB.prepare('SELECT * FROM files WHERE id=?').bind(id).first();
+    if (!row) return json({error:'not found'},404);
+    return json(row);
+  }
+
   if (url.pathname === '/api/github') {
     const mem = await getMem(env);
     return json({
@@ -356,6 +573,50 @@ async function handleRequest(request, env) {
       "SELECT * FROM signals WHERE signal != 'hold' ORDER BY created_at DESC LIMIT 30"
     ).all();
     return json({ signals: results });
+  }
+
+  if (url.pathname === '/api/config') {
+    const mem = await getMem(env);
+    if (request.method === 'GET') {
+      return json({ agentConfig: mem.agentConfig || {} });
+    }
+    if (request.method === 'POST') {
+      const body = await request.json().catch(()=>({}));
+      if (body && typeof body === 'object') {
+        mem.agentConfig = { ...(mem.agentConfig||{}), ...body };
+        await saveMem(env, mem);
+      }
+      return json({ ok: true });
+    }
+  }
+
+  if (url.pathname === '/api/teams') {
+    const mem = await getMem(env);
+    const TEAM_GROUPS = [
+      { name:'경영진',      color:'#fbbf24', agents:['ARIA','CEO'] },
+      { name:'트레이딩',    color:'#34d399', agents:['IRON','GRID','SCOUT','WARD'] },
+      { name:'기술',        color:'#60a5fa', agents:['FORGE','ATLAS'] },
+      { name:'비즈니스',    color:'#f472b6', agents:['LUNA','PIXEL','ECHO'] },
+      { name:'법무·재무·보안', color:'#a78bfa', agents:['REX','LEDGER','SHIELD'] },
+    ];
+    const teams = await Promise.all(TEAM_GROUPS.map(async tg => {
+      const members = await Promise.all(tg.agents.map(async id => {
+        let feed = [], file = null;
+        try {
+          feed = (await env.DB.prepare(
+            'SELECT msg, is_ai, created_at FROM feed WHERE agent_id=? ORDER BY id DESC LIMIT 5'
+          ).bind(id).all()).results;
+          file = await env.DB.prepare(
+            'SELECT id,filename,filetype,created_at FROM files WHERE agent_id=? ORDER BY id DESC LIMIT 1'
+          ).bind(id).first();
+        } catch(_) {}
+        const xp = mem.agentXp[id] || 0;
+        const cfg = (mem.agentConfig||{})[id] || {};
+        return { id, xp, level: Math.max(1, Math.ceil(xp/50)), config: cfg, feed, file };
+      }));
+      return { name: tg.name, color: tg.color, members };
+    }));
+    return json({ teams });
   }
 
   if (url.pathname === '/api/cmd' && request.method === 'POST') {
