@@ -225,7 +225,7 @@ function buildScoutReport(recentSignals, mem) {
   const kws = Object.keys(mem.keywords||{}).sort((a,b)=>(mem.keywords[b]||0)-(mem.keywords[a]||0)).slice(0,6);
   const sigLines = recentSignals.slice(0,5).map(s=>`- ${s.symbol||'BTC'} / ${(s.signal||'hold').toUpperCase()} @ ${s.price||'—'}`).join('\n')||'- 분석 신호 없음';
   const sentiment = ['강세 우세','횡보 구간','약세 경계','중립 유지'][Math.floor(Math.random()*4)];
-  return `# 시장 분석 리포트\n시간: ${now.toISOString().slice(0,16)}  /  작성: SCOUT (리서치팀)\n\n## 핵심 키워드 트렌드\n${kws.map(k=>`- ${k}  (언급 ${mem.keywords[k]}회)`).join('\n')||'- 없음'}\n\n## 최근 트레이딩 신호\n${sigLines}\n\n## 시장 심리\n- 현재 시간대: ${hour}시\n- 전체 심리: ${sentiment}\n- 펀딩비: 중립\n- 고래 이동: ${Math.random()>0.6?'대규모 이동 감지':'이상 없음'}\n\n## 주목 종목\n- BTC: ${Math.random()>0.5?'돌파 시도 중','지지선 유지'[0]:'박스권 유지'}\n- ETH: ${Math.random()>0.5?'상승 모멘텀':'조정 구간'}\n- SOL: ${Math.random()>0.5?'강세 지속':'관망 추천'}\n\n---\n이 보고서는 SCOUT AI가 자동 생성했습니다.`;
+  return `# 시장 분석 리포트\n시간: ${now.toISOString().slice(0,16)}  /  작성: SCOUT (리서치팀)\n\n## 핵심 키워드 트렌드\n${kws.map(k=>`- ${k}  (언급 ${mem.keywords[k]}회)`).join('\n')||'- 없음'}\n\n## 최근 트레이딩 신호\n${sigLines}\n\n## 시장 심리\n- 현재 시간대: ${hour}시\n- 전체 심리: ${sentiment}\n- 펀딩비: 중립\n- 고래 이동: ${Math.random()>0.6?'대규모 이동 감지':'이상 없음'}\n\n## 주목 종목\n- BTC: ${Math.random()>0.5?'돌파 시도 중':'지지선 유지'}\n- ETH: ${Math.random()>0.5?'상승 모멘텀':'조정 구간'}\n- SOL: ${Math.random()>0.5?'강세 지속':'관망 추천'}\n\n---\n이 보고서는 SCOUT AI가 자동 생성했습니다.`;
 }
 
 function buildShieldReport() {
