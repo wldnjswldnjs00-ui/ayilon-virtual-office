@@ -7,544 +7,430 @@
 <style>
 :root{
   --bg-0:#05080d;--bg-1:#0a0e15;
-  --bg-2:rgba(20,26,38,.55);--bg-3:rgba(28,34,48,.65);
-  --line:rgba(255,255,255,.07);--line-2:rgba(255,255,255,.12);
+  --bg-2:rgba(20,26,38,.58);--bg-3:rgba(28,34,48,.7);
+  --line:rgba(255,255,255,.07);--line-2:rgba(255,255,255,.13);
   --text:#e8eef7;--dim:#8b95a3;--muted:#5b6675;--bright:#fff;
-  --accent:#FBBF24;--accent-2:#FDE68A;--accent-glow:rgba(251,191,36,.22);
-  --magenta:#ff4d98;--gold:#fbbf24;--danger:#ff5260;--ok:#34d399;
+  --accent:#FBBF24;--accent-2:#FDE68A;--glow:rgba(251,191,36,.22);
+  --magenta:#ff4d98;--danger:#ff5260;--ok:#34d399;--blue:#60a5fa;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;min-height:100vh}
-body{
-  font-family:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
-  font-size:13px;line-height:1.55;color:var(--text);
-  background:var(--bg-0);overflow-x:hidden;
-}
-#bgCanvas{position:fixed;inset:0;z-index:-1;pointer-events:none}
-body::before{
-  content:'';position:fixed;inset:0;z-index:-2;
-  background:
-    radial-gradient(ellipse 80% 60% at 20% 0%,rgba(251,191,36,.07),transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 100%,rgba(255,77,152,.04),transparent 60%),
-    radial-gradient(ellipse 50% 40% at 50% 50%,rgba(253,230,138,.03),transparent 70%),
-    linear-gradient(180deg,var(--bg-0) 0%,var(--bg-1) 100%);
-}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-size:13px;line-height:1.55;color:var(--text);background:var(--bg-0);overflow-x:hidden}
+#bgCv{position:fixed;inset:0;z-index:-1;pointer-events:none}
+body::before{content:'';position:fixed;inset:0;z-index:-2;background:radial-gradient(ellipse 80% 60% at 20% 0%,rgba(251,191,36,.07),transparent 60%),radial-gradient(ellipse 60% 50% at 80% 100%,rgba(255,77,152,.04),transparent 60%),linear-gradient(180deg,var(--bg-0) 0%,var(--bg-1) 100%)}
 
 /* HERO */
-.hero{
-  position:relative;padding:26px 40px 18px;
-  border-bottom:1px solid var(--line);
-  background:linear-gradient(180deg,rgba(10,14,21,.8),rgba(10,14,21,.3));
-  backdrop-filter:blur(20px);
-}
-.hero-inner{
-  display:flex;align-items:flex-end;justify-content:space-between;
-  gap:20px;max-width:1440px;margin:0 auto;
-}
-.hero-brand{display:flex;align-items:center;gap:16px}
-.logo-mark{
-  width:50px;height:50px;display:flex;align-items:center;justify-content:center;
-  font-size:30px;color:var(--accent);
-  filter:drop-shadow(0 0 14px var(--accent-glow));
-  animation:spinSlow 25s linear infinite;flex-shrink:0;
-}
-@keyframes spinSlow{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-.hero-eyebrow{
-  font-size:10px;font-weight:700;color:var(--accent);
-  letter-spacing:3px;text-transform:uppercase;margin-bottom:2px;
-}
-.hero-title{
-  font-size:28px;font-weight:800;line-height:1.1;letter-spacing:-.5px;
-  background:linear-gradient(135deg,#fff 0%,#c8d1de 100%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-}
-.hero-meta{display:flex;gap:7px;margin-top:7px;flex-wrap:wrap}
-.meta-pill{
-  font-size:10.5px;padding:3px 9px;border-radius:999px;
-  background:var(--bg-2);border:1px solid var(--line);
-  color:var(--dim);display:inline-flex;align-items:center;gap:5px;
-}
-.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--dim)}
-.dot.live{background:var(--ok);box-shadow:0 0 8px var(--ok);animation:pulse 1.6s ease-in-out infinite}
-.dot.gold{background:var(--accent);box-shadow:0 0 6px var(--accent)}
-@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
-.hero-actions{display:flex;gap:7px;align-items:center;flex-shrink:0}
-
-/* BUTTONS */
-.btn{
-  font-family:inherit;font-size:12px;font-weight:500;
-  padding:7px 13px;border-radius:9px;cursor:pointer;
-  background:var(--bg-2);color:var(--text);border:1px solid var(--line-2);
-  transition:all .18s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
-}
+.hero{position:relative;padding:22px 40px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(10,14,21,.85),rgba(10,14,21,.3));backdrop-filter:blur(20px)}
+.hero-inner{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;max-width:1440px;margin:0 auto}
+.hero-brand{display:flex;align-items:center;gap:14px}
+.logo{width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--accent);filter:drop-shadow(0 0 12px var(--glow));animation:spin 25s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.eyebrow{font-size:9.5px;font-weight:700;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:2px}
+.title{font-size:26px;font-weight:800;letter-spacing:-.5px;background:linear-gradient(135deg,#fff,#c8d1de);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-meta{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.pill{font-size:10px;padding:2px 8px;border-radius:999px;background:var(--bg-2);border:1px solid var(--line);color:var(--dim);display:inline-flex;align-items:center;gap:4px}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%}
+.dot.g{background:var(--ok);box-shadow:0 0 7px var(--ok);animation:blink 1.6s infinite}
+.dot.y{background:var(--accent);box-shadow:0 0 6px var(--accent)}
+@keyframes blink{0%,100%{opacity:.5}50%{opacity:1}}
+.hero-btns{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.btn{font-family:inherit;font-size:12px;font-weight:500;padding:6px 12px;border-radius:8px;cursor:pointer;background:var(--bg-2);color:var(--text);border:1px solid var(--line-2);transition:all .18s;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .btn:hover{background:var(--bg-3);border-color:rgba(251,191,36,.25);transform:translateY(-1px)}
-.btn.primary{
-  background:linear-gradient(135deg,var(--accent) 0%,var(--accent-2) 100%);
-  color:#001a0d;border-color:transparent;font-weight:700;
-  box-shadow:0 4px 14px var(--accent-glow);
-}
-.btn.primary:hover{box-shadow:0 8px 24px var(--accent-glow);transform:translateY(-2px)}
-.btn.sm{padding:5px 10px;font-size:11.5px}
+.btn.p{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#001a0d;border:none;font-weight:700;box-shadow:0 4px 14px var(--glow)}
+.btn.p:hover{box-shadow:0 8px 22px var(--glow);transform:translateY(-2px)}
+.btn.sm{padding:4px 9px;font-size:11.5px}
 .btn.ghost{background:transparent;border-color:var(--line)}
 .btn.ghost:hover{background:var(--bg-2)}
 
-/* KPI STRIP */
-.kpi-strip{
-  display:grid;grid-template-columns:repeat(5,1fr);
-  border-bottom:1px solid var(--line);
-  background:rgba(10,14,21,.4);
-}
-.kpi-cell{
-  text-align:center;padding:18px 10px;border-right:1px solid var(--line);
-  transition:background .2s;cursor:default;
-}
-.kpi-cell:last-child{border-right:none}
-.kpi-cell:hover{background:rgba(255,255,255,.015)}
-.kpi-icon{font-size:17px;margin-bottom:3px;opacity:.8}
-.kpi-num{
-  font-size:22px;font-weight:800;letter-spacing:-.5px;
-  background:linear-gradient(135deg,#fff,#b6c4d4);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  font-variant-numeric:tabular-nums;
-}
-.kpi-label{font-size:9.5px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:1.2px;margin-top:3px}
+/* KPI */
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:1px solid var(--line);background:rgba(10,14,21,.4)}
+.kpi{text-align:center;padding:16px 8px;border-right:1px solid var(--line);cursor:default;transition:background .2s}
+.kpi:last-child{border-right:none}
+.kpi:hover{background:rgba(255,255,255,.014)}
+.kpi-ic{font-size:16px;margin-bottom:3px;opacity:.8}
+.kpi-n{font-size:21px;font-weight:800;letter-spacing:-.5px;background:linear-gradient(135deg,#fff,#b6c4d4);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
+.kpi-l{font-size:9px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:1.2px;margin-top:2px}
 
-/* TAB NAV */
-.tab-nav{
-  display:flex;gap:2px;padding:8px 20px;
-  border-bottom:1px solid var(--line);
-  background:rgba(10,14,21,.3);overflow-x:auto;
-}
-.tab-btn{
-  font-family:inherit;font-size:11.5px;font-weight:600;
-  padding:6px 14px;border-radius:8px;cursor:pointer;
-  background:transparent;color:var(--dim);border:1px solid transparent;
-  transition:all .15s;white-space:nowrap;letter-spacing:.3px;
-  display:flex;align-items:center;gap:5px;
-}
-.tab-btn:hover{color:var(--text);background:var(--bg-2)}
-.tab-btn.active{color:var(--accent);background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.2)}
+/* TABS */
+.tabs{display:flex;gap:2px;padding:7px 18px;border-bottom:1px solid var(--line);background:rgba(10,14,21,.3);overflow-x:auto}
+.tab{font-family:inherit;font-size:11.5px;font-weight:600;padding:5px 13px;border-radius:7px;cursor:pointer;background:transparent;color:var(--dim);border:1px solid transparent;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.tab:hover{color:var(--text);background:var(--bg-2)}
+.tab.on{color:var(--accent);background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.2)}
 
 /* MAIN LAYOUT */
-.main-wrap{
-  display:flex;max-width:1440px;margin:0 auto;
-  min-height:calc(100vh - 210px);
-}
-.main-content{flex:1;padding:18px 20px;border-right:1px solid var(--line);min-width:0}
-.right-panel{width:340px;flex-shrink:0;padding:14px;display:flex;flex-direction:column;gap:12px}
+.wrap{display:flex;max-width:1440px;margin:0 auto;min-height:calc(100vh - 200px)}
+.content{flex:1;padding:16px 18px;border-right:1px solid var(--line);min-width:0}
+.rpanel{width:320px;flex-shrink:0;padding:12px;display:flex;flex-direction:column;gap:10px}
 
-/* CARDS */
-.card{
-  background:var(--bg-2);border:1px solid var(--line);
-  border-radius:14px;padding:16px 18px;
-  backdrop-filter:blur(14px);position:relative;
-  overflow:hidden;transition:border-color .2s;margin-bottom:14px;
-}
+/* CARD */
+.card{background:var(--bg-2);border:1px solid var(--line);border-radius:13px;padding:14px 16px;backdrop-filter:blur(14px);position:relative;overflow:hidden;transition:border-color .2s;margin-bottom:12px}
 .card:last-child{margin-bottom:0}
-.card::before{
-  content:'';position:absolute;left:0;right:0;top:0;height:1px;
-  background:linear-gradient(90deg,transparent,var(--accent-glow),transparent);
-  opacity:.4;
-}
+.card::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--glow),transparent);opacity:.4}
 .card:hover{border-color:var(--line-2)}
-.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px}
-.card-title{
-  font-size:11.5px;font-weight:700;letter-spacing:.5px;
-  text-transform:uppercase;color:var(--text);
-  display:flex;align-items:center;gap:7px;
-}
-.title-icon{font-size:14px;opacity:.9}
-.badge{
-  font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:999px;
-  background:var(--bg-3);color:var(--dim);border:1px solid var(--line);
-}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;gap:8px}
+.ct{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text);display:flex;align-items:center;gap:6px}
+.ct-ic{font-size:13px;opacity:.9}
+.badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px;background:var(--bg-3);color:var(--dim);border:1px solid var(--line)}
 .badge.ok{color:var(--ok);border-color:rgba(52,211,153,.3)}
-.badge.warn{color:var(--gold);border-color:rgba(251,191,36,.3)}
+.badge.warn{color:var(--accent);border-color:rgba(251,191,36,.3)}
 .badge.hot{color:var(--magenta);border-color:rgba(255,77,152,.3)}
 .badge.ai-on{background:rgba(52,211,153,.1);color:var(--ok);border-color:rgba(52,211,153,.3)}
 .badge.ai-off{background:rgba(255,255,255,.04);color:var(--muted);border-color:var(--line)}
 
-/* SECTION VISIBILITY */
-.section{display:none}
-.section.active{display:block}
+/* SECTION */
+.sec{display:none}
+.sec.on{display:block}
 
-/* FEED */
-.feed-list{display:flex;flex-direction:column;gap:7px;max-height:600px;overflow-y:auto}
-.feed-item{
-  display:flex;gap:9px;padding:9px 12px;
-  background:rgba(255,255,255,.02);border:1px solid var(--line);
-  border-radius:10px;transition:background .15s;
+/* ── OFFICE ── */
+.office-room{
+  background:linear-gradient(180deg,rgba(5,8,13,0) 0%,rgba(10,14,21,.3) 100%);
+  border-radius:13px;border:1px solid var(--line);
+  padding:20px;position:relative;overflow:hidden;
+  min-height:460px;margin-bottom:12px;
 }
-.feed-item:hover{background:rgba(255,255,255,.04)}
-.feed-code{
-  font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:5px;
-  background:rgba(251,191,36,.1);color:var(--accent);
-  border:1px solid rgba(251,191,36,.18);white-space:nowrap;
-  height:fit-content;flex-shrink:0;letter-spacing:.5px;font-family:monospace;
+.office-room::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,.025) 40px),
+             repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,.025) 40px);
+  pointer-events:none;
 }
-.feed-code.ai{background:rgba(52,211,153,.1);color:var(--ok);border-color:rgba(52,211,153,.2)}
-.feed-body{flex:1;min-width:0}
-.feed-who{font-size:10.5px;font-weight:600;color:var(--bright);margin-bottom:1px}
-.feed-team{color:var(--dim);font-weight:400}
-.feed-msg{font-size:12px;color:var(--text);line-height:1.4}
-.feed-time{font-size:9.5px;color:var(--muted);margin-top:2px;font-family:monospace}
+.office-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:relative;z-index:1}
+.office-title{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:7px}
+.office-decorations{display:flex;gap:14px;font-size:18px;opacity:.5;filter:saturate(.6)}
+.desk-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:10px;
+  position:relative;z-index:1;
+}
+.desk{
+  background:rgba(20,26,38,.7);border:1.5px solid var(--line);
+  border-radius:11px;padding:10px 8px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  cursor:pointer;transition:all .25s;position:relative;
+  min-height:110px;justify-content:center;
+}
+.desk:hover{border-color:rgba(251,191,36,.35);transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.5),0 0 16px rgba(251,191,36,.08)}
+.desk.sec-agent{border-color:rgba(255,77,152,.3);background:rgba(255,77,152,.05)}
+.desk.sec-agent:hover{border-color:rgba(255,77,152,.5);box-shadow:0 10px 24px rgba(0,0,0,.5),0 0 16px rgba(255,77,152,.1)}
+.desk.active{border-color:rgba(52,211,153,.5)!important;box-shadow:0 0 20px rgba(52,211,153,.12)!important}
+.desk-bubble{
+  position:absolute;top:-38px;left:50%;transform:translateX(-50%);
+  background:rgba(20,26,38,.95);border:1px solid var(--accent);
+  color:var(--text);padding:4px 9px;border-radius:7px;
+  font-size:9.5px;white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis;
+  opacity:0;pointer-events:none;z-index:10;
+  transition:opacity .3s;
+}
+.desk-bubble.show{opacity:1}
+.desk-bubble::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:4px solid transparent;border-top-color:var(--accent)}
+.desk-status{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 5px var(--ok)}
+.desk-emoji{font-size:28px;line-height:1;animation:float 3.5s ease-in-out infinite}
+.desk.active .desk-emoji{animation:float-active 0.5s ease-in-out infinite alternate}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes float-active{0%{transform:translateY(-2px) scale(1.05)}100%{transform:translateY(2px) scale(1.02)}}
+.desk-name{font-size:10px;font-weight:700;color:var(--bright);text-transform:uppercase;letter-spacing:.4px}
+.desk-team-lbl{font-size:8.5px;color:var(--dim);text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.desk-lv{font-size:8.5px;font-weight:700;padding:1px 5px;border-radius:999px;background:rgba(251,191,36,.1);color:var(--accent);border:1px solid rgba(251,191,36,.2)}
+.desk-typing{display:flex;gap:2px;height:8px;align-items:center;opacity:0;transition:opacity .3s}
+.desk.active .desk-typing{opacity:1}
+.desk-typing span{width:3px;height:3px;border-radius:50%;background:var(--ok);animation:dot-bounce .8s ease-in-out infinite}
+.desk-typing span:nth-child(2){animation-delay:.15s}
+.desk-typing span:nth-child(3){animation-delay:.3s}
+@keyframes dot-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 
-/* AGENTS */
-.agent-grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));
-  gap:10px;
+.office-ticker{
+  margin-top:10px;position:relative;z-index:1;
+  background:rgba(10,14,21,.5);border:1px solid var(--line);
+  border-radius:8px;padding:6px 12px;overflow:hidden;height:30px;
 }
-.agent-card{
-  background:rgba(255,255,255,.025);border:1.5px solid var(--line);
-  border-radius:12px;padding:14px 10px;
-  display:flex;flex-direction:column;align-items:center;
-  gap:5px;cursor:pointer;transition:all .2s;position:relative;
-}
-.agent-card:hover{
-  border-color:rgba(251,191,36,.3);transform:translateY(-2px);
-  box-shadow:0 8px 22px rgba(0,0,0,.4),0 0 14px rgba(251,191,36,.07);
-}
-.agent-card.sec{
-  border-color:rgba(255,77,152,.3);background:rgba(255,77,152,.04);
-}
-.agent-card.sec:hover{
-  border-color:rgba(255,77,152,.5);
-  box-shadow:0 8px 22px rgba(0,0,0,.4),0 0 14px rgba(255,77,152,.1);
-}
-.agent-status{
-  position:absolute;top:8px;right:8px;
-  width:7px;height:7px;border-radius:50%;
-  background:var(--ok);box-shadow:0 0 6px var(--ok);
-}
-.agent-emoji{font-size:30px;line-height:1}
-.agent-name{font-size:10.5px;font-weight:700;color:var(--bright);text-transform:uppercase;letter-spacing:.5px}
-.agent-team{font-size:9.5px;color:var(--dim);text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.agent-lv{
-  font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:999px;
-  background:rgba(251,191,36,.1);color:var(--accent);border:1px solid rgba(251,191,36,.2);
-}
-.agent-ai{
-  font-size:9px;padding:1px 5px;border-radius:999px;
-  background:rgba(52,211,153,.1);color:var(--ok);
-  border:1px solid rgba(52,211,153,.2);font-weight:700;
-}
-.agent-ai.off{background:rgba(255,255,255,.04);color:var(--muted);border-color:var(--line)}
+.ticker-inner{display:flex;gap:32px;animation:ticker 30s linear infinite;white-space:nowrap;font-size:10.5px;color:var(--dim)}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ticker-item{flex-shrink:0}
+.ticker-item .tc{color:var(--accent);font-weight:700;margin-right:4px;font-family:monospace}
 
-/* SIGNALS */
-.sig-row{
-  display:flex;align-items:center;gap:10px;padding:9px 12px;
-  background:rgba(255,255,255,.02);border:1px solid var(--line);
-  border-radius:10px;margin-bottom:7px;
+/* Agent Detail Panel */
+.agent-detail{
+  background:var(--bg-2);border:1px solid rgba(251,191,36,.2);
+  border-radius:11px;padding:14px;margin-top:10px;
+  display:none;
 }
-.sig-side{
-  font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:5px;
-  min-width:44px;text-align:center;
-}
-.sig-side.long{background:rgba(52,211,153,.15);color:var(--ok)}
-.sig-side.short{background:rgba(255,82,96,.15);color:var(--danger)}
-.sig-sym{font-size:13px;font-weight:700;color:var(--bright)}
-.sig-detail{font-size:10.5px;color:var(--dim);font-family:monospace;margin-top:1px}
-.sig-conf{font-size:10.5px;font-weight:700;color:var(--accent);margin-left:auto;flex-shrink:0}
+.agent-detail.show{display:block}
+.ad-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ad-emoji{font-size:28px}
+.ad-info h3{font-size:14px;font-weight:700;color:var(--bright)}
+.ad-info p{font-size:10.5px;color:var(--dim)}
+.ad-msgs{display:flex;flex-direction:column;gap:6px}
+.ad-msg{padding:7px 10px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:7px;font-size:11.5px;color:var(--text);line-height:1.4}
+.ad-msg .am-time{font-size:9.5px;color:var(--muted);margin-top:2px}
+.ad-file{margin-top:8px;padding:7px 10px;background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.2);border-radius:7px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px}
+.ad-file:hover{background:rgba(251,191,36,.1)}
+.ad-file-icon{font-size:16px}
+.ad-file-info .n{font-size:11.5px;font-weight:600;color:var(--accent)}
+.ad-file-info .m{font-size:10px;color:var(--dim)}
 
-/* TRADES TABLE */
-.tr-table{width:100%;border-collapse:collapse}
-.tr-table th{
-  font-size:9.5px;font-weight:700;color:var(--dim);
-  text-transform:uppercase;letter-spacing:.8px;
-  padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;
-}
-.tr-table td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.04);font-size:11.5px}
-.tr-table tr:hover td{background:rgba(255,255,255,.02)}
-.td-sym{font-weight:700;color:var(--bright)}
-.td-long{color:var(--ok);font-weight:600}
-.td-short{color:var(--danger);font-weight:600}
-.td-pos{color:var(--ok);font-weight:600}
-.td-neg{color:var(--danger);font-weight:600}
-.td-open{color:var(--accent)}
-.td-closed{color:var(--muted)}
-
-/* FILES */
-.files-wrap{display:flex;gap:12px;min-height:400px}
-.files-list{width:250px;flex-shrink:0;display:flex;flex-direction:column;gap:5px;overflow-y:auto;max-height:550px}
-.file-row{
-  display:flex;align-items:center;gap:9px;padding:9px 11px;
-  background:rgba(255,255,255,.02);border:1px solid var(--line);
-  border-radius:9px;cursor:pointer;transition:all .15s;
-}
-.file-row:hover{background:rgba(255,255,255,.04);border-color:var(--line-2)}
-.file-row.sel{background:rgba(251,191,36,.06);border-color:rgba(251,191,36,.25)}
-.file-ic{font-size:18px;flex-shrink:0}
-.file-info{min-width:0;flex:1}
-.file-name{font-size:11.5px;font-weight:600;color:var(--bright);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.file-meta{font-size:9.5px;color:var(--dim);margin-top:1px}
-.ftype{font-size:8.5px;font-weight:700;padding:1px 5px;border-radius:3px;flex-shrink:0}
+/* ── TEAMS ── */
+.team-card{background:var(--bg-2);border:1px solid var(--line);border-radius:13px;padding:16px;position:relative;overflow:hidden;margin-bottom:12px;transition:border-color .2s}
+.team-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0 3px 3px 0}
+.team-card:hover{border-color:var(--line-2)}
+.team-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.team-name{font-size:13px;font-weight:700;color:var(--bright)}
+.team-count{font-size:10px;color:var(--dim);background:var(--bg-3);padding:2px 7px;border-radius:999px;border:1px solid var(--line)}
+.team-members{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tm{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;transition:all .15s;flex:1;min-width:100px}
+.tm:hover{background:rgba(255,255,255,.06);border-color:var(--line-2)}
+.tm-emoji{font-size:20px}
+.tm-info{min-width:0}
+.tm-name{font-size:11px;font-weight:700;color:var(--bright)}
+.tm-lv{font-size:9.5px;color:var(--accent)}
+.team-work{border-top:1px solid var(--line);padding-top:10px}
+.tw-label{font-size:9.5px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.tw-msg{font-size:11.5px;color:var(--text);padding:5px 8px;background:rgba(255,255,255,.02);border-left:2px solid;border-radius:0 6px 6px 0;margin-bottom:4px;line-height:1.4}
+.tw-who{font-size:9.5px;color:var(--muted);margin-top:2px;font-family:monospace}
+.tw-file{display:flex;align-items:center;gap:6px;margin-top:8px;padding:6px 9px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:7px;cursor:pointer;transition:all .15s}
+.tw-file:hover{background:rgba(255,255,255,.06);border-color:rgba(251,191,36,.25)}
+.tw-file-name{font-size:11px;font-weight:600;color:var(--accent);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tw-file-type{font-size:8.5px;font-weight:700;padding:1px 5px;border-radius:3px}
 .ftype-report{background:rgba(52,211,153,.1);color:var(--ok)}
-.ftype-finance{background:rgba(251,191,36,.1);color:var(--gold)}
+.ftype-finance{background:rgba(251,191,36,.1);color:var(--accent)}
 .ftype-audit{background:rgba(255,82,96,.1);color:var(--danger)}
 .ftype-backtest{background:rgba(139,148,163,.1);color:var(--dim)}
 .ftype-log{background:rgba(255,77,152,.1);color:var(--magenta)}
-.file-viewer{flex:1;min-width:0;padding:0 4px;overflow-y:auto;max-height:550px}
-.fv-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:12px}
-.fv-title{font-size:17px;font-weight:800;color:var(--bright);margin-bottom:3px}
-.fv-sub{font-size:11px;color:var(--dim);margin-bottom:14px}
-.fv-body{font-size:12.5px;line-height:1.7;color:var(--text)}
-.fv-body h1{font-size:17px;color:var(--bright);margin:14px 0 6px}
-.fv-body h2{font-size:14px;color:var(--bright);margin:12px 0 5px}
-.fv-body h3{font-size:13px;color:var(--accent);margin:10px 0 4px}
-.fv-body p{margin-bottom:7px}
-.fv-body strong{color:var(--accent-2)}
-.fv-body code{background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:11px}
-.fv-body hr{border:none;border-top:1px solid var(--line);margin:12px 0}
 
-/* GITHUB */
-.gh-row{
-  display:flex;gap:10px;padding:9px 12px;
-  background:rgba(255,255,255,.02);border:1px solid var(--line);
-  border-radius:9px;margin-bottom:7px;
-}
-.gh-sha{
-  font-size:9.5px;font-family:monospace;color:var(--accent);
-  background:rgba(251,191,36,.08);padding:2px 6px;border-radius:4px;
-  height:fit-content;flex-shrink:0;letter-spacing:.5px;
-}
+/* ── FILES ── */
+.files-wrap{display:flex;gap:12px;min-height:400px}
+.files-list{width:245px;flex-shrink:0;display:flex;flex-direction:column;gap:4px;overflow-y:auto;max-height:540px}
+.file-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:8px;cursor:pointer;transition:all .15s}
+.file-row:hover{background:rgba(255,255,255,.04);border-color:var(--line-2)}
+.file-row.sel{background:rgba(251,191,36,.06);border-color:rgba(251,191,36,.25)}
+.f-ic{font-size:17px;flex-shrink:0}
+.f-info{min-width:0;flex:1}
+.f-name{font-size:11px;font-weight:600;color:var(--bright);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.f-meta{font-size:9.5px;color:var(--dim);margin-top:1px}
+.file-viewer{flex:1;min-width:0;padding:0 2px;overflow-y:auto;max-height:540px}
+.fv-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:12px}
+.fv-title{font-size:16px;font-weight:800;color:var(--bright);margin-bottom:3px}
+.fv-sub{font-size:11px;color:var(--dim);margin-bottom:12px}
+.fv-body{font-size:12px;line-height:1.7;color:var(--text)}
+.fv-body h1{font-size:16px;color:var(--bright);margin:12px 0 5px}
+.fv-body h2{font-size:13.5px;color:var(--bright);margin:10px 0 4px}
+.fv-body h3{font-size:12.5px;color:var(--accent);margin:8px 0 3px}
+.fv-body strong{color:var(--accent-2)}
+.fv-body code{background:rgba(255,255,255,.06);padding:1px 4px;border-radius:3px;font-family:monospace;font-size:10.5px}
+.fv-body hr{border:none;border-top:1px solid var(--line);margin:10px 0}
+
+/* ── FEED ── */
+.feed-list{display:flex;flex-direction:column;gap:6px;max-height:580px;overflow-y:auto}
+.fi{display:flex;gap:8px;padding:8px 11px;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:9px;transition:background .15s}
+.fi:hover{background:rgba(255,255,255,.04)}
+.fi-code{font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;background:rgba(251,191,36,.1);color:var(--accent);border:1px solid rgba(251,191,36,.18);white-space:nowrap;height:fit-content;flex-shrink:0;letter-spacing:.5px;font-family:monospace}
+.fi-code.ai{background:rgba(52,211,153,.1);color:var(--ok);border-color:rgba(52,211,153,.2)}
+.fi-body{flex:1;min-width:0}
+.fi-who{font-size:10px;font-weight:600;color:var(--bright);margin-bottom:1px}
+.fi-team{color:var(--dim);font-weight:400}
+.fi-msg{font-size:11.5px;color:var(--text);line-height:1.4}
+.fi-time{font-size:9.5px;color:var(--muted);margin-top:2px;font-family:monospace}
+
+/* ── INTELLIGENCE ── */
+.intel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.intel-card{background:rgba(255,255,255,.025);border:1.5px solid var(--line);border-radius:11px;padding:14px;transition:all .2s}
+.intel-card:hover{border-color:rgba(251,191,36,.25);background:rgba(255,255,255,.04)}
+.intel-card.sec-ag{border-color:rgba(255,77,152,.25);background:rgba(255,77,152,.03)}
+.intel-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.intel-emoji{font-size:24px}
+.intel-name{font-size:12px;font-weight:700;color:var(--bright)}
+.intel-team{font-size:10px;color:var(--dim)}
+.intel-xp{font-size:10px;color:var(--accent);margin-top:1px}
+.intel-fields{display:flex;flex-direction:column;gap:7px}
+.field-label{font-size:9.5px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;display:block}
+.stars{display:flex;gap:3px;cursor:pointer}
+.star{font-size:16px;opacity:.3;transition:opacity .15s;user-select:none}
+.star.on{opacity:1}
+select.intel-sel{width:100%;background:var(--bg-3);border:1px solid var(--line-2);color:var(--text);padding:5px 8px;border-radius:7px;font-family:inherit;font-size:11.5px;outline:none;cursor:pointer;-webkit-appearance:none}
+select.intel-sel:focus{border-color:rgba(251,191,36,.35)}
+input.intel-inp{width:100%;background:var(--bg-3);border:1px solid var(--line-2);color:var(--text);padding:5px 8px;border-radius:7px;font-family:inherit;font-size:11.5px;outline:none}
+input.intel-inp:focus{border-color:rgba(251,191,36,.35)}
+input.intel-inp::placeholder{color:var(--muted)}
+.intel-save-row{margin-top:14px;display:flex;gap:8px;align-items:center}
+
+/* ── GITHUB ── */
+.gh-row{display:flex;gap:9px;padding:8px 11px;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:9px;margin-bottom:6px}
+.gh-sha{font-size:9px;font-family:monospace;color:var(--accent);background:rgba(251,191,36,.08);padding:2px 5px;border-radius:3px;height:fit-content;flex-shrink:0;letter-spacing:.5px}
 .gh-body{flex:1;min-width:0}
 .gh-msg{font-size:11.5px;color:var(--text);font-weight:500;line-height:1.3}
 .gh-meta{font-size:9.5px;color:var(--dim);margin-top:2px}
 
-/* CROSS-TALK */
-.cross-item{
-  padding:9px 11px;background:rgba(255,77,152,.03);
-  border:1px solid rgba(255,77,152,.1);border-radius:9px;margin-bottom:7px;
-}
-.cross-agents{font-size:10.5px;font-weight:600;color:var(--magenta);margin-bottom:3px}
-.cross-msg{font-size:12px;color:var(--text);line-height:1.4}
-.cross-time{font-size:9.5px;color:var(--muted);margin-top:2px}
+/* ── CROSS-TALK ── */
+.cx{padding:8px 10px;background:rgba(255,77,152,.03);border:1px solid rgba(255,77,152,.1);border-radius:8px;margin-bottom:6px}
+.cx-ag{font-size:10px;font-weight:600;color:var(--magenta);margin-bottom:2px}
+.cx-msg{font-size:11.5px;color:var(--text);line-height:1.4}
+.cx-t{font-size:9.5px;color:var(--muted);margin-top:2px}
 
-/* CHAT PANEL */
-.chat-msgs{max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;margin-bottom:8px}
-.bubble{
-  padding:7px 11px;border-radius:10px;
-  font-size:11.5px;line-height:1.4;max-width:92%;
-}
-.bubble.user{
-  background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);
-  color:var(--text);align-self:flex-end;
-}
-.bubble.ai{
-  background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.15);
-  color:var(--text);align-self:flex-start;
-}
-.bubble-lbl{font-size:9.5px;font-weight:700;margin-bottom:2px}
-.bubble.user .bubble-lbl{color:var(--accent)}
-.bubble.ai .bubble-lbl{color:var(--ok)}
-.chat-row{display:flex;gap:6px}
-.chat-inp{
-  flex:1;background:var(--bg-2);border:1px solid var(--line-2);
-  color:var(--text);padding:7px 11px;border-radius:8px;
-  font-family:inherit;font-size:12px;outline:none;transition:border-color .15s;
-}
+/* ── CHAT ── */
+.chat-msgs{max-height:185px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-bottom:7px}
+.bubble{padding:6px 10px;border-radius:9px;font-size:11.5px;line-height:1.4;max-width:93%}
+.bubble.u{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);color:var(--text);align-self:flex-end}
+.bubble.a{background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.14);color:var(--text);align-self:flex-start}
+.bl{font-size:9px;font-weight:700;margin-bottom:2px}
+.bubble.u .bl{color:var(--accent)}
+.bubble.a .bl{color:var(--ok)}
+.chat-row{display:flex;gap:5px}
+.chat-inp{flex:1;background:var(--bg-2);border:1px solid var(--line-2);color:var(--text);padding:6px 10px;border-radius:7px;font-family:inherit;font-size:12px;outline:none;transition:border-color .15s}
 .chat-inp:focus{border-color:rgba(251,191,36,.35)}
 .chat-inp::placeholder{color:var(--muted)}
 
-/* PERF GRID */
-.perf-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.perf-cell{
-  text-align:center;padding:11px 8px;
-  background:rgba(255,255,255,.03);border-radius:10px;border:1px solid var(--line);
-}
-.perf-num{font-size:19px;font-weight:800;color:var(--bright)}
-.perf-lbl{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+/* ── PERF ── */
+.perf-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.pc{text-align:center;padding:10px 7px;background:rgba(255,255,255,.03);border-radius:9px;border:1px solid var(--line)}
+.pc-n{font-size:18px;font-weight:800;color:var(--bright)}
+.pc-l{font-size:8.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
 
-/* SETTINGS */
-.set-group{margin-bottom:18px}
-.set-label{font-size:10.5px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;display:block}
+/* ── SETTINGS ── */
+.set-g{margin-bottom:16px}
+.set-l{font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;display:block}
 .set-info{font-size:12px;color:var(--muted);line-height:1.7}
-.set-code{color:var(--accent);background:rgba(251,191,36,.07);padding:1px 5px;border-radius:4px;font-family:monospace;font-size:11px}
+.sc{color:var(--accent);background:rgba(251,191,36,.07);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:10.5px}
 
 /* SCROLLBAR */
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px}
 
 /* TOAST */
-.toast{
-  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-  background:rgba(28,34,48,.96);border:1px solid rgba(0,255,139,.4);
-  color:var(--text);padding:7px 18px;border-radius:8px;
-  font-size:12px;z-index:1000;opacity:0;transition:opacity .25s;pointer-events:none;
-}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:rgba(28,34,48,.96);border:1px solid rgba(0,255,139,.4);color:var(--text);padding:6px 16px;border-radius:7px;font-size:12px;z-index:1000;opacity:0;transition:opacity .25s;pointer-events:none}
 .toast.show{opacity:1}
 .toast.err{border-color:rgba(255,82,96,.5)}
 
 /* EMPTY */
-.empty{text-align:center;padding:28px 16px;color:var(--muted)}
-.empty-ic{font-size:30px;margin-bottom:8px;opacity:.45}
-.empty-tx{font-size:12px}
+.empty{text-align:center;padding:24px 14px;color:var(--muted)}
+.empty-i{font-size:28px;margin-bottom:7px;opacity:.4}
+.empty-t{font-size:12px}
 
 /* MOBILE */
 @media(max-width:900px){
-  .main-wrap{flex-direction:column}
-  .right-panel{width:100%;border-top:1px solid var(--line)}
-  .main-content{border-right:none}
-  .hero{padding:14px 16px 12px}
-  .hero-inner{flex-direction:column;align-items:flex-start;gap:10px}
-  .logo-mark{width:40px;height:40px;font-size:24px}
-  .hero-title{font-size:22px}
+  .wrap{flex-direction:column}
+  .rpanel{width:100%;border-top:1px solid var(--line)}
+  .content{border-right:none}
+  .hero{padding:12px 14px 10px}
+  .hero-inner{flex-direction:column;align-items:flex-start;gap:8px}
+  .title{font-size:22px}
   .kpi-strip{grid-template-columns:repeat(3,1fr)}
-  .kpi-cell:nth-child(3){border-right:none}
-  .kpi-cell:nth-child(n+4){border-top:1px solid var(--line)}
-  .agent-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}
+  .kpi:nth-child(3){border-right:none}
+  .kpi:nth-child(n+4){border-top:1px solid var(--line)}
+  .desk-grid{grid-template-columns:repeat(4,1fr)}
   .files-wrap{flex-direction:column}
-  .files-list{width:100%;max-height:220px}
+  .files-list{width:100%;max-height:200px}
+  .intel-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
 }
 @media(max-width:600px){
-  .tab-nav{padding:6px 10px}
-  .tab-btn{padding:5px 10px;font-size:11px}
-  .hero-actions .btn:not(.primary){display:none}
+  .tabs{padding:5px 8px}
+  .tab{padding:4px 9px;font-size:11px}
+  .desk-grid{grid-template-columns:repeat(3,1fr)}
   .kpi-strip{grid-template-columns:repeat(2,1fr)}
-  .kpi-cell:nth-child(2n){border-right:none}
-  .kpi-cell:nth-child(n+3){border-top:1px solid var(--line)}
+  .kpi:nth-child(2n){border-right:none}
+  .kpi:nth-child(n+3){border-top:1px solid var(--line)}
 }
 </style>
 </head>
 <body>
-<canvas id="bgCanvas"></canvas>
+<canvas id="bgCv"></canvas>
 
 <!-- HERO -->
 <div class="hero">
   <div class="hero-inner">
     <div class="hero-brand">
-      <div class="logo-mark">⬡</div>
+      <div class="logo">⬡</div>
       <div>
-        <div class="hero-eyebrow">AI Virtual Office</div>
-        <div class="hero-title">AYILON</div>
+        <div class="eyebrow">AI Virtual Office</div>
+        <div class="title">AYILON</div>
         <div class="hero-meta">
-          <span class="meta-pill"><span class="dot live"></span>LIVE</span>
-          <span class="meta-pill"><span class="dot gold"></span>Cloudflare Workers</span>
-          <span class="meta-pill" id="pill-date">—</span>
-          <span class="meta-pill" id="pill-ai">AI —</span>
+          <span class="pill"><span class="dot g"></span>LIVE</span>
+          <span class="pill"><span class="dot y"></span>Workers</span>
+          <span class="pill" id="pill-date">—</span>
+          <span class="pill" id="pill-ai">AI —</span>
         </div>
       </div>
     </div>
-    <div class="hero-actions">
+    <div class="hero-btns">
       <button class="btn ghost sm" onclick="loadAll()">↻ 새로고침</button>
       <button class="btn sm" onclick="focusCmd()">⌘ CEO 지시</button>
-      <button class="btn primary sm" onclick="switchTab('agents')">🤖 Agents</button>
+      <button class="btn p sm" onclick="go('office')">🏢 오피스</button>
     </div>
   </div>
 </div>
 
-<!-- KPI STRIP -->
+<!-- KPI -->
 <div class="kpi-strip">
-  <div class="kpi-cell">
-    <div class="kpi-icon">📅</div>
-    <div class="kpi-num" id="kpi-days">0</div>
-    <div class="kpi-label">운영일</div>
-  </div>
-  <div class="kpi-cell">
-    <div class="kpi-icon">🤖</div>
-    <div class="kpi-num">14</div>
-    <div class="kpi-label">Agents</div>
-  </div>
-  <div class="kpi-cell">
-    <div class="kpi-icon">📊</div>
-    <div class="kpi-num" id="kpi-trades">—</div>
-    <div class="kpi-label">총 거래</div>
-  </div>
-  <div class="kpi-cell">
-    <div class="kpi-icon">💬</div>
-    <div class="kpi-num" id="kpi-feed">—</div>
-    <div class="kpi-label">피드 수</div>
-  </div>
-  <div class="kpi-cell">
-    <div class="kpi-icon">⭐</div>
-    <div class="kpi-num" id="kpi-xp">—</div>
-    <div class="kpi-label">Total XP</div>
-  </div>
+  <div class="kpi"><div class="kpi-ic">📅</div><div class="kpi-n" id="k-days">0</div><div class="kpi-l">운영일</div></div>
+  <div class="kpi"><div class="kpi-ic">🤖</div><div class="kpi-n">14</div><div class="kpi-l">Agents</div></div>
+  <div class="kpi"><div class="kpi-ic">💬</div><div class="kpi-n" id="k-feed">—</div><div class="kpi-l">피드</div></div>
+  <div class="kpi"><div class="kpi-ic">⭐</div><div class="kpi-n" id="k-xp">—</div><div class="kpi-l">XP</div></div>
+  <div class="kpi"><div class="kpi-ic">📁</div><div class="kpi-n" id="k-files">—</div><div class="kpi-l">리포트</div></div>
 </div>
 
-<!-- TAB NAV -->
-<div class="tab-nav">
-  <button class="tab-btn active" onclick="switchTab('feed')"     data-tab="feed">📡 FEED</button>
-  <button class="tab-btn"        onclick="switchTab('agents')"   data-tab="agents">🤖 AGENTS</button>
-  <button class="tab-btn"        onclick="switchTab('trading')"  data-tab="trading">📊 TRADING</button>
-  <button class="tab-btn"        onclick="switchTab('files')"    data-tab="files">📁 FILES</button>
-  <button class="tab-btn"        onclick="switchTab('company')"  data-tab="company">🏢 COMPANY</button>
-  <button class="tab-btn"        onclick="switchTab('settings')" data-tab="settings">⚙ SETTINGS</button>
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab on" onclick="go('office')"  data-t="office">🏢 오피스</button>
+  <button class="tab"    onclick="go('teams')"   data-t="teams">👥 팀</button>
+  <button class="tab"    onclick="go('files')"   data-t="files">📁 리포트</button>
+  <button class="tab"    onclick="go('feed')"    data-t="feed">💬 피드</button>
+  <button class="tab"    onclick="go('intel')"   data-t="intel">🧠 두뇌</button>
+  <button class="tab"    onclick="go('settings')"data-t="settings">⚙ 설정</button>
 </div>
 
 <!-- MAIN WRAP -->
-<div class="main-wrap">
+<div class="wrap">
+  <div class="content">
 
-  <!-- MAIN CONTENT -->
-  <div class="main-content">
-
-    <!-- FEED -->
-    <div class="section active" id="section-feed">
-      <div class="card">
-        <div class="card-head">
-          <div class="card-title"><span class="title-icon">📡</span>실시간 피드</div>
-          <span class="badge ok" id="feed-badge">로딩중...</span>
+    <!-- OFFICE -->
+    <div class="sec on" id="sec-office">
+      <div class="office-room">
+        <div class="office-header">
+          <div class="office-title"><span>🏢</span> AYILON 가상 오피스 · 14명 근무 중</div>
+          <div class="office-decorations">☕ 🌿 📋 🖥️ 🪴</div>
         </div>
-        <div class="feed-list" id="feed-list">
-          <div class="empty"><div class="empty-ic">📡</div><div class="empty-tx">피드 로딩 중...</div></div>
+        <div class="desk-grid" id="desk-grid"></div>
+        <div class="office-ticker">
+          <div class="ticker-inner" id="ticker"></div>
         </div>
       </div>
-    </div>
-
-    <!-- AGENTS -->
-    <div class="section" id="section-agents">
-      <div class="card">
-        <div class="card-head">
-          <div class="card-title"><span class="title-icon">🤖</span>Agent 팀 · 14명</div>
-          <span class="badge ok">ALL ACTIVE</span>
+      <!-- Agent Detail Panel -->
+      <div class="agent-detail" id="agent-detail">
+        <div class="ad-head">
+          <div class="ad-emoji" id="ad-emoji">🤖</div>
+          <div class="ad-info">
+            <h3 id="ad-name">Agent</h3>
+            <p id="ad-team">팀</p>
+            <p id="ad-lv" style="color:var(--accent);margin-top:2px">LV 1</p>
+          </div>
+          <button class="btn ghost sm" style="margin-left:auto" onclick="closeDetail()">✕</button>
         </div>
-        <div class="agent-grid" id="agent-grid"></div>
-      </div>
-    </div>
-
-    <!-- TRADING -->
-    <div class="section" id="section-trading">
-      <div class="card">
-        <div class="card-head">
-          <div class="card-title"><span class="title-icon">🎯</span>최근 시그널</div>
-          <span class="badge" id="sig-badge">0건</span>
-        </div>
-        <div id="sig-list">
-          <div class="empty"><div class="empty-ic">🎯</div><div class="empty-tx">시그널 로딩 중...</div></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-head">
-          <div class="card-title"><span class="title-icon">💹</span>거래 내역</div>
-          <div style="display:flex;gap:6px;align-items:center">
-            <button class="btn sm ghost" id="tbtn-open"   onclick="loadTradesStatus('open')">OPEN</button>
-            <button class="btn sm ghost" id="tbtn-closed" onclick="loadTradesStatus('closed')">CLOSED</button>
-            <span class="badge" id="trades-badge">0건</span>
+        <div class="ad-msgs" id="ad-msgs"></div>
+        <div class="ad-file" id="ad-file" onclick="openFileFromDetail()" style="display:none">
+          <div class="ad-file-icon">📄</div>
+          <div class="ad-file-info">
+            <div class="n" id="ad-file-name">최신 리포트</div>
+            <div class="m" id="ad-file-meta">클릭하여 열기</div>
           </div>
         </div>
-        <div style="overflow-x:auto">
-          <table class="tr-table">
-            <thead><tr>
-              <th>전략</th><th>심볼</th><th>방향</th><th>진입가</th><th>청산가</th><th>PnL</th><th>상태</th>
-            </tr></thead>
-            <tbody id="trades-body">
-              <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:22px">거래 기록 없음</td></tr>
-            </tbody>
-          </table>
-        </div>
+      </div>
+    </div>
+
+    <!-- TEAMS -->
+    <div class="sec" id="sec-teams">
+      <div id="teams-list">
+        <div class="empty"><div class="empty-i">👥</div><div class="empty-t">팀 데이터 로딩 중...</div></div>
       </div>
     </div>
 
     <!-- FILES -->
-    <div class="section" id="section-files">
-      <div class="card" style="padding:14px">
-        <div class="card-head">
-          <div class="card-title"><span class="title-icon">📁</span>Agent 리포트</div>
-          <span class="badge" id="files-badge">0건</span>
+    <div class="sec" id="sec-files">
+      <div class="card" style="padding:12px">
+        <div class="ch">
+          <div class="ct"><span class="ct-ic">📁</span>Agent 리포트</div>
+          <span class="badge" id="files-badge">0개</span>
         </div>
         <div class="files-wrap">
           <div class="files-list" id="files-list">
-            <div class="empty"><div class="empty-ic">📁</div><div class="empty-tx">파일 로딩 중...</div></div>
+            <div class="empty"><div class="empty-i">📁</div><div class="empty-t">로딩 중...</div></div>
           </div>
           <div class="file-viewer" id="file-viewer">
             <div class="fv-empty">← 파일을 선택하면 내용이 표시됩니다</div>
@@ -553,126 +439,106 @@ body::before{
       </div>
     </div>
 
-    <!-- COMPANY -->
-    <div class="section" id="section-company">
+    <!-- FEED -->
+    <div class="sec" id="sec-feed">
       <div class="card">
-        <div class="card-head">
-          <div class="card-title"><span class="title-icon">💻</span>GitHub 활동</div>
-          <span class="badge" id="gh-badge">—</span>
+        <div class="ch">
+          <div class="ct"><span class="ct-ic">💬</span>실시간 피드</div>
+          <span class="badge ok" id="feed-badge">로딩중</span>
         </div>
-        <div id="gh-list">
-          <div class="empty"><div class="empty-ic">💻</div><div class="empty-tx">GitHub 활동 로딩 중...</div></div>
+        <div class="feed-list" id="feed-list">
+          <div class="empty"><div class="empty-i">💬</div><div class="empty-t">피드 로딩 중...</div></div>
         </div>
       </div>
+    </div>
+
+    <!-- INTELLIGENCE -->
+    <div class="sec" id="sec-intel">
       <div class="card">
-        <div class="card-head">
-          <div class="card-title"><span class="title-icon">💬</span>팀 크로스토크</div>
+        <div class="ch">
+          <div class="ct"><span class="ct-ic">🧠</span>Agent 지능 · 성격 설정</div>
+          <button class="btn p sm" onclick="saveAllConfig()">💾 전체 저장</button>
         </div>
-        <div id="cross-list-main">
-          <div class="empty"><div class="empty-ic">💬</div><div class="empty-tx">크로스토크 로딩 중...</div></div>
+        <p style="font-size:11.5px;color:var(--dim);margin-bottom:14px">각 Agent의 지능 레벨(⭐)과 사고 방식을 설정하세요. 설정은 Gemini AI 응답에 즉시 반영됩니다.</p>
+        <div class="intel-grid" id="intel-grid"></div>
+        <div class="intel-save-row">
+          <button class="btn p" onclick="saveAllConfig()">💾 저장하기</button>
+          <span id="save-msg" style="font-size:11.5px;color:var(--ok);opacity:0;transition:opacity .3s"></span>
         </div>
       </div>
     </div>
 
     <!-- SETTINGS -->
-    <div class="section" id="section-settings">
+    <div class="sec" id="sec-settings">
       <div class="card">
-        <div class="card-head">
-          <div class="card-title"><span class="title-icon">⚙</span>시스템 설정</div>
+        <div class="ch"><div class="ct"><span class="ct-ic">⚙</span>시스템 설정</div></div>
+        <div class="set-g">
+          <span class="set-l">🤖 Gemini AI</span>
+          <div class="set-info"><span class="sc">GEMINI_KEY</span>를 GitHub Secrets에 설정하면 Gemini 1.5 Flash 활성화.<br>각 Agent가 실제 AI 응답을 생성하며 CEO가 지능적으로 답변합니다.</div>
         </div>
-        <div class="set-group">
-          <span class="set-label">🤖 AI 엔진 (Gemini)</span>
-          <div class="set-info">
-            <span class="set-code">GEMINI_KEY</span>를 GitHub Secrets에 설정하면 Gemini 1.5 Flash가 활성화됩니다.<br>
-            AI 활성 시 각 Agent가 실제 AI 응답을 생성하고, CEO가 지능적으로 답변합니다.<br><br>
-            배포 저장소: <span class="set-code">wldnjswldnjs00-ui/ayilon-virtual-office</span>
-          </div>
+        <div class="set-g">
+          <span class="set-l">💬 텔레그램</span>
+          <div class="set-info"><span class="sc">TG_BOT_TOKEN</span> + <span class="sc">TG_CHAT_ID</span> 설정 시 매일 09:00 KST에 브리핑 수신.</div>
         </div>
-        <div class="set-group">
-          <span class="set-label">💬 텔레그램 알림</span>
-          <div class="set-info">
-            <span class="set-code">TG_BOT_TOKEN</span> + <span class="set-code">TG_CHAT_ID</span>를 GitHub Secrets에 설정하면<br>
-            매일 <b>09:00 KST</b>에 일일 브리핑을 텔레그램으로 수신합니다.
-          </div>
+        <div class="set-g">
+          <span class="set-l">🐙 GitHub 연동</span>
+          <div class="set-info"><span class="sc">GH_PAT</span> 설정 시 5분마다 커밋 감지 → FORGE Agent가 피드에 보고.</div>
         </div>
-        <div class="set-group">
-          <span class="set-label">📈 OKX 트레이딩</span>
-          <div class="set-info">
-            <span class="set-code">OKX_API_KEY</span> + <span class="set-code">OKX_SECRET_KEY</span> + <span class="set-code">OKX_PASSPHRASE</span> 설정 시 자동매매 활성화.<br>
-            <span class="set-code">OKX_SIM=1</span>이면 데모 모드, <span class="set-code">0</span>이면 실거래입니다.
-          </div>
-        </div>
-        <div class="set-group">
-          <span class="set-label">🐙 GitHub 연동</span>
-          <div class="set-info">
-            <span class="set-code">GH_PAT</span> 설정 시 5분마다 커밋을 감지하고 FORGE Agent가 Feed에 보고합니다.
-          </div>
-        </div>
-        <div class="set-group">
-          <span class="set-label">📊 현재 상태</span>
-          <div id="status-detail" style="font-size:12px;color:var(--muted);line-height:2">로딩 중...</div>
+        <div class="set-g">
+          <span class="set-l">📊 현재 상태</span>
+          <div id="sys-status" style="font-size:12px;color:var(--muted);line-height:2">로딩 중...</div>
         </div>
       </div>
+      <div class="card">
+        <div class="ch">
+          <div class="ct"><span class="ct-ic">💻</span>GitHub 커밋</div>
+          <span class="badge" id="gh-badge">—</span>
+        </div>
+        <div id="gh-list"><div class="empty"><div class="empty-i">💻</div><div class="empty-t">로딩 중...</div></div></div>
+      </div>
     </div>
+
   </div>
 
   <!-- RIGHT PANEL -->
-  <div class="right-panel">
+  <div class="rpanel">
 
     <!-- CEO CHAT -->
     <div class="card">
-      <div class="card-head">
-        <div class="card-title"><span class="title-icon">🧭</span>CEO 지시</div>
+      <div class="ch">
+        <div class="ct"><span class="ct-ic">🧭</span>CEO 지시</div>
         <span class="badge ai-off" id="ai-badge">AI OFF</span>
       </div>
       <div class="chat-msgs" id="chat-msgs"></div>
       <div class="chat-row">
         <input class="chat-inp" id="chat-inp" placeholder="CEO에게 지시를 내리세요..." maxlength="200">
-        <button class="btn primary sm" onclick="sendCmd()">전송</button>
+        <button class="btn p sm" onclick="sendCmd()">전송</button>
       </div>
     </div>
 
-    <!-- CROSS TALK RIGHT -->
+    <!-- CROSS TALK -->
     <div class="card">
-      <div class="card-head">
-        <div class="card-title"><span class="title-icon">🔀</span>팀 대화</div>
-      </div>
-      <div id="cross-list-right" style="max-height:180px;overflow-y:auto">
-        <div style="color:var(--muted);font-size:11px;text-align:center;padding:12px">로딩 중...</div>
+      <div class="ch"><div class="ct"><span class="ct-ic">🔀</span>팀 대화</div></div>
+      <div id="cx-right" style="max-height:170px;overflow-y:auto">
+        <div style="color:var(--muted);font-size:11px;text-align:center;padding:10px">로딩 중...</div>
       </div>
     </div>
 
     <!-- PERF -->
     <div class="card">
-      <div class="card-head">
-        <div class="card-title"><span class="title-icon">📈</span>성과 요약</div>
-      </div>
+      <div class="ch"><div class="ct"><span class="ct-ic">📈</span>성과 요약</div></div>
       <div class="perf-grid">
-        <div class="perf-cell">
-          <div class="perf-num" id="p-trades">—</div>
-          <div class="perf-lbl">거래 수</div>
-        </div>
-        <div class="perf-cell">
-          <div class="perf-num" id="p-wr">—</div>
-          <div class="perf-lbl">승률</div>
-        </div>
-        <div class="perf-cell">
-          <div class="perf-num" id="p-pnl">—</div>
-          <div class="perf-lbl">Total PnL</div>
-        </div>
-        <div class="perf-cell">
-          <div class="perf-num" id="p-xp" style="color:var(--accent)">—</div>
-          <div class="perf-lbl">Total XP</div>
-        </div>
+        <div class="pc"><div class="pc-n" id="p-trades">—</div><div class="pc-l">거래</div></div>
+        <div class="pc"><div class="pc-n" id="p-wr">—</div><div class="pc-l">승률</div></div>
+        <div class="pc"><div class="pc-n" id="p-pnl">—</div><div class="pc-l">PnL</div></div>
+        <div class="pc"><div class="pc-n" id="p-xp" style="color:var(--accent)">—</div><div class="pc-l">XP</div></div>
       </div>
     </div>
 
     <!-- KEYWORDS -->
     <div class="card">
-      <div class="card-head">
-        <div class="card-title"><span class="title-icon">🏷</span>핵심 키워드</div>
-      </div>
-      <div id="kw-list" style="display:flex;flex-wrap:wrap;gap:5px">
+      <div class="ch"><div class="ct"><span class="ct-ic">🏷</span>핵심 키워드</div></div>
+      <div id="kw-list" style="display:flex;flex-wrap:wrap;gap:4px">
         <span style="color:var(--muted);font-size:11px">로딩 중...</span>
       </div>
     </div>
@@ -684,52 +550,53 @@ body::before{
 
 <script>
 /* ══════════════════════════════════════════════════════
-   AGENTS  (13 core + ARIA secretary = 14 total)
+   AGENTS DATA
 ══════════════════════════════════════════════════════ */
 const AGENTS = [
-  {id:'ARIA',   name:'ARIA',   team:'비서팀',       emoji:'📱', sec:true},
-  {id:'CEO',    name:'CEO',    team:'Executive',    emoji:'🧭'},
-  {id:'IRON',   name:'IRON',   team:'전략팀',       emoji:'⚔️'},
-  {id:'GRID',   name:'GRID',   team:'백테스팅팀',   emoji:'📊'},
-  {id:'SCOUT',  name:'SCOUT',  team:'리서치팀',     emoji:'🔭'},
-  {id:'WARD',   name:'WARD',   team:'리스크관리팀', emoji:'🛡️'},
-  {id:'FORGE',  name:'FORGE',  team:'개발팀',       emoji:'⚙️'},
-  {id:'ATLAS',  name:'ATLAS',  team:'인프라팀',     emoji:'🌐'},
-  {id:'LUNA',   name:'LUNA',   team:'마케팅팀',     emoji:'🌙'},
-  {id:'PIXEL',  name:'PIXEL',  team:'제품팀',       emoji:'🎨'},
-  {id:'ECHO',   name:'ECHO',   team:'고객서비스팀', emoji:'🎧'},
-  {id:'REX',    name:'REX',    team:'법률팀',       emoji:'⚖️'},
-  {id:'LEDGER', name:'LEDGER', team:'세무회계팀',   emoji:'💰'},
-  {id:'SHIELD', name:'SHIELD', team:'보안팀',       emoji:'🔒'},
+  {id:'ARIA',  name:'ARIA',  team:'비서팀',       emoji:'📱', sec:true},
+  {id:'CEO',   name:'CEO',   team:'Executive',   emoji:'🧭'},
+  {id:'IRON',  name:'IRON',  team:'전략팀',       emoji:'⚔️'},
+  {id:'GRID',  name:'GRID',  team:'백테스팅팀',   emoji:'📊'},
+  {id:'SCOUT', name:'SCOUT', team:'리서치팀',     emoji:'🔭'},
+  {id:'WARD',  name:'WARD',  team:'리스크관리팀', emoji:'🛡️'},
+  {id:'FORGE', name:'FORGE', team:'개발팀',       emoji:'⚙️'},
+  {id:'ATLAS', name:'ATLAS', team:'인프라팀',     emoji:'🌐'},
+  {id:'LUNA',  name:'LUNA',  team:'마케팅팀',     emoji:'🌙'},
+  {id:'PIXEL', name:'PIXEL', team:'제품팀',       emoji:'🎨'},
+  {id:'ECHO',  name:'ECHO',  team:'고객서비스팀', emoji:'🎧'},
+  {id:'REX',   name:'REX',   team:'법률팀',       emoji:'⚖️'},
+  {id:'LEDGER',name:'LEDGER',team:'세무회계팀',   emoji:'💰'},
+  {id:'SHIELD',name:'SHIELD',team:'보안팀',       emoji:'🔒'},
 ];
 
-/* STATE */
-let agentXp = {};
-let aiEnabled = false;
-let curTradeStatus = 'open';
+/* ── STATE ── */
+let agentXp = {}, agentConfig = {}, aiEnabled = false;
+let feedItems = [], agentMsgs = {};
+let detailFileId = null;
 
-/* INIT */
+/* ── INIT ── */
 window.addEventListener('DOMContentLoaded', () => {
   initDays();
-  renderAgentGrid();
+  buildDeskGrid();
+  buildIntelGrid();
   loadAll();
   setInterval(loadFeed, 30000);
   setInterval(loadCrossTalk, 60000);
+  setInterval(randomActivateDesk, 5000);
   document.getElementById('chat-inp').addEventListener('keydown', e => {
     if (e.key === 'Enter') sendCmd();
   });
 });
 
-/* DAYS + DATE PILL */
+/* ── DAYS ── */
 function initDays() {
-  const start = new Date('2026-06-23');
-  const days = Math.max(0, Math.floor((Date.now() - start) / 86400000));
-  animCount('kpi-days', days);
+  const days = Math.max(0, Math.floor((Date.now() - new Date('2026-06-23')) / 86400000));
+  animN('k-days', days);
   const d = new Date();
   document.getElementById('pill-date').textContent =
-    d.toLocaleDateString('ko-KR', {year:'numeric', month:'long', day:'numeric'});
+    d.toLocaleDateString('ko-KR', {year:'numeric', month:'short', day:'numeric'});
 }
-function animCount(id, target) {
+function animN(id, target) {
   const el = document.getElementById(id);
   if (!el) return;
   let v = 0, step = Math.max(1, Math.floor(target / 40));
@@ -737,216 +604,248 @@ function animCount(id, target) {
     v = Math.min(v + step, target);
     el.textContent = v.toLocaleString();
     if (v >= target) clearInterval(t);
-  }, 25);
+  }, 22);
 }
 
-/* TAB SWITCHING */
-function switchTab(name) {
-  document.querySelectorAll('.tab-btn').forEach(b =>
-    b.classList.toggle('active', b.dataset.tab === name));
-  document.querySelectorAll('.section').forEach(s =>
-    s.classList.toggle('active', s.id === 'section-' + name));
+/* ── TABS ── */
+function go(name) {
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.t === name));
+  document.querySelectorAll('.sec').forEach(s => s.classList.toggle('on', s.id === 'sec-' + name));
 }
-function focusCmd() {
-  document.getElementById('chat-inp').focus();
-}
+function focusCmd() { document.getElementById('chat-inp').focus(); }
 
-/* LOAD ALL */
+/* ── LOAD ALL ── */
 function loadAll() {
   loadFeed();
   loadState();
-  loadTrades(curTradeStatus);
-  loadSignals();
+  loadConfig();
+  loadTeams();
   loadFiles();
   loadGH();
   loadCrossTalk();
   loadPerf();
 }
 
-/* FEED */
+/* ── DESK GRID ── */
+function buildDeskGrid() {
+  const el = document.getElementById('desk-grid');
+  el.innerHTML = AGENTS.map(a =>
+    `<div class="desk${a.sec?' sec-agent':''}" id="dk-${a.id}" onclick="showDetail('${a.id}')">
+      <div class="desk-bubble" id="bbl-${a.id}"></div>
+      <div class="desk-status"></div>
+      <div class="desk-emoji">${a.emoji}</div>
+      <div class="desk-name">${a.name}</div>
+      <div class="desk-team-lbl">${a.team}</div>
+      <div class="desk-lv" id="dlv-${a.id}">LV 1</div>
+      <div class="desk-typing"><span></span><span></span><span></span></div>
+    </div>`
+  ).join('');
+  updateTicker([]);
+}
+
+/* ── OFFICE ANIMATION ── */
+let deskQueue = [];
+function randomActivateDesk() {
+  const idx = Math.floor(Math.random() * AGENTS.length);
+  const a = AGENTS[idx];
+  activateDesk(a.id, agentMsgs[a.id]);
+}
+function activateDesk(agentId, msg) {
+  const desk = document.getElementById('dk-' + agentId);
+  const bubble = document.getElementById('bbl-' + agentId);
+  if (!desk || !bubble) return;
+  desk.classList.add('active');
+  if (msg) {
+    bubble.textContent = msg.length > 22 ? msg.slice(0,22)+'…' : msg;
+    bubble.classList.add('show');
+  }
+  setTimeout(() => {
+    desk.classList.remove('active');
+    bubble.classList.remove('show');
+  }, 4000);
+}
+function updateTicker(items) {
+  const el = document.getElementById('ticker');
+  if (!items || !items.length) {
+    el.innerHTML = '<span class="ticker-item"><span class="tc">AYILON</span>가상 오피스 가동 중 · AI Agents 실시간 업무 처리 중</span>'.repeat(4);
+    return;
+  }
+  const parts = items.slice(0, 12).map(f =>
+    `<span class="ticker-item"><span class="tc">${esc(f.agent_code||f.agent_id)}</span>${esc(f.msg.slice(0,28))}</span>`
+  );
+  el.innerHTML = [...parts, ...parts].join(' &nbsp;&nbsp;·&nbsp;&nbsp; ');
+}
+
+/* ── AGENT DETAIL ── */
+let detailAgentId = null;
+function showDetail(agentId) {
+  const a = AGENTS.find(x => x.id === agentId);
+  if (!a) return;
+  detailAgentId = agentId;
+  document.getElementById('ad-emoji').textContent = a.emoji;
+  document.getElementById('ad-name').textContent = a.name;
+  document.getElementById('ad-team').textContent = a.team;
+  const xp = agentXp[agentId] || 0;
+  document.getElementById('ad-lv').textContent = `LV ${Math.max(1,Math.ceil(xp/50))} · ${xp} XP`;
+  const msgs = feedItems.filter(f => f.agent_id === agentId).slice(0, 5);
+  const msgsEl = document.getElementById('ad-msgs');
+  if (msgs.length) {
+    msgsEl.innerHTML = msgs.map(m => `<div class="ad-msg">${esc(m.msg)}<div class="am-time">${ago(m.created_at)}${m.is_ai?' · 🤖':''}</div></div>`).join('');
+  } else {
+    msgsEl.innerHTML = '<div class="ad-msg" style="color:var(--muted)">아직 활동 기록이 없습니다.</div>';
+  }
+  const detail = document.getElementById('agent-detail');
+  detail.classList.add('show');
+  detail.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+function closeDetail() {
+  document.getElementById('agent-detail').classList.remove('show');
+  detailAgentId = null;
+}
+function openFileFromDetail() {
+  if (detailFileId) {
+    go('files');
+    setTimeout(() => openFile(detailFileId, null), 200);
+  }
+}
+
+/* ── FEED ── */
 async function loadFeed() {
   try {
     const d = await apiFetch('/api/feed');
-    const items = d.items || [];
-    const el = document.getElementById('feed-list');
-    document.getElementById('feed-badge').textContent = items.length + '건';
-    document.getElementById('kpi-feed').textContent = items.length.toLocaleString();
-    if (!items.length) {
-      el.innerHTML = emp('📡', '피드가 비어있습니다');
-      return;
-    }
-    el.innerHTML = items.map(f => `<div class="feed-item">
-      <div class="feed-code${f.is_ai ? ' ai' : ''}">${esc(f.agent_code || f.agent_id)}</div>
-      <div class="feed-body">
-        <div class="feed-who">${esc(f.agent_name)} <span class="feed-team">· ${esc(f.agent_team)}</span></div>
-        <div class="feed-msg">${esc(f.msg)}</div>
-        <div class="feed-time">${ago(f.created_at)}${f.is_ai ? ' · 🤖 AI' : ''}</div>
-      </div>
-    </div>`).join('');
+    feedItems = d.items || [];
+    document.getElementById('feed-badge').textContent = feedItems.length + '건';
+    document.getElementById('k-feed').textContent = feedItems.length.toLocaleString();
+    // update agent last messages
+    agentMsgs = {};
+    feedItems.forEach(f => { if (!agentMsgs[f.agent_id]) agentMsgs[f.agent_id] = f.msg; });
+    const fl = document.getElementById('feed-list');
+    if (!feedItems.length) { fl.innerHTML = emp('💬','피드가 비어있습니다'); return; }
+    fl.innerHTML = feedItems.map(f =>
+      `<div class="fi">
+        <div class="fi-code${f.is_ai?' ai':''}">${esc(f.agent_code||f.agent_id)}</div>
+        <div class="fi-body">
+          <div class="fi-who">${esc(f.agent_name)} <span class="fi-team">· ${esc(f.agent_team)}</span></div>
+          <div class="fi-msg">${esc(f.msg)}</div>
+          <div class="fi-time">${ago(f.created_at)}${f.is_ai?' · 🤖 AI':''}</div>
+        </div>
+      </div>`
+    ).join('');
+    updateTicker(feedItems);
+    // activate desks of recent agents
+    feedItems.slice(0,3).forEach((f,i) => setTimeout(() => activateDesk(f.agent_id, f.msg), i*800));
   } catch(e) { console.error('feed', e); }
 }
 
-/* STATE */
+/* ── STATE ── */
 async function loadState() {
   try {
     const d = await apiFetch('/api/state');
     agentXp = d.agentXp || {};
     aiEnabled = !!d.aiEnabled;
-    document.getElementById('kpi-xp').textContent = (d.xp || 0).toLocaleString();
-    document.getElementById('p-xp').textContent = (d.xp || 0).toLocaleString();
-    const aiB = document.getElementById('ai-badge');
-    aiB.textContent = aiEnabled ? 'AI ON' : 'AI OFF';
-    aiB.className = 'badge ' + (aiEnabled ? 'ai-on' : 'ai-off');
+    document.getElementById('k-xp').textContent = (d.xp||0).toLocaleString();
+    document.getElementById('p-xp').textContent = (d.xp||0).toLocaleString();
+    const aib = document.getElementById('ai-badge');
+    aib.textContent = aiEnabled ? 'AI ON' : 'AI OFF';
+    aib.className = 'badge ' + (aiEnabled ? 'ai-on' : 'ai-off');
     document.getElementById('pill-ai').textContent = aiEnabled ? 'Gemini ✅' : 'AI ❌';
-    refreshAgentCards();
+    // update desk levels
+    AGENTS.forEach(a => {
+      const lv = Math.max(1, Math.ceil((agentXp[a.id]||0)/50));
+      const el = document.getElementById('dlv-' + a.id);
+      if (el) el.textContent = 'LV ' + lv;
+    });
     // keywords
     const kws = d.topKeywords || [];
-    const kwEl = document.getElementById('kw-list');
-    kwEl.innerHTML = kws.length
-      ? kws.map(k => `<span style="font-size:10.5px;padding:3px 9px;border-radius:999px;background:rgba(251,191,36,.08);color:var(--accent);border:1px solid rgba(251,191,36,.15)">${esc(k)}</span>`).join('')
+    document.getElementById('kw-list').innerHTML = kws.length
+      ? kws.map(k => `<span style="font-size:10px;padding:2px 8px;border-radius:999px;background:rgba(251,191,36,.08);color:var(--accent);border:1px solid rgba(251,191,36,.14)">${esc(k)}</span>`).join('')
       : '<span style="color:var(--muted);font-size:11px">키워드 없음</span>';
-    // settings status detail
-    document.getElementById('status-detail').innerHTML =
+    // settings status
+    document.getElementById('sys-status').innerHTML =
       `Gemini AI: <b style="color:${aiEnabled?'var(--ok)':'var(--danger)'}">${aiEnabled?'✅ 활성':'❌ 비활성'}</b><br>` +
-      `GitHub PAT: <span id="gh-pat-status">확인 중...</span><br>` +
-      `총 XP: <b style="color:var(--accent)">${(d.xp||0).toLocaleString()}</b><br>` +
-      `회사 레벨: <b style="color:var(--bright)">LV ${d.level||1}</b><br>` +
-      `피드 메시지: ${d.feedCount||0}건 (AI: ${d.aiCount||0}건)`;
+      `총 XP: <b style="color:var(--accent)">${(d.xp||0).toLocaleString()}</b> &nbsp;|&nbsp; 회사 레벨: <b>LV ${d.level||1}</b><br>` +
+      `피드: ${d.feedCount||0}건 (AI 생성: ${d.aiCount||0}건)`;
   } catch(e) { console.error('state', e); }
 }
 
-/* AGENT GRID */
-function renderAgentGrid() {
-  document.getElementById('agent-grid').innerHTML = AGENTS.map(a =>
-    `<div class="agent-card${a.sec?' sec':''}" id="ac-${a.id}">
-      <div class="agent-status"></div>
-      <div class="agent-emoji">${a.emoji}</div>
-      <div class="agent-name">${a.name}</div>
-      <div class="agent-team">${a.team}</div>
-      <div class="agent-lv" id="alv-${a.id}">LV 1</div>
-      <div class="agent-ai off" id="aai-${a.id}">AI OFF</div>
-    </div>`
-  ).join('');
-}
-function refreshAgentCards() {
-  AGENTS.forEach(a => {
-    const xp = agentXp[a.id] || 0;
-    const lv = Math.max(1, Math.ceil(xp / 50));
-    const lvEl = document.getElementById('alv-' + a.id);
-    const aiEl = document.getElementById('aai-' + a.id);
-    if (lvEl) lvEl.textContent = 'LV ' + lv;
-    if (aiEl) {
-      aiEl.textContent = aiEnabled ? 'AI ON' : 'AI OFF';
-      aiEl.className = 'agent-ai' + (aiEnabled ? '' : ' off');
-    }
-  });
-}
-
-/* TRADES */
-function loadTradesStatus(st) {
-  curTradeStatus = st;
-  ['open','closed'].forEach(s => {
-    const b = document.getElementById('tbtn-' + s);
-    if (b) { b.style.color = s===st ? 'var(--accent)' : ''; b.style.borderColor = s===st ? 'rgba(251,191,36,.4)' : ''; }
-  });
-  loadTrades(st);
-}
-async function loadTrades(status) {
+/* ── TEAMS ── */
+const TEAM_COLORS = {'경영진':'#fbbf24','트레이딩':'#34d399','기술':'#60a5fa','비즈니스':'#f472b6','법무·재무·보안':'#a78bfa'};
+const FTYPE_IC = {report:'📄',finance:'💰',audit:'🔒',backtest:'📊',log:'⚙️'};
+async function loadTeams() {
   try {
-    const d = await apiFetch('/api/trades?status=' + (status||'open'));
-    const trades = d.trades || [];
-    document.getElementById('trades-badge').textContent = trades.length + '건';
-    document.getElementById('kpi-trades').textContent = trades.length.toLocaleString();
-    const tb = document.getElementById('trades-body');
-    if (!trades.length) {
-      tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:22px">거래 기록 없음</td></tr>';
-      return;
-    }
-    tb.innerHTML = trades.map(t => {
-      const isBuy = (t.side||'').toUpperCase() === 'BUY';
-      const side = isBuy ? '<span class="td-long">LONG</span>' : '<span class="td-short">SHORT</span>';
-      const pnl = t.pnl_usdt != null
-        ? (t.pnl_usdt >= 0 ? `<span class="td-pos">+$${t.pnl_usdt.toFixed(2)}</span>` : `<span class="td-neg">$${t.pnl_usdt.toFixed(2)}</span>`)
-        : '—';
-      const st2 = t.status === 'open' ? '<span class="td-open">OPEN</span>' : '<span class="td-closed">CLOSED</span>';
-      return `<tr>
-        <td>${esc(t.strategy||'—')}</td>
-        <td class="td-sym">${esc(t.symbol||'—')}</td>
-        <td>${side}</td>
-        <td style="font-family:monospace;font-size:11px">$${(t.entry_price||0).toLocaleString()}</td>
-        <td style="font-family:monospace;font-size:11px">${t.exit_price ? '$'+t.exit_price.toLocaleString() : '—'}</td>
-        <td>${pnl}</td>
-        <td>${st2}</td>
-      </tr>`;
-    }).join('');
-  } catch(e) { console.error('trades', e); }
-}
-
-/* SIGNALS */
-async function loadSignals() {
-  try {
-    const d = await apiFetch('/api/signals');
-    const sigs = d.signals || [];
-    document.getElementById('sig-badge').textContent = sigs.length + '건';
-    const el = document.getElementById('sig-list');
-    if (!sigs.length) { el.innerHTML = emp('🎯','최근 시그널 없음'); return; }
-    el.innerHTML = sigs.slice(0,12).map(s => {
-      const sig = (s.signal||'').toLowerCase();
-      const isL = sig.includes('long') || sig.includes('buy');
-      return `<div class="sig-row">
-        <div class="sig-side ${isL?'long':'short'}">${isL?'LONG':'SHORT'}</div>
-        <div style="flex:1;min-width:0">
-          <div class="sig-sym">${esc(s.symbol||'—')}</div>
-          <div class="sig-detail">$${(s.price||0).toLocaleString()} · ${esc(s.strategy||'—')}</div>
+    const d = await apiFetch('/api/teams');
+    const teams = d.teams || [];
+    const el = document.getElementById('teams-list');
+    if (!teams.length) { el.innerHTML = emp('👥','팀 데이터 없음'); return; }
+    el.innerHTML = teams.map(t => {
+      const color = TEAM_COLORS[t.name] || '#8b95a3';
+      const members = t.members.map(m => {
+        const a = AGENTS.find(x => x.id === m.id);
+        return `<div class="tm" onclick="go('office');setTimeout(()=>showDetail('${m.id}'),200)">
+          <div class="tm-emoji">${a?a.emoji:'🤖'}</div>
+          <div class="tm-info">
+            <div class="tm-name">${m.id}</div>
+            <div class="tm-lv">LV ${m.level} · ${m.xp} XP</div>
+          </div>
+        </div>`;
+      }).join('');
+      // recent work: last message from any team member
+      const recentWork = t.members.flatMap(m => (m.feed||[]).map(f => ({...f, agent: m.id}))).sort((a,b) => b.created_at - a.created_at).slice(0, 3);
+      const workHtml = recentWork.length ? recentWork.map(f =>
+        `<div class="tw-msg" style="border-color:${color}">${esc(f.msg)}<div class="tw-who">${esc(f.agent)} · ${ago(f.created_at)}${f.is_ai?' 🤖':''}</div></div>`
+      ).join('') : `<div class="tw-msg" style="border-color:${color};color:var(--muted)">최근 활동 없음</div>`;
+      // latest file from any team member
+      const latestFiles = t.members.filter(m => m.file).map(m => ({...m.file, agent: m.id})).sort((a,b) => b.created_at - a.created_at);
+      const fileHtml = latestFiles.length ? latestFiles.slice(0,2).map(f =>
+        `<div class="tw-file" onclick="go('files');setTimeout(()=>openFile(${f.id},null),200)">
+          <span style="font-size:14px">${FTYPE_IC[f.filetype]||'📄'}</span>
+          <span class="tw-file-name">${esc(f.filename)}</span>
+          <span class="tw-file-type ftype-${f.filetype||'report'}">${(f.filetype||'rpt').slice(0,3).toUpperCase()}</span>
+        </div>`
+      ).join('') : '';
+      return `<div class="team-card" style="--tc:${color}">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:${color};border-radius:0 3px 3px 0"></div>
+        <div class="team-hdr">
+          <div class="team-name">${t.name}</div>
+          <div class="team-count">${t.members.length}명</div>
         </div>
-        <div class="sig-conf">${Math.round((s.confidence||0)*100)}%</div>
+        <div class="team-members">${members}</div>
+        <div class="team-work">
+          <div class="tw-label">📋 진행 중 업무</div>
+          ${workHtml}
+          ${fileHtml ? '<div class="tw-label" style="margin-top:10px">📁 최신 리포트</div>' + fileHtml : ''}
+        </div>
       </div>`;
     }).join('');
-  } catch(e) { console.error('signals', e); }
+  } catch(e) { console.error('teams', e); document.getElementById('teams-list').innerHTML = emp('👥','팀 데이터 로드 실패'); }
 }
 
-/* PERFORMANCE */
-async function loadPerf() {
-  try {
-    const d = await apiFetch('/api/performance');
-    const total = d.total || 0, wins = d.wins || 0;
-    const wr = total > 0 ? ((wins/total)*100).toFixed(1) : null;
-    const pnl = d.total_pnl != null ? d.total_pnl.toFixed(2) : null;
-    document.getElementById('p-trades').textContent = total;
-    const wrEl = document.getElementById('p-wr');
-    wrEl.textContent = wr !== null ? wr + '%' : '—';
-    wrEl.style.color = wr ? (parseFloat(wr)>=50?'var(--ok)':'var(--danger)') : 'var(--bright)';
-    const pEl = document.getElementById('p-pnl');
-    pEl.textContent = pnl !== null ? '$'+pnl : '—';
-    pEl.style.color = pnl ? (parseFloat(pnl)>=0?'var(--ok)':'var(--danger)') : 'var(--bright)';
-  } catch(e) { console.error('perf', e); }
-}
-
-/* FILES */
-const FTYPE_IC = {report:'📄', finance:'💰', audit:'🔒', backtest:'📊', log:'⚙️'};
+/* ── FILES ── */
 async function loadFiles() {
   try {
     const d = await apiFetch('/api/files');
     const files = d.files || [];
     document.getElementById('files-badge').textContent = files.length + '개';
+    document.getElementById('k-files').textContent = files.length.toLocaleString();
     const el = document.getElementById('files-list');
     if (!files.length) { el.innerHTML = emp('📁','파일 없음'); return; }
-    el.innerHTML = files.map(f => {
-      const ic = FTYPE_IC[f.filetype] || '📄';
-      return `<div class="file-row" onclick="openFile(${f.id},this)">
-        <div class="file-ic">${ic}</div>
-        <div class="file-info">
-          <div class="file-name">${esc(f.filename)}</div>
-          <div class="file-meta">${esc(f.agent_name)} · ${ago(f.created_at)}</div>
+    el.innerHTML = files.map(f =>
+      `<div class="file-row" onclick="openFile(${f.id},this)">
+        <div class="f-ic">${FTYPE_IC[f.filetype]||'📄'}</div>
+        <div class="f-info">
+          <div class="f-name">${esc(f.filename)}</div>
+          <div class="f-meta">${esc(f.agent_name)} · ${ago(f.created_at)}</div>
         </div>
-        <div class="ftype ftype-${f.filetype||'report'}">${(f.filetype||'rpt').slice(0,3).toUpperCase()}</div>
-      </div>`;
-    }).join('');
+        <span class="tw-file-type ftype-${f.filetype||'report'}">${(f.filetype||'rpt').slice(0,3).toUpperCase()}</span>
+      </div>`
+    ).join('');
   } catch(e) { console.error('files', e); }
 }
 async function openFile(id, rowEl) {
-  document.querySelectorAll('.file-row').forEach(r => r.classList.remove('sel'));
-  rowEl.classList.add('sel');
+  if (rowEl) {
+    document.querySelectorAll('.file-row').forEach(r => r.classList.remove('sel'));
+    rowEl.classList.add('sel');
+  }
   const vw = document.getElementById('file-viewer');
   vw.innerHTML = '<div class="fv-empty">로딩 중...</div>';
   try {
@@ -969,142 +868,199 @@ function fmtMd(t) {
     .replace(/\n/g,'<br>');
 }
 
-/* GITHUB */
+/* ── GITHUB ── */
 async function loadGH() {
   try {
     const d = await apiFetch('/api/github');
-    renderGH(d.activity || [], d.connected);
-    const el = document.getElementById('gh-pat-status');
-    if (el) el.innerHTML = d.connected
-      ? '<b style="color:var(--ok)">✅ 연결됨</b>'
-      : '<b style="color:var(--danger)">❌ 미연결</b>';
+    renderGH(d.activity||[], d.connected);
+    const el = document.getElementById('sys-status');
+    if (el) el.innerHTML += `<br>GitHub PAT: <b style="color:${d.connected?'var(--ok)':'var(--danger)'}">${d.connected?'✅ 연결됨':'❌ 미연결'}</b>`;
   } catch(e) {
     try {
       const r = await fetch('https://api.github.com/repos/wldnjswldnjs00-ui/ayilon-virtual-office/commits?per_page=5');
-      if (r.ok) {
-        const cs = await r.json();
-        if (Array.isArray(cs)) renderGH(cs.map(c => ({
-          sha: c.sha.slice(0,7),
-          msg: c.commit.message.split('\n')[0],
-          author: c.commit.author.name,
-          ts: Math.floor(new Date(c.commit.author.date).getTime()/1000)
-        })), false);
-      }
+      if (r.ok) { const cs = await r.json(); if (Array.isArray(cs)) renderGH(cs.map(c=>({sha:c.sha.slice(0,7),msg:c.commit.message.split('\n')[0],author:c.commit.author.name,ts:Math.floor(new Date(c.commit.author.date)/1000)})),false); }
     } catch(_) {}
   }
 }
 function renderGH(act, connected) {
-  document.getElementById('gh-badge').textContent = act.length + ' 커밋' + (connected ? ' ✅' : '');
+  document.getElementById('gh-badge').textContent = act.length + ' 커밋' + (connected?' ✅':'');
   const el = document.getElementById('gh-list');
   if (!act.length) { el.innerHTML = emp('💻','커밋 기록 없음'); return; }
-  el.innerHTML = act.slice(0,10).map(c => `<div class="gh-row">
-    <div class="gh-sha">${esc(c.sha||'')}</div>
-    <div class="gh-body">
-      <div class="gh-msg">${esc((c.message||c.msg||'').split('\n')[0])}</div>
-      <div class="gh-meta">${esc(c.author||'')} · ${ago(c.ts)}</div>
-    </div>
-  </div>`).join('');
+  el.innerHTML = act.slice(0,8).map(c =>
+    `<div class="gh-row">
+      <div class="gh-sha">${esc(c.sha||'')}</div>
+      <div class="gh-body"><div class="gh-msg">${esc((c.message||c.msg||'').split('\n')[0])}</div><div class="gh-meta">${esc(c.author||'')} · ${ago(c.ts)}</div></div>
+    </div>`
+  ).join('');
 }
 
-/* CROSS-TALK */
+/* ── CROSS TALK ── */
 async function loadCrossTalk() {
   try {
     const d = await apiFetch('/api/crosstalk');
     const items = d.items || [];
-    const tmpl = i => `<div class="cross-item">
-      <div class="cross-agents">${esc(i.from||'')} → ${esc(i.to||'')}</div>
-      <div class="cross-msg">${esc(i.msg||'')}</div>
-      <div class="cross-time">${ago(i.ts)}</div>
-    </div>`;
-    const mainEl = document.getElementById('cross-list-main');
-    const rightEl = document.getElementById('cross-list-right');
-    const emptyHtml = emp('💬','팀 대화 없음');
-    if (mainEl) mainEl.innerHTML = items.length ? items.slice(0,12).map(tmpl).join('') : emptyHtml;
-    if (rightEl) rightEl.innerHTML = items.length
-      ? items.slice(0,3).map(tmpl).join('')
-      : '<div style="color:var(--muted);font-size:11px;text-align:center;padding:10px">대화 없음</div>';
-  } catch(e) { console.error('crosstalk', e); }
+    const tmpl = i => `<div class="cx"><div class="cx-ag">${esc(i.from||'')} → ${esc(i.to||'')}</div><div class="cx-msg">${esc(i.msg||'')}</div><div class="cx-t">${ago(i.ts)}</div></div>`;
+    const rEl = document.getElementById('cx-right');
+    rEl.innerHTML = items.length ? items.slice(0,3).map(tmpl).join('') : '<div style="color:var(--muted);font-size:11px;text-align:center;padding:10px">대화 없음</div>';
+  } catch(e) {}
 }
 
-/* CMD / CHAT */
+/* ── PERF ── */
+async function loadPerf() {
+  try {
+    const d = await apiFetch('/api/performance');
+    const total=d.total||0, wins=d.wins||0;
+    const wr = total>0 ? ((wins/total)*100).toFixed(1) : null;
+    const pnl = d.total_pnl!=null ? d.total_pnl.toFixed(2) : null;
+    document.getElementById('p-trades').textContent = total;
+    const we=document.getElementById('p-wr'); we.textContent=wr?wr+'%':'—'; we.style.color=wr?(parseFloat(wr)>=50?'var(--ok)':'var(--danger)'):'var(--bright)';
+    const pe=document.getElementById('p-pnl'); pe.textContent=pnl?'$'+pnl:'—'; pe.style.color=pnl?(parseFloat(pnl)>=0?'var(--ok)':'var(--danger)'):'var(--bright)';
+  } catch(e) {}
+}
+
+/* ── INTELLIGENCE CONFIG ── */
+const PERSONALITIES = ['분석형','창의형','신중형','공격형','균형형'];
+function buildIntelGrid() {
+  const el = document.getElementById('intel-grid');
+  el.innerHTML = AGENTS.map(a =>
+    `<div class="intel-card${a.sec?' sec-ag':''}" id="ic-${a.id}">
+      <div class="intel-head">
+        <div class="intel-emoji">${a.emoji}</div>
+        <div>
+          <div class="intel-name">${a.name}</div>
+          <div class="intel-team">${a.team}</div>
+          <div class="intel-xp" id="ixp-${a.id}">XP 0 · LV 1</div>
+        </div>
+      </div>
+      <div class="intel-fields">
+        <div>
+          <span class="field-label">지능 레벨</span>
+          <div class="stars" id="stars-${a.id}" onclick="setStar('${a.id}',event)">
+            <span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span>
+          </div>
+        </div>
+        <div>
+          <span class="field-label">사고 방식</span>
+          <select class="intel-sel" id="pers-${a.id}">
+            ${PERSONALITIES.map(p => `<option value="${p}">${p}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <span class="field-label">전문 분야 (선택)</span>
+          <input class="intel-inp" id="spec-${a.id}" placeholder="예: BTC ETH 분석" maxlength="50">
+        </div>
+      </div>
+    </div>`
+  ).join('');
+}
+function setStar(agentId, e) {
+  const starsEl = document.getElementById('stars-' + agentId);
+  if (!starsEl) return;
+  const stars = starsEl.querySelectorAll('.star');
+  const rect = starsEl.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const starW = rect.width / 5;
+  const n = Math.min(5, Math.max(1, Math.ceil(x / starW)));
+  stars.forEach((s, i) => s.classList.toggle('on', i < n));
+}
+function getStarLevel(agentId) {
+  const el = document.getElementById('stars-' + agentId);
+  if (!el) return 3;
+  return el.querySelectorAll('.star.on').length || 3;
+}
+function setStarLevel(agentId, n) {
+  const el = document.getElementById('stars-' + agentId);
+  if (!el) return;
+  el.querySelectorAll('.star').forEach((s, i) => s.classList.toggle('on', i < n));
+}
+async function loadConfig() {
+  try {
+    const d = await apiFetch('/api/config');
+    agentConfig = d.agentConfig || {};
+    AGENTS.forEach(a => {
+      const cfg = agentConfig[a.id] || {};
+      setStarLevel(a.id, cfg.intelligence || 3);
+      const ps = document.getElementById('pers-' + a.id);
+      if (ps) ps.value = cfg.personality || '균형형';
+      const sp = document.getElementById('spec-' + a.id);
+      if (sp) sp.value = cfg.specialty || '';
+      const xp = agentXp[a.id] || 0;
+      const xpEl = document.getElementById('ixp-' + a.id);
+      if (xpEl) xpEl.textContent = `XP ${xp} · LV ${Math.max(1,Math.ceil(xp/50))}`;
+    });
+  } catch(e) { console.error('config', e); }
+}
+async function saveAllConfig() {
+  const body = {};
+  AGENTS.forEach(a => {
+    body[a.id] = {
+      intelligence: getStarLevel(a.id),
+      personality: document.getElementById('pers-' + a.id)?.value || '균형형',
+      specialty: document.getElementById('spec-' + a.id)?.value || ''
+    };
+  });
+  try {
+    const r = await fetch('/api/config', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+    });
+    if (r.ok) {
+      agentConfig = body;
+      const msg = document.getElementById('save-msg');
+      msg.textContent = '✅ 저장 완료!'; msg.style.opacity = 1;
+      setTimeout(() => msg.style.opacity = 0, 2500);
+      showToast('Agent 설정이 저장되었습니다.');
+    }
+  } catch(e) { showToast('저장 실패: 네트워크 오류', true); }
+}
+
+/* ── CMD / CHAT ── */
 async function sendCmd() {
   const inp = document.getElementById('chat-inp');
-  const msg = inp.value.trim();
-  if (!msg) return;
+  const msg = inp.value.trim(); if (!msg) return;
   inp.value = '';
-  addBubble('user','나', msg);
+  addBubble('u','나',msg);
   try {
-    const r = await fetch('/api/cmd', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({msg})
-    });
+    const r = await fetch('/api/cmd',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({msg})});
     const d = await r.json();
-    addBubble('ai','CEO', d.reply || '처리 중입니다.');
+    addBubble('a','CEO', d.reply || '처리 중입니다.');
     setTimeout(loadFeed, 800);
-  } catch(e) { addBubble('ai','CEO','네트워크 오류가 발생했습니다.'); }
+  } catch(e) { addBubble('a','CEO','네트워크 오류가 발생했습니다.'); }
 }
 function addBubble(type, label, text) {
   const el = document.getElementById('chat-msgs');
   const div = document.createElement('div');
   div.className = 'bubble ' + type;
-  div.innerHTML = `<div class="bubble-lbl">${esc(label)}</div>${esc(text)}`;
-  el.appendChild(div);
-  el.scrollTop = el.scrollHeight;
+  div.innerHTML = `<div class="bl">${esc(label)}</div>${esc(text)}`;
+  el.appendChild(div); el.scrollTop = el.scrollHeight;
 }
 
-/* UTILS */
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+/* ── UTILS ── */
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function ago(ts) {
   if (!ts) return '';
   const d = Math.floor(Date.now()/1000) - Number(ts);
-  if (d < 60) return Math.floor(Math.max(0,d)) + '초 전';
+  if (d < 60) return Math.max(0,Math.floor(d)) + '초 전';
   if (d < 3600) return Math.floor(d/60) + '분 전';
   if (d < 86400) return Math.floor(d/3600) + '시간 전';
   return Math.floor(d/86400) + '일 전';
 }
-async function apiFetch(url) {
-  const r = await fetch(url);
-  if (!r.ok) throw new Error(r.status);
-  return r.json();
-}
-function emp(ic, tx) {
-  return `<div class="empty"><div class="empty-ic">${ic}</div><div class="empty-tx">${tx}</div></div>`;
-}
+async function apiFetch(url) { const r = await fetch(url); if (!r.ok) throw new Error(r.status); return r.json(); }
+function emp(ic, tx) { return `<div class="empty"><div class="empty-i">${ic}</div><div class="empty-t">${tx}</div></div>`; }
 function showToast(msg, err) {
   const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'toast show' + (err ? ' err' : '');
+  el.textContent = msg; el.className = 'toast show' + (err?' err':'');
   setTimeout(() => el.className = 'toast', 2500);
 }
 
-/* PARTICLE BACKGROUND */
-(function() {
-  const cv = document.getElementById('bgCanvas');
-  const ctx = cv.getContext('2d');
-  let W, H;
-  const resize = () => { W = cv.width = innerWidth; H = cv.height = innerHeight; };
-  resize(); addEventListener('resize', resize);
-  const C = ['rgba(251,191,36,','rgba(255,77,152,','rgba(52,211,153,'];
-  const pts = Array.from({length:40}, () => ({
-    x: Math.random()*1200, y: Math.random()*800,
-    r: Math.random()*1.4+0.3,
-    vx: (Math.random()-.5)*.12, vy: (Math.random()-.5)*.12,
-    c: C[Math.floor(Math.random()*3)], a: Math.random()*.35+.08
-  }));
-  (function draw() {
-    ctx.clearRect(0,0,W,H);
-    pts.forEach(p => {
-      p.x += p.vx; p.y += p.vy;
-      if(p.x<0) p.x=W; if(p.x>W) p.x=0;
-      if(p.y<0) p.y=H; if(p.y>H) p.y=0;
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle = p.c+p.a+')'; ctx.fill();
-    });
-    requestAnimationFrame(draw);
-  })();
+/* ── PARTICLE BACKGROUND ── */
+(function(){
+  const cv=document.getElementById('bgCv'),ctx=cv.getContext('2d');
+  let W,H;
+  const rs=()=>{W=cv.width=innerWidth;H=cv.height=innerHeight};
+  rs();addEventListener('resize',rs);
+  const C=['rgba(251,191,36,','rgba(255,77,152,','rgba(52,211,153,'];
+  const pts=Array.from({length:38},()=>({x:Math.random()*1200,y:Math.random()*800,r:Math.random()*1.4+.3,vx:(Math.random()-.5)*.1,vy:(Math.random()-.5)*.1,c:C[Math.floor(Math.random()*3)],a:Math.random()*.3+.08}));
+  (function draw(){ctx.clearRect(0,0,W,H);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c+p.a+')';ctx.fill()});requestAnimationFrame(draw)})();
 })();
 </script>
 </body>

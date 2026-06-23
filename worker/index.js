@@ -74,9 +74,10 @@ async function getMem(env) {
       lastCommitSha: m.last_commit_sha || '',
       lastGHCheck: Number(m.last_gh_check) || 0,
       ghActivity: Array.isArray(m.gh_activity) ? m.gh_activity : [],
-      crossTalk: Array.isArray(m.cross_talk) ? m.cross_talk : []
+      crossTalk: Array.isArray(m.cross_talk) ? m.cross_talk : [],
+      agentConfig: (typeof m.agent_config === 'object' && m.agent_config !== null) ? m.agent_config : {}
     };
-  } catch(e) { return { keywords:{}, xp:0, agentXp:{}, cmds:[], lastCommitSha:'', lastGHCheck:0, ghActivity:[], crossTalk:[] }; }
+  } catch(e) { return { keywords:{}, xp:0, agentXp:{}, cmds:[], lastCommitSha:'', lastGHCheck:0, ghActivity:[], crossTalk:[], agentConfig:{} }; }
 }
 
 async function saveMem(env, mem) {
@@ -88,7 +89,8 @@ async function saveMem(env, mem) {
     env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('last_commit_sha', JSON.stringify(mem.lastCommitSha||'')),
     env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('last_gh_check', JSON.stringify(mem.lastGHCheck||0)),
     env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('gh_activity', JSON.stringify((mem.ghActivity||[]).slice(0,20))),
-    env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('cross_talk', JSON.stringify((mem.crossTalk||[]).slice(-60)))
+    env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('cross_talk', JSON.stringify((mem.crossTalk||[]).slice(-60))),
+    env.DB.prepare('INSERT OR REPLACE INTO memory (key,value) VALUES (?,?)').bind('agent_config', JSON.stringify(mem.agentConfig||{}))
   ]);
 }
 
@@ -138,12 +140,27 @@ async function ceoReply(msg, key, cmds, kws) {
   return callGemini(prompt, key, 90);
 }
 
+const PERSONALITY_STYLE = {
+  '분석형': '분석적이고 데이터 중심으로 수치와 근거를 바탕으로',
+  '창의형': '창의적이고 혁신적인 시각으로 새로운 아이디어를 중심으로',
+  '신중형': '신중하고 리스크를 고려하여 안전한 접근을 우선으로',
+  '공격형': '공격적이고 빠른 실행을 중심으로 과감하게',
+  '균형형': '균형 잡힌 시각으로 장단점을 모두 고려하여'
+};
+
 async function agentThink(agent, key, recentSignals, mem) {
   const kws = topKws(mem.keywords, 8).join(', ') || '없음';
-  const lvl = Math.floor((mem.agentXp[agent.id]||0)/10)+1;
+  const lvl = Math.max(1, Math.ceil((mem.agentXp[agent.id]||0)/50));
   const sigStr = recentSignals.slice(0,3).map(s=>`${s.symbol||''} ${s.signal||''}`).join(', ') || '없음';
-  const prompt = `당신은 AYILON 가상 오피스의 ${agent.name}(${agent.team}, LV${lvl})입니다. 현재 암호화폐 자동매매 회사에서 일하고 있습니다.\n최근 시그널: ${sigStr}\n핵심 키워드: ${kws}\n\n지금 당신이 하고 있는 일을 1문장(30자 이내)으로 말하세요. 구체적이고 실무적으로:`;
-  return callGemini(prompt, key, 50);
+  const cfg = (mem.agentConfig||{})[agent.id] || {};
+  const intel = Math.min(5, Math.max(1, cfg.intelligence || 3));
+  const personality = cfg.personality || '균형형';
+  const specialty = cfg.specialty ? `전문 분야: ${cfg.specialty}\n` : '';
+  const style = PERSONALITY_STYLE[personality] || PERSONALITY_STYLE['균형형'];
+  const maxChars = [20, 35, 55, 90, 140][intel - 1];
+  const maxTokens = [30, 50, 80, 120, 180][intel - 1];
+  const prompt = `당신은 AYILON 가상 오피스의 ${agent.name}(${agent.team}, LV${lvl})입니다.\n성격: ${style} 접근합니다.\n${specialty}최근 시그널: ${sigStr}\n핵심 키워드: ${kws}\n\n지금 하고 있는 업무를 ${maxChars}자 이내로 구체적이고 실무적으로 말하세요:`;
+  return callGemini(prompt, key, maxTokens);
 }
 
 function localReplyMsg(cmds) {
@@ -556,6 +573,50 @@ async function handleRequest(request, env) {
       "SELECT * FROM signals WHERE signal != 'hold' ORDER BY created_at DESC LIMIT 30"
     ).all();
     return json({ signals: results });
+  }
+
+  if (url.pathname === '/api/config') {
+    const mem = await getMem(env);
+    if (request.method === 'GET') {
+      return json({ agentConfig: mem.agentConfig || {} });
+    }
+    if (request.method === 'POST') {
+      const body = await request.json().catch(()=>({}));
+      if (body && typeof body === 'object') {
+        mem.agentConfig = { ...(mem.agentConfig||{}), ...body };
+        await saveMem(env, mem);
+      }
+      return json({ ok: true });
+    }
+  }
+
+  if (url.pathname === '/api/teams') {
+    const mem = await getMem(env);
+    const TEAM_GROUPS = [
+      { name:'경영진',      color:'#fbbf24', agents:['ARIA','CEO'] },
+      { name:'트레이딩',    color:'#34d399', agents:['IRON','GRID','SCOUT','WARD'] },
+      { name:'기술',        color:'#60a5fa', agents:['FORGE','ATLAS'] },
+      { name:'비즈니스',    color:'#f472b6', agents:['LUNA','PIXEL','ECHO'] },
+      { name:'법무·재무·보안', color:'#a78bfa', agents:['REX','LEDGER','SHIELD'] },
+    ];
+    const teams = await Promise.all(TEAM_GROUPS.map(async tg => {
+      const members = await Promise.all(tg.agents.map(async id => {
+        let feed = [], file = null;
+        try {
+          feed = (await env.DB.prepare(
+            'SELECT msg, is_ai, created_at FROM feed WHERE agent_id=? ORDER BY id DESC LIMIT 5'
+          ).bind(id).all()).results;
+          file = await env.DB.prepare(
+            'SELECT id,filename,filetype,created_at FROM files WHERE agent_id=? ORDER BY id DESC LIMIT 1'
+          ).bind(id).first();
+        } catch(_) {}
+        const xp = mem.agentXp[id] || 0;
+        const cfg = (mem.agentConfig||{})[id] || {};
+        return { id, xp, level: Math.max(1, Math.ceil(xp/50)), config: cfg, feed, file };
+      }));
+      return { name: tg.name, color: tg.color, members };
+    }));
+    return json({ teams });
   }
 
   if (url.pathname === '/api/cmd' && request.method === 'POST') {
