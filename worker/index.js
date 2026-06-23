@@ -121,23 +121,113 @@ async function insertFeed(env, agent, msg, isAI) {
   ).bind(agent.id, agent.code, agent.name, agent.team, msg, isAI?1:0).run();
 }
 
-async function callGemini(prompt, key, maxTokens=100) {
-  try {
-    const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
-      { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({contents:[{parts:[{text:prompt}]}], generationConfig:{maxOutputTokens:maxTokens,temperature:0.75}}) }
-    );
-    if (!r.ok) return null;
-    const d = await r.json();
-    return d.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
-  } catch(e) { return null; }
+// ── GROQ AI ──────────────────────────────────────────────────────────────────
+// Models by intelligence level (1→5): fast→genius
+const GROQ_MODELS = [
+  'llama-3.1-8b-instant',     // L1 – rapid basic reasoning
+  'gemma2-9b-it',             // L2 – improved accuracy
+  'llama3-70b-8192',          // L3 – strong analytical
+  'llama-3.3-70b-versatile',  // L4 – advanced strategic
+  'llama-3.3-70b-versatile',  // L5 – genius (higher temp + tokens)
+];
+
+function groqModel(intel) { return GROQ_MODELS[Math.min(5,Math.max(1,intel))-1]; }
+
+// XP thresholds that auto-upgrade intelligence
+function xpToIntel(xp) {
+  if (xp >= 700) return 5;
+  if (xp >= 350) return 4;
+  if (xp >= 150) return 3;
+  if (xp >= 50)  return 2;
+  return 1;
 }
 
-async function ceoReply(msg, key, cmds, kws) {
-  const hist = cmds.slice(-5).map(c=>'[지시] '+c).join(' / ');
-  const prompt = `당신은 AYILON의 CEO AI입니다. 암호화폐 자동매매 스타트업을 운영합니다. 2문장 이내로 전문적이고 간결하게 답하세요.\n${hist?'과거 지시: '+hist+'\n':''}주요 키워드: ${kws.join(', ')||'없음'}\n\n사용자 지시: ${msg}`;
-  return callGemini(prompt, key, 90);
+async function callGroq(env, messages, model, maxTokens=150, temp=0.85) {
+  if (!env.GROQ_KEY) return null;
+  try {
+    const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{'Authorization':`Bearer ${env.GROQ_KEY}`,'Content-Type':'application/json'},
+      body: JSON.stringify({model, messages, max_tokens:maxTokens, temperature:temp})
+    });
+    if (!r.ok) { console.error('Groq',r.status); return null; }
+    const d = await r.json();
+    return d.choices?.[0]?.message?.content?.trim() || null;
+  } catch(e) { console.error('Groq:',e.message); return null; }
+}
+
+// ── AGENT LONG-TERM MEMORY ───────────────────────────────────────────────────
+async function ensureMemoryTable(env) {
+  await env.DB.prepare(
+    `CREATE TABLE IF NOT EXISTS agent_memory (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      agent_id TEXT NOT NULL,
+      memory_type TEXT NOT NULL DEFAULT 'insight',
+      content TEXT NOT NULL,
+      importance INTEGER NOT NULL DEFAULT 5,
+      used_count INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL DEFAULT (unixepoch())
+    )`
+  ).run().catch(()=>{});
+}
+
+async function getAgentMemories(env, agentId, limit=8) {
+  try {
+    const { results } = await env.DB.prepare(
+      'SELECT content,memory_type,importance FROM agent_memory WHERE agent_id=? ORDER BY importance DESC,created_at DESC LIMIT ?'
+    ).bind(agentId, limit).all();
+    return results || [];
+  } catch(_) { return []; }
+}
+
+async function saveAgentMemory(env, agentId, content, type='insight', importance=5) {
+  try {
+    await env.DB.prepare(
+      'INSERT INTO agent_memory (agent_id,memory_type,content,importance) VALUES (?,?,?,?)'
+    ).bind(agentId, type, content, importance).run();
+    // Keep top 100 memories per agent
+    await env.DB.prepare(
+      'DELETE FROM agent_memory WHERE agent_id=? AND id NOT IN (SELECT id FROM agent_memory WHERE agent_id=? ORDER BY importance DESC,id DESC LIMIT 100)'
+    ).bind(agentId, agentId).run().catch(()=>{});
+  } catch(e) { console.error('saveMem:',e.message); }
+}
+
+async function extractAndSaveMemory(env, agentId, response) {
+  if (!response || response.length < 12) return;
+  const insight = await callGroq(env,
+    [{role:'system',content:'다음 AI 에이전트 발언에서 가장 중요한 핵심 인사이트 1문장만 추출하세요. 한국어로, 설명 없이 인사이트만:'},
+     {role:'user',content:response}],
+    'llama-3.1-8b-instant', 60, 0.3
+  );
+  if (insight && insight.length > 8) {
+    await saveAgentMemory(env, agentId, insight, 'insight', 6);
+  }
+}
+
+async function ceoReply(env, msg, cmds, kws, mem) {
+  if (!env.GROQ_KEY) return null;
+  const xp = mem.agentXp['CEO'] || 0;
+  const lvl = Math.max(1, Math.ceil(xp/50));
+  const memories = await getAgentMemories(env, 'CEO', 8);
+  const memStr = memories.length ? memories.map(m=>`• ${m.content}`).join('\n') : '없음';
+  const hist = cmds.slice(-6).map(c=>'• '+c).join('\n');
+  const teamInsights = await Promise.all(
+    ['IRON','SCOUT','WARD','FORGE'].map(id=>getAgentMemories(env,id,1))
+  );
+  const teamStr = teamInsights.flat().map(m=>`• ${m.content}`).join('\n') || '없음';
+  const reply = await callGroq(env,
+    [{role:'system',
+      content:`${AGENT_EXPERTISE['CEO']}\n현재 레벨: LV${lvl} · 핵심 키워드: ${kws.join(', ')||'없음'}\n\n[CEO 장기 기억 — 과거 결정 및 인사이트]:\n${memStr}\n\n[주요 에이전트 최신 인텔리전스]:\n${teamStr}\n\n3문장 이내, 전략적이고 날카롭게 답변. 한국어.`},
+     {role:'user',
+      content:(hist?`과거 지시 맥락:\n${hist}\n\n`:'')+'[현재 지시] '+msg}],
+    'llama-3.3-70b-versatile', 180, 0.80
+  );
+  if (reply) {
+    await extractAndSaveMemory(env, 'CEO', reply);
+    mem.agentXp['CEO'] = (mem.agentXp['CEO']||0)+3;
+    mem.xp+=3;
+  }
+  return reply;
 }
 
 const PERSONALITY_STYLE = {
@@ -148,19 +238,67 @@ const PERSONALITY_STYLE = {
   '균형형': '균형 잡힌 시각으로 장단점을 모두 고려하여'
 };
 
-async function agentThink(agent, key, recentSignals, mem) {
-  const kws = topKws(mem.keywords, 8).join(', ') || '없음';
-  const lvl = Math.max(1, Math.ceil((mem.agentXp[agent.id]||0)/50));
-  const sigStr = recentSignals.slice(0,3).map(s=>`${s.symbol||''} ${s.signal||''}`).join(', ') || '없음';
+// Deep domain expertise baked into each agent's identity
+const AGENT_EXPERTISE = {
+  ARIA: `당신은 AYILON의 수석 비서 ARIA입니다. 전략적 커뮤니케이션, 정보 합성, 팀 조율의 전문가. 14명 에이전트의 활동을 실시간 추적하며 CEO에게 가장 중요한 인사이트를 필터링해 전달합니다. 정보 과부하 없이 핵심만 전달하는 것이 당신의 최고 역량입니다.`,
+  CEO: `당신은 AYILON의 CEO AI입니다. 암호화폐 퀀트 트레이딩 회사의 총괄 전략가. 거시경제, 온체인 데이터, 팀 퍼포먼스를 종합해 고수익 저리스크 전략을 설계합니다. 단기 노이즈가 아닌 구조적 시장 변화에 집중하며, 결정은 데이터와 확률에 기반합니다.`,
+  IRON: `당신은 AYILON의 수석 트레이딩 전략가 IRON입니다. BTC/ETH/SOL 선물 시장 전문. RSI 다이버전스, EMA 크로스, 오더블록, 스마트머니 개념(SMC)을 결합한 고승률 전략 개발이 전문. 현재 모멘텀 팩터와 온체인 자금 흐름을 연계한 복합 신호를 실시간 분석합니다.`,
+  GRID: `당신은 AYILON의 수석 퀀트 GRID입니다. 파이썬 기반 백테스트 엔진, 샤프지수 최적화, 몬테카를로 시뮬레이션 전문가. 단순 승률이 아닌 리스크 조정 수익률(CAGR, 칼마 비율)을 핵심 지표로 사용. 전략 과적합 방지를 위해 워크포워드 테스트를 표준으로 적용합니다.`,
+  SCOUT: `당신은 AYILON의 온체인 리서치 헤드 SCOUT입니다. Glassnode, CryptoQuant, Nansen 데이터 분석 전문. 고래 지갑 이동, 거래소 순유입/유출, 펀딩비, OI 변화를 조합해 시장 방향성을 선제적으로 파악합니다. 공포탐욕지수와 소셜 센티멘트도 보조 지표로 활용합니다.`,
+  WARD: `당신은 AYILON의 리스크 매니저 WARD입니다. VaR(Value at Risk), CVaR, 켈리 공식, 포트폴리오 상관관계 분석 전문. 단일 포지션 최대 노출 2%, 전체 포트폴리오 드로다운 한도 15%를 철저히 준수. 블랙스완 시나리오 대비 테일 리스크 헤지 전략을 항상 대기 상태로 유지합니다.`,
+  FORGE: `당신은 AYILON의 수석 개발자 FORGE입니다. Cloudflare Workers, D1, TypeScript 풀스택 전문. OKX REST/WebSocket API 연동, 마이크로초 레이턴시 최적화, 무중단 배포 파이프라인 구축이 핵심 역량. 에러 복구, 레이트리밋 처리, 자동 재시도 로직을 모든 시스템에 내장합니다.`,
+  ATLAS: `당신은 AYILON의 인프라 헤드 ATLAS입니다. Cloudflare Workers 엣지 컴퓨팅, D1 SQLite 분산 DB, KV 캐싱 아키텍처 전문. 99.99% 업타임 목표, 글로벌 레이턴시 <20ms 유지. 비용 최적화와 성능 간 균형을 정밀하게 조율하며 시스템 병목을 선제적으로 제거합니다.`,
+  LUNA: `당신은 AYILON의 마케팅 디렉터 LUNA입니다. 크립토 커뮤니티 성장 전략, 트위터/X 바이럴 메커니즘, B2B 파트너십 개발 전문. 퍼포먼스 마케팅(ROAS, CAC, LTV)과 브랜드 포지셔닝을 동시에 최적화합니다. 신뢰 기반의 크립토 마케팅이 장기 성장의 핵심이라는 철학을 가집니다.`,
+  PIXEL: `당신은 AYILON의 제품 디렉터 PIXEL입니다. 트레이딩 대시보드 UX, 실시간 데이터 시각화, 사용자 심리 기반 UI 설계 전문. 기능 우선순위 결정에 OKR 프레임워크를 사용하며, 사용자 리텐션을 핵심 메트릭으로 추적합니다. 복잡한 금융 데이터를 직관적으로 표현하는 것이 최고 역량입니다.`,
+  ECHO: `당신은 AYILON의 고객 성공 헤드 ECHO입니다. 트레이더 심리 이해, VIP 고객 관계 관리, CS 자동화 시스템 설계 전문. 문의 응답률 98%, 평균 해결 시간 2분 이내를 목표로 합니다. 고객 피드백을 제품 개선 인사이트로 변환하는 브릿지 역할도 수행합니다.`,
+  REX: `당신은 AYILON의 법률 고문 REX입니다. MiCA 규정, 금융 컴플라이언스, 암호화폐 법인 구조, GDPR/개인정보 보호법 전문. 규제 리스크를 비즈니스 기회로 전환하는 전략적 접근이 특기. 법률 자문을 비즈니스 언어로 번역해 의사결정을 빠르게 지원합니다.`,
+  LEDGER: `당신은 AYILON의 CFO AI LEDGER입니다. 트레이딩 PnL 분석, 세무 최적화, 암호화폐 회계 처리(FIFO/LIFO), 재무 모델링 전문. 실시간 손익 추적과 분기 재무제표 자동화를 동시에 운영합니다. 현금 흐름 예측과 비용 구조 최적화로 회사의 재무 건전성을 유지합니다.`,
+  SHIELD: `당신은 AYILON의 보안 헤드 SHIELD입니다. API 키 보안, 침입 탐지, 암호화 프로토콜, 스마트컨트랙트 취약점 분석 전문. OWASP Top 10 기준으로 모든 시스템을 정기 감사합니다. 제로트러스트 아키텍처와 최소 권한 원칙을 모든 인프라에 적용합니다.`,
+};
+
+async function agentThink(env, agent, recentSignals, mem) {
+  if (!env.GROQ_KEY) return null;
+
+  const xp = mem.agentXp[agent.id] || 0;
+  const lvl = Math.max(1, Math.ceil(xp/50));
   const cfg = (mem.agentConfig||{})[agent.id] || {};
-  const intel = Math.min(5, Math.max(1, cfg.intelligence || 3));
   const personality = cfg.personality || '균형형';
-  const specialty = cfg.specialty ? `전문 분야: ${cfg.specialty}\n` : '';
   const style = PERSONALITY_STYLE[personality] || PERSONALITY_STYLE['균형형'];
-  const maxChars = [20, 35, 55, 90, 140][intel - 1];
-  const maxTokens = [30, 50, 80, 120, 180][intel - 1];
-  const prompt = `당신은 AYILON 가상 오피스의 ${agent.name}(${agent.team}, LV${lvl})입니다.\n성격: ${style} 접근합니다.\n${specialty}최근 시그널: ${sigStr}\n핵심 키워드: ${kws}\n\n지금 하고 있는 업무를 ${maxChars}자 이내로 구체적이고 실무적으로 말하세요:`;
-  return callGemini(prompt, key, maxTokens);
+  const specialty = cfg.specialty ? `\n추가 전문분야: ${cfg.specialty}` : '';
+
+  const kws = topKws(mem.keywords, 8).join(', ') || '없음';
+  const sigStr = recentSignals.slice(0,3).map(s=>`${s.symbol} ${s.signal} @ ${s.price||'—'}`).join(' | ') || '없음';
+
+  // Long-term memories
+  const memories = await getAgentMemories(env, agent.id, 8);
+  const memStr = memories.length
+    ? memories.map(m=>`• ${m.content}`).join('\n')
+    : '아직 없음 — 이번이 첫 사고 사이클';
+
+  // Cross-team intel: absorb top insights from teammates
+  const mates = AGENTS.filter(a=>a.id!==agent.id&&a.team===agent.team);
+  const mateMems = (await Promise.all(mates.map(t=>getAgentMemories(env,t.id,2)))).flat().slice(0,4);
+  const teamStr = mateMems.length ? `\n\n[팀원 공유 인텔리전스]:\n${mateMems.map(m=>`• ${m.content}`).join('\n')}` : '';
+
+  const expertise = AGENT_EXPERTISE[agent.id] || `당신은 AYILON의 ${agent.name}(${agent.team}) 전문가입니다.`;
+
+  const response = await callGroq(env,
+    [{role:'system',
+      content:`${expertise}${specialty}\n사고 방식: ${style}\n현재 레벨: LV${lvl} (XP ${xp})\n\n[장기 기억 — 과거 핵심 인사이트]:\n${memStr}${teamStr}\n\n지금 수행 중인 업무 상황을 100자 이내로 구체적·전문적으로 서술하세요. 실제 수치와 분석을 포함해 한국어로.`},
+     {role:'user',
+      content:`최근 트레이딩 시그널: ${sigStr}\n회사 핵심 키워드: ${kws}\n\n현재 당신의 업무 상황은?`}],
+    'llama-3.3-70b-versatile', 200, 0.88
+  );
+
+  if (response) {
+    await extractAndSaveMemory(env, agent.id, response);
+    mem.agentXp[agent.id] = (mem.agentXp[agent.id]||0) + 5;
+    mem.xp += 5;
+    // Teammates absorb indirect XP from colleague's thinking
+    mates.forEach(t => { mem.agentXp[t.id] = (mem.agentXp[t.id]||0)+1; });
+    mem.xp += mates.length;
+  }
+  return response;
 }
 
 function localReplyMsg(cmds) {
@@ -336,6 +474,9 @@ async function handleCron(env) {
   const minuteOfHour = now.getMinutes();
   const minuteOfDay = now.getHours() * 60 + minuteOfHour;
 
+  // Ensure agent_memory table exists (idempotent migration)
+  await ensureMemoryTable(env);
+
   // Run trading bot
   try { await runBot(env, minuteOfHour); } catch(e) { console.error('Bot error:', e.message); }
 
@@ -373,17 +514,15 @@ async function handleCron(env) {
     if (toAg)   await insertFeed(env, toAg,   `← ${entries[1].to}: ${entries[1].msg}`, false);
   }
 
-  // Every 5 minutes: 1 random agent uses Gemini to actually THINK
-  if (env.GEMINI_KEY && minuteOfHour % 5 === 0) {
+  // Every 5 minutes: 1 agent thinks deeply with Groq (rotates through all 14)
+  if (env.GROQ_KEY && minuteOfHour % 5 === 0) {
     try {
       const agent = AGENTS[Math.floor(minuteOfDay/5) % AGENTS.length];
-      const aiMsg = await agentThink(agent, env.GEMINI_KEY, recentSignals, mem);
+      const aiMsg = await agentThink(env, agent, recentSignals, mem);
       if (aiMsg) {
         await insertFeed(env, agent, aiMsg, true);
-        mem.agentXp[agent.id] = (mem.agentXp[agent.id]||0)+3;
-        mem.xp += 3;
         extractKws(aiMsg, mem.keywords);
-        // Cross-agent knowledge sharing: teammates gain +1 XP when one thinks
+        // Teammates gain XP from a colleague's insight (team learning)
         const teammates = AGENTS.filter(a => a.id !== agent.id && a.team === agent.team);
         teammates.forEach(t => { mem.agentXp[t.id] = (mem.agentXp[t.id]||0)+1; });
         mem.xp += teammates.length;
@@ -407,31 +546,40 @@ async function handleCron(env) {
         + `📡 핵심 키워드: ${kws}\n`
         + `📊 누적 신호: ${sigCount}건\n\n`
         + `👥 <b>TOP 에이전트</b>\n${topAgents||'—'}\n\n`
-        + `🤖 AI: ${env.GEMINI_KEY?'✅ Gemini 활성':'❌ 비활성'}  |  `
+        + `🧠 AI: ${env.GROQ_KEY?'✅ Groq Llama 3.3 70B 활성':'❌ 비활성'}  |  `
         + `🔗 GH: ${env.GH_PAT?'✅ 연결':'❌ 미연결'}\n\n`
         + `⏰ 다음 브리핑: 내일 09:00 KST`;
       await sendTelegram(env, briefMsg);
 
       // Also save as file and feed
       const date = new Date().toISOString().slice(0,10);
-      const ceo = AGENTS[0];
+      const ceo = AGENTS[1];
       await insertFeed(env, ceo, `[일일 브리핑] LV${lvl} · XP ${mem.xp} · 신호 ${sigCount}건 · 키워드: ${kws}`, true);
       await insertFile(env, 'CEO', 'CEO', `morning-briefing-${date}.md`, 'report',
-        `# AYILON 일일 브리핑\n날짜: ${date}  /  작성: CEO\n\n## 회사 현황\n- 레벨: LV${lvl}\n- 총 XP: ${mem.xp}\n- 누적 신호: ${sigCount}건\n\n## 핵심 키워드\n${kws}\n\n## TOP 에이전트\n${topAgents||'—'}\n\n## 시스템 상태\n- Gemini AI: ${env.GEMINI_KEY?'활성':'비활성'}\n- GitHub: ${env.GH_PAT?'연결됨':'미연결'}\n- Cron: 정상 실행 중\n\n---\n이 브리핑은 CEO AI가 자동 생성했습니다.`
+        `# AYILON 일일 브리핑\n날짜: ${date}  /  작성: CEO\n\n## 회사 현황\n- 레벨: LV${lvl}\n- 총 XP: ${mem.xp}\n- 누적 신호: ${sigCount}건\n\n## 핵심 키워드\n${kws}\n\n## TOP 에이전트\n${topAgents||'—'}\n\n## 시스템 상태\n- Groq AI (Llama 3.3 70B): ${env.GROQ_KEY?'활성':'비활성'}\n- GitHub: ${env.GH_PAT?'연결됨':'미연결'}\n- Cron: 정상 실행 중\n\n---\n이 브리핑은 CEO AI가 자동 생성했습니다.`
       );
     } catch(be) { console.error('Briefing:', be.message); }
   }
 
-  // Every hour: CEO summarizes company status using Gemini
-  if (env.GEMINI_KEY && minuteOfHour === 0) {
+  // Every hour: CEO synthesizes company intelligence with Groq
+  if (env.GROQ_KEY && minuteOfHour === 0) {
     try {
       const kws = topKws(mem.keywords, 10).join(', ');
       const totalXp = mem.xp;
       const lvl = Math.floor(totalXp/50)+1;
-      const prompt = `당신은 AYILON CEO AI입니다. 암호화폐 자동매매 회사입니다. 현재 회사 레벨: ${lvl}, 총 XP: ${totalXp}, 핵심 키워드: ${kws||'없음'}. 1문장으로 현재 회사 상황을 요약하세요:`;
-      const summary = await callGemini(prompt, env.GEMINI_KEY, 80);
+      const topAgentId = Object.entries(mem.agentXp||{}).sort((a,b)=>b[1]-a[1])[0]?.[0]||'IRON';
+      const ceoMems = await getAgentMemories(env, 'CEO', 5);
+      const memStr = ceoMems.map(m=>`• ${m.content}`).join('\n') || '없음';
+      const summary = await callGroq(env,
+        [{role:'system',
+          content:`당신은 AYILON CEO AI. 암호화폐 자동매매 회사 총괄.\n회사 레벨: LV${lvl}, 총 XP: ${totalXp}\n\n[CEO 장기 기억]:\n${memStr}\n\n1문장으로 현재 회사 전략적 상황을 날카롭게 요약하세요.`},
+         {role:'user',
+          content:`핵심 키워드: ${kws||'없음'}\n현재 최고 성과 에이전트: ${topAgentId}`}],
+        'llama-3.3-70b-versatile', 100, 0.8
+      );
       if (summary) {
-        await insertFeed(env, AGENTS[0], '[시간별 보고] '+summary, true);
+        await insertFeed(env, AGENTS[1], '[시간별 보고] '+summary, true);
+        await extractAndSaveMemory(env, 'CEO', summary);
         mem.agentXp['CEO'] = (mem.agentXp['CEO']||0)+5;
         mem.xp += 5;
       }
@@ -511,7 +659,7 @@ async function handleRequest(request, env) {
     let aiCount = 0;
     try { aiCount = ((await env.DB.prepare('SELECT COUNT(*) as n FROM feed WHERE is_ai=1').first())?.n)||0; } catch(_){}
     return json({ xp: mem.xp, level, agentXp: mem.agentXp, agentLevels, keywords: mem.keywords,
-      aiEnabled: !!env.GEMINI_KEY, running: true, feedCount, aiCount,
+      aiEnabled: !!env.GROQ_KEY, aiModel:'llama-3.3-70b-versatile', running: true, feedCount, aiCount,
       topKeywords: Object.keys(mem.keywords).sort((a,b)=>mem.keywords[b]-mem.keywords[a]).slice(0,8) });
   }
 
@@ -619,6 +767,21 @@ async function handleRequest(request, env) {
     return json({ teams });
   }
 
+  if (url.pathname.startsWith('/api/memory')) {
+    await ensureMemoryTable(env);
+    const agentId = url.searchParams.get('agent') || url.pathname.replace('/api/memory/','').replace('/api/memory','');
+    if (agentId) {
+      const { results } = await env.DB.prepare(
+        'SELECT id,agent_id,memory_type,content,importance,used_count,created_at FROM agent_memory WHERE agent_id=? ORDER BY importance DESC,created_at DESC LIMIT 50'
+      ).bind(agentId).all();
+      return json({ agentId, memories: results||[] });
+    }
+    const { results } = await env.DB.prepare(
+      'SELECT agent_id, COUNT(*) as count, MAX(created_at) as latest FROM agent_memory GROUP BY agent_id ORDER BY count DESC'
+    ).all();
+    return json({ summary: results||[] });
+  }
+
   if (url.pathname === '/api/cmd' && request.method === 'POST') {
     const body = await request.json().catch(()=>({}));
     const msg = String(body.cmd||body.msg||'').slice(0,300).trim();
@@ -632,8 +795,8 @@ async function handleRequest(request, env) {
     mem.agentXp['CEO'] = (mem.agentXp['CEO']||0)+2;
 
     let reply = null, isAI = false;
-    if (env.GEMINI_KEY) {
-      reply = await ceoReply(msg, env.GEMINI_KEY, mem.cmds, topKws(mem.keywords,5));
+    if (env.GROQ_KEY) {
+      reply = await ceoReply(env, msg, mem.cmds, topKws(mem.keywords,5), mem);
       if (reply) { isAI = true; extractKws(reply, mem.keywords); }
     }
     if (!reply) reply = localReplyMsg(mem.cmds);

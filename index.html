@@ -429,7 +429,7 @@ input.intel-inp::placeholder{color:var(--muted)}
           <div class="ct"><span class="ct-ic">🧠</span>Agent 지능 · 성격 설정</div>
           <button class="btn p sm" onclick="saveAllConfig()">💾 전체 저장</button>
         </div>
-        <p style="font-size:11.5px;color:var(--dim);margin-bottom:14px">각 Agent의 지능 레벨(⭐)과 사고 방식을 설정하세요. 설정은 Gemini AI 응답에 즉시 반영됩니다.</p>
+        <p style="font-size:11.5px;color:var(--dim);margin-bottom:14px">각 Agent의 사고 방식을 설정하세요. Groq Llama 3.3 70B가 장기 기억과 함께 실시간 사고를 수행합니다.</p>
         <div class="intel-grid" id="intel-grid"></div>
         <div class="intel-save-row">
           <button class="btn p" onclick="saveAllConfig()">💾 저장하기</button>
@@ -443,8 +443,8 @@ input.intel-inp::placeholder{color:var(--muted)}
       <div class="card">
         <div class="ch"><div class="ct"><span class="ct-ic">⚙</span>시스템 설정</div></div>
         <div class="set-g">
-          <span class="set-l">🤖 Gemini AI</span>
-          <div class="set-info"><span class="sc">GEMINI_KEY</span>를 GitHub Secrets에 설정하면 Gemini 1.5 Flash 활성화.<br>각 Agent가 실제 AI 응답을 생성하며 CEO가 지능적으로 답변합니다.</div>
+          <span class="set-l">🧠 Groq AI</span>
+          <div class="set-info"><span class="sc">GROQ_KEY</span>를 GitHub Secrets에 설정하면 Llama 3.3 70B 활성화.<br>각 Agent가 장기 기억과 도메인 전문성을 바탕으로 실제 AI 사고를 수행합니다.</div>
         </div>
         <div class="set-g">
           <span class="set-l">💬 텔레그램</span>
@@ -1019,7 +1019,7 @@ async function loadState() {
     const aib = document.getElementById('ai-badge');
     aib.textContent = aiEnabled ? 'AI ON' : 'AI OFF';
     aib.className = 'badge ' + (aiEnabled ? 'ai-on' : 'ai-off');
-    document.getElementById('pill-ai').textContent = aiEnabled ? 'Gemini ✅' : 'AI ❌';
+    document.getElementById('pill-ai').textContent = aiEnabled ? 'Groq 70B ✅' : 'AI ❌';
     // update desk levels
     AGENTS.forEach(a => {
       const lv = Math.max(1, Math.ceil((agentXp[a.id]||0)/50));
@@ -1033,7 +1033,7 @@ async function loadState() {
       : '<span style="color:var(--muted);font-size:11px">키워드 없음</span>';
     // settings status
     document.getElementById('sys-status').innerHTML =
-      `Gemini AI: <b style="color:${aiEnabled?'var(--ok)':'var(--danger)'}">${aiEnabled?'✅ 활성':'❌ 비활성'}</b><br>` +
+      `Groq (Llama 3.3 70B): <b style="color:${aiEnabled?'var(--ok)':'var(--danger)'}">${aiEnabled?'✅ 활성':'❌ 비활성'}</b><br>` +
       `총 XP: <b style="color:var(--accent)">${(d.xp||0).toLocaleString()}</b> &nbsp;|&nbsp; 회사 레벨: <b>LV ${d.level||1}</b><br>` +
       `피드: ${d.feedCount||0}건 (AI 생성: ${d.aiCount||0}건)`;
   } catch(e) { console.error('state', e); }
