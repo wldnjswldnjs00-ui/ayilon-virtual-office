@@ -233,6 +233,21 @@ input.intel-inp::placeholder{color:var(--muted)}
 .chat-inp:focus{border-color:rgba(251,191,36,.35)}
 .chat-inp::placeholder{color:var(--muted)}
 
+/* ── ACTIVITY CHAT ── */
+.act-chat{display:flex;flex-direction:column;gap:0;max-height:240px;overflow-y:auto;padding:2px 0}
+.ac-msg{display:flex;gap:7px;padding:5px 4px;border-radius:7px;transition:background .15s;align-items:flex-start}
+.ac-msg:hover{background:rgba(255,255,255,.03)}
+.ac-msg+.ac-msg{border-top:1px solid rgba(255,255,255,.035)}
+.ac-av{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:1px}
+.ac-body{flex:1;min-width:0}
+.ac-who{font-size:10px;font-weight:700;margin-bottom:1px;display:flex;align-items:center;gap:5px}
+.ac-code{font-family:monospace;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px}
+.ac-time{font-size:9px;color:var(--muted);margin-left:auto;flex-shrink:0}
+.ac-text{font-size:11.5px;color:var(--text);line-height:1.4;word-break:break-word}
+.ac-new{animation:acPop .35s ease}
+@keyframes acPop{0%{opacity:0;transform:translateY(6px)}100%{opacity:1;transform:translateY(0)}}
+.ac-empty{text-align:center;padding:16px 8px;color:var(--muted);font-size:11px}
+
 /* ── PERF ── */
 .perf-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .pc{text-align:center;padding:10px 7px;background:rgba(255,255,255,.03);border-radius:9px;border:1px solid var(--line)}
@@ -471,6 +486,17 @@ input.intel-inp::placeholder{color:var(--muted)}
       </div>
     </div>
 
+    <!-- ACTIVITY CHAT -->
+    <div class="card" style="padding:12px 14px">
+      <div class="ch">
+        <div class="ct"><span class="ct-ic">📡</span>실시간 활동</div>
+        <span class="badge ok" id="act-badge" style="animation:blink 2s infinite">● LIVE</span>
+      </div>
+      <div class="act-chat" id="act-chat">
+        <div class="ac-empty">에이전트 활동 대기 중...</div>
+      </div>
+    </div>
+
     <!-- CROSS TALK -->
     <div class="card">
       <div class="ch"><div class="ct"><span class="ct-ic">🔀</span>팀 대화</div></div>
@@ -528,6 +554,47 @@ const AGENTS = [
 let agentXp = {}, agentConfig = {}, aiEnabled = false;
 let feedItems = [], agentMsgs = {};
 let detailFileId = null;
+
+/* ── ACTIVITY CHAT ── */
+const AC_COLOR={
+  ARIA:'#ff4d98',CEO:'#FBBF24',
+  IRON:'#34d399',GRID:'#10b981',SCOUT:'#059669',WARD:'#0d9488',
+  FORGE:'#60a5fa',ATLAS:'#3b82f6',
+  LUNA:'#e879f9',PIXEL:'#a855f7',ECHO:'#d946ef',
+  REX:'#a78bfa',LEDGER:'#8b5cf6',SHIELD:'#7c3aed',
+};
+let _acSeeded=false;
+function logActivity(agentId,msg,ts){
+  if(!msg)return;
+  const el=document.getElementById('act-chat');
+  if(!el)return;
+  if(el.querySelector('.ac-empty'))el.innerHTML='';
+  const a=AGENTS.find(x=>x.id===agentId)||{emoji:'🤖',name:agentId,id:agentId};
+  const col=AC_COLOR[agentId]||'#8b95a3';
+  const now=ts?ago(ts):timeNow();
+  const div=document.createElement('div');
+  div.className='ac-msg ac-new';
+  div.innerHTML=`<div class="ac-av" style="background:${col}22;border:1px solid ${col}44">${a.emoji}</div>
+<div class="ac-body">
+  <div class="ac-who"><span class="ac-code" style="background:${col}22;color:${col}">${agentId}</span><span class="ac-time">${now}</span></div>
+  <div class="ac-text">${esc(msg.length>80?msg.slice(0,80)+'…':msg)}</div>
+</div>`;
+  el.appendChild(div);
+  while(el.children.length>60)el.removeChild(el.firstChild);
+  el.scrollTop=el.scrollHeight;
+}
+function timeNow(){
+  const d=new Date();
+  return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')+':'+d.getSeconds().toString().padStart(2,'0');
+}
+function seedActivityChat(items){
+  if(_acSeeded)return;
+  _acSeeded=true;
+  const el=document.getElementById('act-chat');
+  if(!el)return;
+  el.innerHTML='';
+  items.slice().reverse().slice(0,20).forEach(f=>logActivity(f.agent_id,f.msg,f.created_at));
+}
 
 /* ── INIT ── */
 window.addEventListener('DOMContentLoaded', () => {
@@ -842,13 +909,35 @@ function _drawWS(ctx,x,y,id,cs,isActive,bubbleMsg,sc,t){
 
 function activateDesk(agentId,msg){
   _oActive.add(agentId);
-  if(msg)_oBubbles[agentId]={msg,until:Date.now()+4000};
+  if(msg){
+    _oBubbles[agentId]={msg,until:Date.now()+4000};
+    logActivity(agentId,msg);
+  }
   setTimeout(()=>_oActive.delete(agentId),4000);
 }
+const _IDLE_MSGS={
+  ARIA:['스케줄 정리 중...','CEO 지시 대기 중','회의 일정 확인 중'],
+  CEO:['전략 검토 중...','보고서 분석 중','팀 성과 모니터링'],
+  IRON:['전략 백테스트 실행','포지션 사이징 계산','리스크/리워드 분석'],
+  GRID:['과거 데이터 처리 중','전략 검증 중','파라미터 최적화'],
+  SCOUT:['시장 스캔 중...','뉴스 분석 중','온체인 데이터 확인'],
+  WARD:['익스포저 계산 중','드로다운 모니터링','헤지 포지션 점검'],
+  FORGE:['코드 배포 중...','API 연결 테스트','파이프라인 점검'],
+  ATLAS:['서버 상태 확인','레이턴시 최적화','인프라 모니터링'],
+  LUNA:['콘텐츠 기획 중...','마케팅 분석','SNS 트렌드 파악'],
+  PIXEL:['UI 개선 작업 중','대시보드 업데이트','사용자 피드백 분석'],
+  ECHO:['클라이언트 응대 중','피드백 정리','FAQ 업데이트'],
+  REX:['계약서 검토 중...','컴플라이언스 확인','법률 리서치'],
+  LEDGER:['재무제표 분석','세금 계산 중...','회계 처리'],
+  SHIELD:['보안 로그 분석','취약점 스캔 중','위협 모니터링'],
+};
 function randomActivateDesk(){
   const ids=Object.keys(ST);
   const id=ids[Math.floor(Math.random()*ids.length)];
-  activateDesk(id,agentMsgs[id]||'');
+  const feedMsg=agentMsgs[id];
+  const idleMsgs=_IDLE_MSGS[id]||['작업 중...'];
+  const msg=feedMsg||(Math.random()<0.4?idleMsgs[Math.floor(Math.random()*idleMsgs.length)]:'');
+  activateDesk(id,msg);
 }
 function updateTicker(items){
   const el=document.getElementById('ticker');
@@ -913,6 +1002,7 @@ async function loadFeed() {
       </div>`
     ).join('');
     updateTicker(feedItems);
+    seedActivityChat(feedItems);
     // activate desks of recent agents
     feedItems.slice(0,3).forEach((f,i) => setTimeout(() => activateDesk(f.agent_id, f.msg), i*800));
   } catch(e) { console.error('feed', e); }
